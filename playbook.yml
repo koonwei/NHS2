@@ -1,0 +1,87 @@
+- hosts: default
+  remote_user: vagrant
+  
+  tasks:
+    - block:
+      - name: install packages
+        apt: 
+          name: "{{ item }}"
+          state: latest
+        with_items:
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+          - python
+          - python-pip
+          - vim
+          - curl
+          - git
+      - name: install python modules
+        pip:
+          name: "{{ item }}"
+        with_items:
+          - urllib3
+          - pyOpenSSL
+          - ndg-httpsclient
+          - pyasn1
+      become: yes
+      become_method: sudo
+
+    - command: docker --version
+      register: docker_result
+      ignore_errors: true
+
+    - block:
+      - name: get docker key
+        apt_key:
+          id: 0EBFCD88
+          url: 'https://download.docker.com/linux/ubuntu/gpg'
+      - apt_repository:
+          repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable'
+          state: present
+      - name: Update apt cache
+        apt:
+          update_cache: yes
+      - name: install docker
+        apt:
+          name: docker-ce
+      - name: create docker group
+        group: 
+          name: docker
+          state: present
+      - name: set docker group
+        command: usermod -aG docker vagrant
+      when: docker_result|failed
+      become: yes
+
+    - block:
+      - command: docker-compose --version
+        register: compose_result
+        ignore_errors: true
+      - name: install docker-compose
+        shell: "{{ item }}"
+        with_items:
+          - 'curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose'
+          - 'chmod +x /usr/local/bin/docker-compose'
+        when: compose_result|failed
+        become: yes
+
+    - git:
+        repo: 'https://github.com/alessfg/docker-openempi.git'
+        dest: /home/vagrant/openempi
+      become: no
+    - stat:
+        path: /home/vagrant/openempi/application/openempi-3.1.0/lib/openempi-3.1.0.war
+      register: openempi_war
+    - name: download openempi war
+      get_url:
+        url: 'https://github.com/alessfg/docker-openempi/raw/master/application/openempi-3.1.0/lib/openempi-3.1.0.war'
+        dest: /home/vagrant/openempi/application/openempi-3.1.0/lib/openempi-3.1.0.war
+        checksum: sha256:E8DFAF366013EE32A9DA8BFE967FCEE5A7EA7F9FADA2A68E61E7738BEEB20EDC
+      # when: openempi_war|failed
+    - name: make sure docker is running
+      service: 
+        name: docker
+        state: started
+
+
