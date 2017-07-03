@@ -15,5 +15,5 @@ bash 'install gradle' do
     unzip -d /opt/gradle gradle-4.0-bin.zip
     echo "export PATH=$PATH:/opt/gradle/gradle-4.0/bin" >> /home/vagrant/.bashrc
     EOH
-  not_if "hash /opt/gradle/gradle-4.0/bin/gradle 2>/dev/null"
+  not_if "/opt/gradle/gradle-4.0/bin/gradle --version >/dev/null"
 end
