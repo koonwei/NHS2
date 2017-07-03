@@ -22,7 +22,7 @@ package 'git'
 execute 'install docker-compose' do
   action :run
   command "curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose"
-  not_if 'hash docker-compose 2>/dev/null'
+  not_if "hash docker-compose 2>/dev/null"
 end
 
 git '/home/vagrant/openempi' do

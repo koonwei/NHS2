@@ -44,7 +44,6 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder ".", "/vagrant", disable: true
   # config.vm.synced_folder "share/", "/vagrant_data"
 
   # Provider-specific configuration so you can fine-tune various
@@ -56,7 +55,7 @@ Vagrant.configure("2") do |config|
   #   vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-    vb.memory = "2048"
+    vb.memory = "1536"
   end
   #
   # View the documentation for the provider you are using for more
@@ -79,8 +78,12 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "chef_solo" do |chef|
     chef.cookbooks_path = "cookbooks"
-    chef.nodes_path = "nodes"
+    # chef.data_bags_path = "data_bags"
+    # chef.nodes_path = "nodes"
+    # chef.roles_path = "roles"
+
     chef.add_recipe "openempi"
+    chef.add_recipe "fhir"
   end
 
 
