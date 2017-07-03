@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'application'
+mainClassName = 'patientFHIR'
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+	compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
+	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+}
+
+
+
