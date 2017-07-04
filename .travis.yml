@@ -7,3 +7,5 @@ script:
   - cd FHIR-MAPPING
   - gradle build 
   - gradle test
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
