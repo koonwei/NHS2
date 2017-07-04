@@ -1,0 +1,9 @@
+language: java
+jdk:
+  - oraclejdk8
+  - openjdk8
+dist: trusty
+script: 
+  - cd FHIR-MAPPING
+  - gradle build 
+  - gradle test
