@@ -1,6 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'application'
-mainClassName = 'patientFHIR'
+mainClassName = 'ConverterOpenempi'
 
 repositories {
     mavenCentral()
@@ -10,5 +10,8 @@ dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+}
 
 
