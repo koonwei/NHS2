@@ -1,2 +1,8 @@
 # NHS2
-Code4health platform
+
+[![Build Status](https://travis-ci.org/koonwei/NHS2.svg?branch=master)](https://travis-ci.org/koonwei/NHS2)
+[![codecov](https://codecov.io/gh/koonwei/NHS2/branch/master/graph/badge.svg)](https://codecov.io/gh/koonwei/NHS2)
+
+Serivce Layer Adapter
+
+

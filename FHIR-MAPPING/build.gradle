@@ -1,4 +1,6 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
+
 apply plugin: 'application'
 mainClassName = 'ConverterOpenempi'
 
@@ -8,10 +10,20 @@ repositories {
 dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+  	testCompile "junit:junit:4.11"
+	compile group: 'org.json', name: 'json', version: '20160810'
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.0'
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+check.dependsOn jacocoTestReport
 
