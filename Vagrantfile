@@ -80,12 +80,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "chef_solo" do |chef|
     chef.cookbooks_path = "cookbooks"
     # chef.data_bags_path = "data_bags"
-    chef.nodes_path = "nodes"
+    # chef.nodes_path = "nodes"
     # chef.roles_path = "roles"
 
-    chef.add_recipe "openempi"
     chef.add_recipe "fhir"
-    chef.add_recipe "zsh"
   end
 
 

@@ -1,7 +1,0 @@
-source 'https://supermarket.chef.io'
-
-metadata
-
-# cookbook 'apt', '~> 6.1.2'
-
-# cookbook 'docker_compose', '~> 0.1.1'
