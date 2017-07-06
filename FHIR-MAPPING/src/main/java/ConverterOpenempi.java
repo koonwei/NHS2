@@ -1,18 +1,18 @@
 package fhirconverter;
 
 public class ConverterOpenempi{
-	public static void main(String [] agrs){
+	public static String main(String [] agrs){
 		//string type = agrs[0]; // 0 - patient, 1 - practitioner, 2- group
 	        PropertiesApp properties = new PropertiesApp();
 		properties.createProperties();		
 		int typeTesting = 0; // remove this 
 		//String connection = agrs[1];
 		OpenEMPIbase mapper;
+		String testing = "Initial Testing";
 		switch(typeTesting){
 			case 0: 	
 				mapper = new PatientFHIR();
-				String testing = mapper.convertFHIR();
-				System.out.println(testing);
+				testing = mapper.convertFHIR();
 				break;
 			case 1: 
 		  		mapper = new PractitionerFHIR();
@@ -20,9 +20,9 @@ public class ConverterOpenempi{
 			case 2: 
 				mapper = new GroupFHIR();
 				break;
-			default: break;
 		}
-		
+		return testing;
+
 	}
 
 }
