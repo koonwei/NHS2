@@ -1,8 +1,9 @@
+package fhirconverter;
 import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Group;
 
-import java.io.IOException;
+
 
 public class GroupFHIR extends OpenEMPIbase {
 

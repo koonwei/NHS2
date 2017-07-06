@@ -1,9 +1,10 @@
-import java.util.Scanner;
+package fhirconverter;
 
 public class ConverterOpenempi{
 	public static void main(String [] agrs){
 		//string type = agrs[0]; // 0 - patient, 1 - practitioner, 2- group
-		
+	        PropertiesApp properties = new PropertiesApp();
+		properties.createProperties();		
 		int typeTesting = 0; // remove this 
 		//String connection = agrs[1];
 		OpenEMPIbase mapper;

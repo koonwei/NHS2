@@ -3,7 +3,32 @@ apply plugin: 'jacoco'
 
 apply plugin: 'application'
 
-mainClassName = 'ConverterOpenempi'
+mainClassName = 'fhirconverter.ConverterOpenempi'
+
+distributions {
+    main {
+        contents {
+            from('src/conf/config.properties') {
+                into 'lib'
+            }
+        }
+    }
+}
+
+/* task copyConfigTobuild() {
+ doLast {
+	 copy {
+        	from 'config.properties'
+        	into "/build" 
+		}
+	}
+}
+Configure this to move it into /build/config
+*/
+
+tasks.withType(CreateStartScripts) {
+    classpath += files('src/conf/config.properties')
+}
 
 repositories {
     mavenCentral()
