@@ -3,32 +3,7 @@ apply plugin: 'jacoco'
 
 apply plugin: 'application'
 
-mainClassName = 'fhirconverter.ConverterOpenempi'
-
-distributions {
-    main {
-        contents {
-            from('src/conf/config.properties') {
-                into 'lib'
-            }
-        }
-    }
-}
-
-/* task copyConfigTobuild() {
- doLast {
-	 copy {
-        	from 'config.properties'
-        	into "/build" 
-		}
-	}
-}
-Configure this to move it into /build/config
-*/
-
-tasks.withType(CreateStartScripts) {
-    classpath += files('src/conf/config.properties')
-}
+mainClassName = 'SparkFHIR'
 
 repositories {
     mavenCentral()
@@ -37,6 +12,7 @@ repositories {
 dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+	compile "com.sparkjava:spark-core:2.6.0" // add to build.gradle (for Java users)
   	testCompile "junit:junit:4.11"
 	compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
