@@ -62,7 +62,7 @@ public class ConverterOpenempi{
 
 		return "You are calling practitionerPatch";
 	}
-	public static String patientCreate(String format) {
+	public static String patientCreate(Representation format) {
 
 		return "You are calling patientCreate" + format;
 	}

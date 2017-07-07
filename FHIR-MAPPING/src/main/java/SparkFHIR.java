@@ -12,10 +12,11 @@ public class SparkFHIR {
 				System.out.println("Requested Type: " + req.contentType());
 				System.out.println("Validate Format of " + resp.body());
 			});
-			String format = req.queryParams("_format");
+
 			path("/patient", () -> {
 				post("", (req, resp) -> {
-					resp.body(ConverterOpenempi.patientCreate(format));
+					Representation representation = Representation.getRepresentation(req.queryParams("_format"));
+					resp.body(ConverterOpenempi.patientCreate(representation));
 					return resp;
 				});
 				get("",  (req, resp) ->  "searchPatient");
