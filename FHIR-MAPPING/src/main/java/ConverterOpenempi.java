@@ -8,83 +8,83 @@ public class ConverterOpenempi{
 	public String practitionerRead(String id,  Representation format) {
 
 
-		return "";
+		return "You are calling practitionerRead";
 	}
 	public String patientRead(String id, Representation format) {
 
 
 
 
-		return "";
+		return "You are calling patientRead";
 	}
 	public String groupRead(String id, Representation format) {
 
 
-		return "";
+		return "You are calling grouRead";
 	}
 
 	public String practitionerSearch(String parameters, Representation format) {
 
 
-		return "";
+		return "You are calling practitionerSearch";
 	}
 
-	public String patientSearch(String parameters, Representation format) {
+	public static String patientSearch(String parameters, Representation format) {
 
-		return "";
+		return "You are calling patientSearch";
 	}
 	public String groupSearch(String parameters, Representation format) {
 
 
-		return "";
+		return "You are calling groupSearch";
 	}
 	public String patientUpdate(String id, Representation format) {
 
-		return "";
+		return "You are calling patientUpdate";
 	}
 	public String practitionerUpdate(String id, Representation format) {
 
-		return "";
+		return "You are calling practitionerUpdate";
 	}
 	public String groupUpdate(String id, Representation format) {
 
-		return "";
+		return "You are calling groupUpdate";
 	}
 	public String patientPatch(String id, Representation format) {
 
-		return "";
+		return "You are calling patientPatch";
 	}
 	public String groupPatch(String id, Representation format) {
 
-		return "";
+		return "You are calling groupPatch";
 	}
 	public String practitionerPatch(String id, Representation format) {
 
-		return "";
+		return "You are calling practitionerPatch";
 	}
-	public String patientCreate(Representation format) {
+	public static String patientCreate(String format) {
 
-		return "";
+		return "You are calling patientCreate" + format;
 	}
 	public String practitionerCreate(Representation format) {
 
-		return "";
+		return "You are calling practitionerCreate";
 	}
 	public String groupCreate(Representation format) {
 
-		return "";
+		return "You are calling groupCreate";
 	}
 	public String patientDelete(String id) {
 
-		return "";
+		return "You are calling patientDelete";
 	}
 	public String practitionerDelete(String id) {
 
-		return "";
+		return "You are calling practitionerDelete";
 	}
 	public String groupDelete(String id) {
 
-		return "";
+		return "You are calling groupDelete";
 	}
 
 
