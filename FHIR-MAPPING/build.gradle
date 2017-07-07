@@ -7,6 +7,7 @@ mainClassName = 'SparkFHIR'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
 	compile "com.sparkjava:spark-core:2.6.0" // add to build.gradle (for Java users)
   	testCompile "junit:junit:4.11"
+    testCompile 'org.mockito:mockito-core:2.7.22'
 	compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
