@@ -6,6 +6,10 @@ public class SparkFHIR {
 
 	public static void main(String[] args) {
 		path("/fhir", () -> {
+			before("/*", (req, resp) -> {
+				Representation format = Representation.fromString(req.queryParams("_format"));
+				req.attribute("format", format);
+			});
 			/*TODO*/ before("/*", (req, resp) -> System.out.println("Validate Request!"));
 			/*TODO*/ before("/*", (req, resp) -> System.out.println("Validate Parameters!"));
 			/*TODO*/ after("/*", (req, resp) -> {
@@ -15,8 +19,8 @@ public class SparkFHIR {
 
 			path("/patient", () -> {
 				post("", (req, resp) -> {
-					Representation representation = Representation.getRepresentation(req.queryParams("_format"));
-					resp.body(ConverterOpenempi.patientCreate(representation));
+					String response_body = ConverterOpenempi.patientCreate(req.attribute("format"));
+					resp.body(response_body);
 					return resp;
 				});
 				get("",  (req, resp) ->  "searchPatient");
