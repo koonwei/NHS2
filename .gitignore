@@ -20,3 +20,6 @@ gradle-app.setting
 build/
 .idea/
 out/
+
+FHIR-MAPPING/FHIR-MAPPING.iml
+
