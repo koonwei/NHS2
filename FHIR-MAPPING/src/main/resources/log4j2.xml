@@ -9,7 +9,7 @@
     </appenders>
 
     <loggers>
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="Console" />
             <!-- Note that the Sentry logging threshold is overridden to the WARN level -->
             <appender-ref ref="Sentry" level="WARN" />

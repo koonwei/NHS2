@@ -2,12 +2,17 @@ package fhirconverter.spark;
 
 import fhirconverter.ConverterOpenempi;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.json.JSONObject;
 import spark.*;
 
 import java.util.HashMap;
 
 public class PatientController {
+    private static Logger LOGGER = LogManager.getLogger(Patient.class);
+
     private static ParamValidater validater;
 
     public static ParamValidater getValidater()
@@ -21,14 +26,26 @@ public class PatientController {
         HashMap data = new HashMap();
         boolean isValid = getValidater().isValid(data);
         Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().groupCreate(format));
+        String id = request.queryParams("id");
+
+        JSONObject body = new JSONObject(request.body());
+        response.body(new ConverterOpenempi().patientCreate(id, body, format));
         return response;
     };
 
-    public static Route searchPatient = (request, response) -> {
+    public static Route searchPatientByGet = (request, response) -> {
         Representation format = request.attribute("format");
-        //TODO: Update to JSON
-        response.body(new ConverterOpenempi().patientSearch(request.params("id"), format));
+        LOGGER.debug("Body: " + request.body());
+        response.body(new ConverterOpenempi().patientSearch(null, format));
+
+        return response;
+    };
+
+    public static Route searchPatientByPost = (request, response) -> {
+        Representation format = request.attribute("format");
+        JSONObject body = new JSONObject(request.body());
+        response.body(new ConverterOpenempi().patientSearch(body, format));
+
         return response;
     };
 
@@ -40,13 +57,15 @@ public class PatientController {
 
     public static Route updatePatient = (request, response) -> {
         Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientUpdate(request.params("id"), format));
+        JSONObject body = new JSONObject(request.body());
+        response.body(new ConverterOpenempi().patientUpdate(request.params("id"), body, format));
         return response;
     };
 
     public static Route patchPatient = (request, response) -> {
         Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientPatch(request.params("id"), format));
+        JSONObject body = new JSONObject(request.body());
+        response.body(new ConverterOpenempi().patientPatch(request.params("id"), body, format));
         return response;
     };
 

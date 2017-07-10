@@ -6,6 +6,7 @@ import fhirconverter.ConverterOpenempi;
 public class SparkFHIR {
 
     private static final String rootPath = "";
+    private static final String searchPath = "/_search";
 
     public static void main(String[] args) {
 
@@ -18,7 +19,8 @@ public class SparkFHIR {
 
             path("/patient", () -> {
                 post(rootPath, PatientController.createPatient);
-                get(rootPath,  PatientController.searchPatient);
+                get(rootPath,  PatientController.searchPatientByGet);
+                post(searchPath,  PatientController.searchPatientByPost);
                 path("/:id", () -> {
                     get(rootPath,    PatientController.readPatient);
                     put(rootPath,   PatientController.updatePatient);
