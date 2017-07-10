@@ -1,5 +1,5 @@
 
-package fhirconverter;
+package fhirconverter.spark;
 
 public enum Representation{
     XML,

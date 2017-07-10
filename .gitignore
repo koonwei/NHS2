@@ -18,7 +18,6 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 build/
-.idea/
 out/
 
 FHIR-MAPPING/FHIR-MAPPING.iml

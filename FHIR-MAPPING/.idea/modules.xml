@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/FHIR-MAPPING.iml" filepath="$PROJECT_DIR$/FHIR-MAPPING.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FHIR-MAPPING_main.iml" filepath="$PROJECT_DIR$/.idea/modules/FHIR-MAPPING_main.iml" group="FHIR-MAPPING" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FHIR-MAPPING_test.iml" filepath="$PROJECT_DIR$/.idea/modules/FHIR-MAPPING_test.iml" group="FHIR-MAPPING" />
+    </modules>
+  </component>
+</project>
