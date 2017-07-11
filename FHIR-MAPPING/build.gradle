@@ -13,7 +13,12 @@ repositories {
 dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
-	compile "com.sparkjava:spark-core:2.6.0" // add to build.gradle (for Java users)
+
+    //Modules used for Resource Validation
+    compile group: 'com.phloc', name: 'phloc-schematron', version: '2.7.1'
+    compile group: 'com.phloc', name: 'phloc-commons', version: '4.4.6'
+
+    compile "com.sparkjava:spark-core:2.6.0"
   	testCompile "junit:junit:4.11"
     testCompile 'org.mockito:mockito-core:2.7.22'
 	compile group: 'org.json', name: 'json', version: '20160810'
