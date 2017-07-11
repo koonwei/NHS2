@@ -2,6 +2,7 @@ package fhirconverter;
 
 import fhirconverter.spark.Representation;
 import org.json.JSONObject;
+import org.json.XML;
 
 import java.util.HashMap;
 
@@ -10,27 +11,46 @@ public class ConverterOpenempi{
 	// Patient
 
 	public String patientCreate(String id, JSONObject params, Representation format) {
-		return new JSONObject().put("message","Created Patient " + id).toString();
+		JSONObject response_raw = new JSONObject().put("message","Created Patient " + id);
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
 	}
 
 	public String patientRead(String id, Representation format) {
-		return new JSONObject().put("message","Read Patient " + id).toString();
+		JSONObject response_raw = new JSONObject().put("message","Read Patient " + id);
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
 	}
 
 	public String patientSearch(JSONObject params, Representation format) {
-		return new JSONObject().put("message","Search Patient ").toString();
+		JSONObject response_raw =  new JSONObject().put("message","Search Patient ");
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
 	}
 
 	public String patientUpdate(String id, JSONObject params, Representation format) {
-		return new JSONObject().put("message","Update Patient " + id).toString();
+		JSONObject response_raw =  new JSONObject().put("message","Update Patient " + id);
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
 	}
 
-	public String patientDelete(String id) {
-		return new JSONObject().put("message","Delete Patient " + id).toString();
+	public String patientDelete(String id, Representation format) {
+		JSONObject response_raw =  new JSONObject().put("message","Delete Patient " + id);
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+
 	}
 
 	public String patientPatch(String id, JSONObject params, Representation format) {
-		return new JSONObject().put("message","Patch Patient " + id).toString();
+		JSONObject response_raw =  new JSONObject().put("message","Patch Patient " + id);
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
 	}
 
 	///////////////////////////

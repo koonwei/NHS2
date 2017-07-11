@@ -1,22 +1,23 @@
-
 package fhirconverter.spark;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public enum Representation{
     XML,
-    JSON,
-    UNKNOWN;
+    JSON;
 
-    private static final String XML_STRINGS_REGEX = "xml|text/xml|application/xml|application/fhir xml99*";
-    private static final String JSON_STRINGS_REGEX = "json|text/json|application/json|application/fhir json";
+    private static Logger LOGGER = LogManager.getLogger(Representation.class);
 
-    public static Representation fromString(String repr_string){
-        Representation repr = UNKNOWN;
-        System.out.println(repr_string);
-        System.out.println(XML_STRINGS_REGEX);
+    private static final String XML_STRINGS_REGEX = "xml|text/xml|application/xml|application/fhir xml";
+//    private static final String JSON_STRINGS_REGEX = "json|text/json|application/json|application/fhir json";
+
+    public static Representation fromString(String repr_string) {
+        Representation repr = JSON;
+        LOGGER.debug("Format Received: " + repr_string);
+
         if (repr_string.matches(XML_STRINGS_REGEX)){
             repr = Representation.XML;
-        } else if (repr_string.matches(JSON_STRINGS_REGEX)){
-            repr = Representation.JSON;
         }
 
         return repr;

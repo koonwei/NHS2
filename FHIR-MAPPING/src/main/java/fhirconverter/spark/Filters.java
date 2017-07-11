@@ -18,6 +18,14 @@ public class Filters {
 
     public static Filter responseFormatValidater = (Request req, Response response) ->
     {
+        if (req.attribute("format") == Representation.XML)
+        {
+            response.type("application/fhir+xml");
+        }
+        else
+        {
+            response.type("application/fhir+json");
+        }
 
     };
 }
