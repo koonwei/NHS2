@@ -1,6 +1,7 @@
 package fhirconverter.spark;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -390,6 +391,31 @@ public class ResourceParserTest {
             "  ]\n" +
             "}";
 
+    private final String JSON_PRACTITIONER = "{\n" +
+            "  \"resourceType\": \"Practitioner\",\n" +
+            "  \"id\": \"clinFhirrlCYioXfKqXVwJPryzeI0rXh6842\",\n" +
+            "  \"meta\": {\n" +
+            "    \"versionId\": \"4\",\n" +
+            "    \"lastUpdated\": \"2017-07-10T01:57:01.668-04:00\"\n" +
+            "  },\n" +
+            "  \"language\": \"it-CH\",\n" +
+            "  \"identifier\": [\n" +
+            "    {\n" +
+            "      \"system\": \"http://clinfhir.com/fhir/NamingSystem/practitioner\",\n" +
+            "      \"value\": \"rlCYioXfKqXVwJPryzeI0rXh6842\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"active\": true,\n" +
+            "  \"telecom\": [\n" +
+            "    {\n" +
+            "      \"system\": \"email\",\n" +
+            "      \"value\": \"james@intrahealth.com\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"gender\": \"other\",\n" +
+            "  \"birthDate\": \"2017-07-10\"\n" +
+            "}";
+
     private ResourceParser resource_parser;
     private ObjectMapper mapper;
     private IParser xml_parser;
@@ -449,18 +475,48 @@ public class ResourceParserTest {
     @Test
     public void testInvalidParamKey()
     {
-
+        //When
+        try {
+            JSONObject patient = new JSONObject(CORRECT_JSON_PATIENT);
+            patient.put("INCORRECT_KEY", patient.remove("address"));
+            String invalid_key_patient = patient.toString();
+            JSONObject obtained_object = resource_parser.parseJSON(invalid_key_patient);
+            Assert.fail("Expected a DataFormatException when resource provided by request has incorrect key");
+        }
+        //Then
+        catch (DataFormatException e){
+            Assert.assertEquals("Unknown element 'INCORRECT_KEY' found during parse", e.getMessage());
+        }
     }
 
     @Test
     public void testInvalidParamValue()
     {
-
+        //When
+        try {
+            JSONObject patient = new JSONObject(CORRECT_JSON_PATIENT);
+            patient.put("gender", "INCORRECT_VALUE");
+            String invalid_value_patient = patient.toString();
+            JSONObject obtained_object = resource_parser.parseJSON(invalid_value_patient);
+            Assert.fail("Expected a DataFormatException when resource provided by request has incorrect value");
+        }
+        //Then
+        catch (DataFormatException e){
+            Assert.assertEquals("Invalid attribute value \"INCORRECT_VALUE\": Unknown AdministrativeGender code 'INCORRECT_VALUE'", e.getMessage());
+        }
     }
 
     @Test
     public void testIncompatibleType()
     {
-
+        //When
+        try {
+            JSONObject obtained_object = resource_parser.parseJSON(JSON_PRACTITIONER);
+            Assert.fail("Expected a ClassCastException when request provides a Practitioner resource");
+        }
+        //Then
+        catch (ClassCastException e){
+            Assert.assertEquals("Cannot cast org.hl7.fhir.dstu3.model.Practitioner to org.hl7.fhir.dstu3.model.Patient", e.getMessage());
+        }
     }
 }
