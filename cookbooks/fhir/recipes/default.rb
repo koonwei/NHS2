@@ -82,3 +82,5 @@ bash 'install gradle' do
     EOH
   not_if "/opt/gradle/gradle-4.0/bin/gradle --version >/dev/null"
 end
+
+package 'g++'
