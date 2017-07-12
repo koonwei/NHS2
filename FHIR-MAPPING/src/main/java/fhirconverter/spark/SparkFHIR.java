@@ -11,7 +11,7 @@ public class SparkFHIR {
     public static void main(String[] args) {
 
         path("/fhir", () -> {
-            before("/*", Filters.requestFormatFilter);
+            before("/*", Filters.formatFilter);
             /*TODO*/
             before("/*", (req, resp) -> System.out.println("Validate Parameters!"));
             /*TODO*/

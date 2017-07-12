@@ -40,7 +40,7 @@ public class PatientController {
     }
 
     public static Route createPatient = (request, response) -> {
-        Representation format = request.attribute("format");
+        Representation format = request.attribute("request_format");
         String id = request.queryParams("id");
         LOGGER.debug("Format: " + format);
 
