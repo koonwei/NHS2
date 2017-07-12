@@ -10,10 +10,10 @@ public class ConverterOpenempi{
 
 	// Patient
 
-	public String patientCreate(String id, JSONObject params, Representation format) {
-		JSONObject response_raw = new JSONObject().put("message","Created Patient " + id);
+	public String patientCreate(JSONObject params, Representation format) {
+		JSONObject response_raw = new JSONObject().put("message","Created Patient ");
 		if(format == Representation.XML)
-			return XML.toString(response_raw);
+			return XML.toString(response_raw) + "This is the patient received: " + params.toString();
 		return response_raw.toString();
 	}
 

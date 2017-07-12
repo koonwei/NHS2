@@ -40,30 +40,27 @@ public class PatientController {
     }
 
     public static Route createPatient = (request, response) -> {
-        Representation format = request.attribute("request_format");
-        String id = request.queryParams("id");
-        LOGGER.debug("Format: " + format);
+        Representation request_format = request.attribute("request_format");
+        Representation reply_format = request.attribute("reply_format");
+        LOGGER.debug("Request format: " + request_format + " Reply format: " + reply_format);
 
-        JSONObject patient = null;
         try {
-            parseResource(request.body(), format);
+            JSONObject resource = parseResource(request.body(), request_format);
+            response.body(new ConverterOpenempi().patientCreate(resource, reply_format));
+            return response;
         }
         catch (DataFormatException e)
         {
-            response.body(generateError("Invalid Value", format));
+            response.body(generateError("Invalid Value", reply_format));
             LOGGER.info("Invalid Parameter Received", e);
             return response;
         }
         catch (ClassCastException e)
         {
-            response.body(generateError("Incompatible Type", format));
+            response.body(generateError("Incompatible Type", reply_format));
             LOGGER.info("Incompatible Type Received", e);
             return response;
         }
-
-        JSONObject body = new JSONObject(request.body());
-        response.body(new ConverterOpenempi().patientCreate(id, body, format));
-        return response;
     };
 
     public static Route searchPatientByGet = (request, response) -> {
