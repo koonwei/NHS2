@@ -259,21 +259,5 @@ public abstract class OpenEMPIbase{
 		return null;
 	}
 	
-	/**
-	 * This method convert date in string format to date format 
-	 * @param date
-	 * @return
-	 */
-	protected Date convertStringtoDate(String date){
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		date = date.substring(0, date.length() - 8);
-		Date dateTransform = null;
-  		try{
-         		dateTransform = formatter.parse(date);
-			//SimpleDateFormat fhirFormat = new SimpleDateFormat("yyyy-MM-dd");
-		} catch (ParseException e){
-			e.printStackTrace();
-		}
-		return dateTransform;
-	}	
+	
 }
