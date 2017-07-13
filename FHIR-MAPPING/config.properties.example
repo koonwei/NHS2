@@ -1,5 +1,4 @@
 #config
-#Wed Jul 12 15:33:50 UTC 2017
 OpenEMPI-baseURL=http\://51.140.57.74\:8080/
 OpenEMPI-username=admin
 MAPPER=mapper

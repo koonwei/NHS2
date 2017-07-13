@@ -18,8 +18,8 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 build/
-.idea/
 out/
+
 /.metadata/
 
 .metadata
@@ -72,3 +72,5 @@ config.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+RemoteSystemsTempFiles/

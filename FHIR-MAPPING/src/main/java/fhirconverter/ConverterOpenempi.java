@@ -1,91 +1,86 @@
 package fhirconverter;
-import java.util.*;
+
+import com.github.fge.jsonpatch.JsonPatch;
+import fhirconverter.spark.Representation;
 import org.json.JSONObject;
+import org.json.XML;
 
-import com.github.fge.jsonpatch.JsonPatch; 
+import java.util.HashMap;
+
 public class ConverterOpenempi{
-
 	OpenEMPIbase mapper;
-
-	public JSONObject patientRead(String id) throws Exception {
-		return mapper.read(id);		
-	}
-	public JSONObject patientSearch(JSONObject parameters) throws Exception {
-		return mapper.search(parameters);
-	}	
-	public String patientPatch(String id, JsonPatch patient) throws Exception {
-		return mapper.patch(id, patient);	
-	}
-	public String patientUpdate(String id) {
-		return mapper.convertFHIR();
-	}
-
-	public String patientCreate(JSONObject patient) {	
-		return mapper.create(patient);
-	}
-	public String patientDelete(String id) throws Exception {
-		return mapper.delete(id);
-	}
-
-/* Use it for later implementation.
-	public String groupRead(String id) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-	public String groupSearch(HashMap parameters) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-	public String practitionerRead(String id) {
-		OpenEMPIbase mapper = initalizeClasses(1);
-		return "";
-	}
-
-	public String practitionerUpdate(String id) {
-		OpenEMPIbase mapper = initalizeClasses(1);
-		return "";
-	}
-	public String groupUpdate(String id) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-	public String practitionerSearch(JSONObject parameters) {
-		return "";
-	}
-
-	public String groupPatch(String id) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-	public String practitionerPatch(String id) {
-		OpenEMPIbase mapper = initalizeClasses(1);
-		return "";
-	}
-	}
-	public String practitionerCreate(HashMap parameters) {
-		OpenEMPIbase mapper = initalizeClasses(1);
-		return "";
-	}
-	public String groupCreate(HashMap parameters) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-	
-	
-	public String practitionerDelete(String id) {
-		OpenEMPIbase mapper = initalizeClasses(1);
-		return "";
-	}
-	public String groupDelete(String id) {
-		OpenEMPIbase mapper = initalizeClasses(2);
-		return "";
-	}
-*/
-	ConverterOpenempi(){
-		PropertiesApp properties = new PropertiesApp();
-		properties.createProperties();			
+  
+  	public ConverterOpenempi(){
 		mapper = new PatientFHIR();	
 	}
+
+	// Patient
+
+	public String patientCreate(JSONObject params, Representation format) {
+		JSONObject response_raw = new JSONObject().put("message","Created Patient ");
+		response_raw.put("entry", mapper.create(params));
+		if(format == Representation.XML)
+			return XML.toString(response_raw) + "This is the patient received: " + params.toString();
+		return response_raw.toString();
+	}
+
+	public String patientRead(String id, Representation format) {
+		JSONObject response_raw = new JSONObject().put("message","Read Patient " + id);
+		try {
+			response_raw.put("entry", mapper.read(id));
+		} catch (Exception e) {
+			response_raw.put("error", e);
+		}
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+	}
+
+	public String patientSearch(JSONObject params, Representation format) {
+		JSONObject response_raw =  new JSONObject().put("message","Search Patient ");
+		try {
+			response_raw.put("entry", mapper.search(params));
+		} catch (Exception e) {
+			response_raw.put("error", e);
+		}
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+	}
+
+	public String patientUpdate(String id, JSONObject params, Representation format) {
+		JSONObject response_raw =  new JSONObject().put("message","Update Patient " + id);
+		response_raw.put("entry", mapper.convertFHIR());
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+	}
+
+	public String patientDelete(String id, Representation format) {
+		JSONObject response_raw =  new JSONObject().put("message","Delete Patient " + id);
+		try {
+			response_raw.put("entry", mapper.delete(id));
+		} catch (Exception e) {
+			response_raw.put("error", e);
+		}
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+
+	}
+
+	public String patientPatch(String id, JsonPatch patch, Representation format) {
+		JSONObject response_raw =  new JSONObject().put("message","Patch Patient " + id);
+		try {
+			response_raw.put("entry", mapper.patch(id, patch));
+		} catch (Exception e) {
+			response_raw.put("error", e);
+		}
+		if(format == Representation.XML)
+			return XML.toString(response_raw);
+		return response_raw.toString();
+	}
+  
 	public static void main(String[] args) throws Exception {
 		JSONObject patientSearch = new JSONObject();
 		patientSearch.put("familyName", new String("ppp"));
@@ -93,9 +88,9 @@ public class ConverterOpenempi{
       		
       		//patientSearch.put("dateOfBirth", new String("2017-07-04T00:00:00-00:00"));
 		ConverterOpenempi test = new ConverterOpenempi();
-		test.patientSearch(patientSearch);
+		test.patientSearch(patientSearch, Representation.JSON);
 		System.out.println("TESTING FOR READ");
-		test.patientRead("1"); 
+		test.patientRead("1", Representation.JSON);
 		
 		/*FIX THE CRASH*/
 		//System.out.println("TESTING FOR DELETE");
@@ -318,7 +313,7 @@ public class ConverterOpenempi{
             "}";
 		JSONObject create = new JSONObject(jsonCreate);
 		JSONObject create1 = new JSONObject(jsonCreate2);
-		test.patientCreate(create);
-		test.patientCreate(create1);
+		test.patientCreate(create, Representation.JSON);
+		test.patientCreate(create1, Representation.JSON);
 	}
 }
