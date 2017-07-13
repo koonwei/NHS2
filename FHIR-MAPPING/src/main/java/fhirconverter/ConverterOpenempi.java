@@ -1,5 +1,6 @@
 package fhirconverter;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import fhirconverter.spark.Representation;
 import org.json.JSONObject;
 import org.json.XML;
@@ -46,7 +47,7 @@ public class ConverterOpenempi{
 
 	}
 
-	public String patientPatch(String id, JSONObject params, Representation format) {
+	public String patientPatch(String id, JsonPatch patch, Representation format) {
 		JSONObject response_raw =  new JSONObject().put("message","Patch Patient " + id);
 		if(format == Representation.XML)
 			return XML.toString(response_raw);

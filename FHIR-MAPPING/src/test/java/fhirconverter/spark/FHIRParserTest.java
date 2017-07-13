@@ -5,6 +5,7 @@ import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -13,9 +14,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceParserTest {
+import java.io.IOException;
 
-    private final String CORRECT_PATIENT_XML = "<Patient xmlns=\"http://hl7.org/fhir\">\n" +
+public class FHIRParserTest {
+
+    private final String XML_PATIENT = "<Patient xmlns=\"http://hl7.org/fhir\">\n" +
             "    <id value=\"170445\"/>\n" +
             "    <meta>\n" +
             "        <versionId value=\"1\"/>\n" +
@@ -176,7 +179,7 @@ public class ResourceParserTest {
             "    </generalPractitioner>\n" +
             "</Patient>";
 
-    private final String CORRECT_JSON_PATIENT = "{\n" +
+    private final String JSON_PATIENT = "{\n" +
             "  \"resourceType\": \"Patient\",\n" +
             "  \"id\": \"170445\",\n" +
             "  \"meta\": {\n" +
@@ -416,14 +419,18 @@ public class ResourceParserTest {
             "  \"birthDate\": \"2017-07-10\"\n" +
             "}";
 
-    private ResourceParser resource_parser;
+    private final String JSON_PATCH = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"other\" }," +
+                                        "{ \"op\": \"add\", \"path\": \"/active\", \"value\": [\"true\"] }," +
+                                        "{ \"op\": \"remove\", \"path\": \"/deceasedDateTime\"} ]";
+
+    private FHIRParser patient_parser;
     private ObjectMapper mapper;
     private IParser xml_parser;
     private IParser json_parser;
 
     @Before
     public void setUp(){
-        resource_parser = new ResourceParser(Patient.class);
+        patient_parser = new FHIRParser(Patient.class);
         mapper = new ObjectMapper();
         FhirContext ctx = FhirContext.forDstu3();
         xml_parser = ctx.newXmlParser();
@@ -435,12 +442,12 @@ public class ResourceParserTest {
     {
         try {
             //Given
-            IBaseResource expected_resource = xml_parser.parseResource(CORRECT_PATIENT_XML);
+            IBaseResource expected_resource = xml_parser.parseResource(XML_PATIENT);
             String expected_string = json_parser.encodeResourceToString(expected_resource);
             JsonNode expected_node = mapper.readTree(expected_string);
 
             //When
-            JSONObject obtained_object = resource_parser.parseXML(CORRECT_PATIENT_XML);
+            JSONObject obtained_object = patient_parser.parseXMLResource(XML_PATIENT);
             String obtained_string = obtained_object.toString();
             JsonNode obtained_node = mapper.readTree(obtained_string);
 
@@ -457,10 +464,10 @@ public class ResourceParserTest {
     {
         try {
             //Given
-            JsonNode expected_node = mapper.readTree(CORRECT_JSON_PATIENT);
+            JsonNode expected_node = mapper.readTree(JSON_PATIENT);
 
             //When
-            JSONObject obtained_object = resource_parser.parseJSON(CORRECT_JSON_PATIENT);
+            JSONObject obtained_object = patient_parser.parseJSONResource(JSON_PATIENT);
             String obtained_string = obtained_object.toString();
             JsonNode obtained_node = mapper.readTree(obtained_string);
 
@@ -473,14 +480,14 @@ public class ResourceParserTest {
     }
 
     @Test
-    public void testInvalidParamKey()
+    public void testResourceWithInvalidParamKey()
     {
         //When
         try {
-            JSONObject patient = new JSONObject(CORRECT_JSON_PATIENT);
+            JSONObject patient = new JSONObject(JSON_PATIENT);
             patient.put("INCORRECT_KEY", patient.remove("address"));
             String invalid_key_patient = patient.toString();
-            JSONObject obtained_object = resource_parser.parseJSON(invalid_key_patient);
+            JSONObject obtained_object = patient_parser.parseJSONResource(invalid_key_patient);
             Assert.fail("Expected a DataFormatException when resource provided by request has incorrect key");
         }
         //Then
@@ -490,14 +497,14 @@ public class ResourceParserTest {
     }
 
     @Test
-    public void testInvalidParamValue()
+    public void testResourceWithInvalidParamValue()
     {
         //When
         try {
-            JSONObject patient = new JSONObject(CORRECT_JSON_PATIENT);
+            JSONObject patient = new JSONObject(JSON_PATIENT);
             patient.put("gender", "INCORRECT_VALUE");
             String invalid_value_patient = patient.toString();
-            JSONObject obtained_object = resource_parser.parseJSON(invalid_value_patient);
+            JSONObject obtained_object = patient_parser.parseJSONResource(invalid_value_patient);
             Assert.fail("Expected a DataFormatException when resource provided by request has incorrect value");
         }
         //Then
@@ -511,12 +518,28 @@ public class ResourceParserTest {
     {
         //When
         try {
-            JSONObject obtained_object = resource_parser.parseJSON(JSON_PRACTITIONER);
+            JSONObject obtained_object = patient_parser.parseJSONResource(JSON_PRACTITIONER);
             Assert.fail("Expected a ClassCastException when request provides a Practitioner resource");
         }
         //Then
         catch (ClassCastException e){
             Assert.assertEquals("Cannot cast org.hl7.fhir.dstu3.model.Practitioner to org.hl7.fhir.dstu3.model.Patient", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testParseJSONPatchPatient(){
+
+        try {
+            //Given
+            JsonPatch expected_patch = mapper.readValue(JSON_PATCH, JsonPatch.class);
+            //When
+            JsonPatch obtained_patch = patient_parser.parseJSONPatch(JSON_PATCH);
+            //Then
+            Assert.assertEquals("Parsing a correct json to Patient Patch failed.", expected_patch.toString(), obtained_patch.toString());
+        }
+        catch (IOException e){
+            Assert.fail("Unexpected IOException");
         }
     }
 }
