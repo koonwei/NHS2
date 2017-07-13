@@ -17,7 +17,7 @@ public class PropertiesApp{
 			output = new FileOutputStream("config.properties");
 
 			// set the properties value
-			prop.setProperty("OpenEMPI-baseURL", "http://localhost:8000/openempi-admin");
+			prop.setProperty("OpenEMPI-baseURL", "http://51.140.57.74:8080/");
 			prop.setProperty("OpenEMPI-username", "admin");
 			prop.setProperty("OpenEMPI-password", "admin");
 		        prop.setProperty("MAPPER","mapper");	
@@ -39,4 +39,3 @@ public class PropertiesApp{
   	}
 
 }
-

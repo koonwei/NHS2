@@ -8,7 +8,7 @@ Feature: Patient API
   
 Scenario: Create a new patient
     When I create a patient with family name "Foo" and given name "Bar"
-    Then the server has response content "Created Patient null" and code 200
+    Then the server has response content "Created Patient " and code 200
 
 Scenario: Search a patient
     When I search a patient with family name "Foo" and given name "Bar"
