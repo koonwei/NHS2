@@ -82,31 +82,31 @@ public class PatientController {
     };
 
     public static Route searchPatientByGet = (request, response) -> {
-        Representation format = request.attribute("format");
+        Representation reply_format = request.attribute("reply_format");
 
         Map<String, String[]> params_map = request.queryMap().toMap();
         JSONObject search_params = new JSONObject(params_map);
 
-        response.body(new ConverterOpenempi().patientSearch(search_params, format));
+        response.body(new ConverterOpenempi().patientSearch(search_params, reply_format));
 
         return response;
     };
 
     public static Route searchPatientByPost = (request, response) -> {
-        Representation format = request.attribute("format");
+        Representation reply_format = request.attribute("reply_format");
 
 
         Map<String, String[]> params_map = request.queryMap().toMap();
         JSONObject search_params = new JSONObject(params_map);
 
-        response.body(new ConverterOpenempi().patientSearch(search_params, format));
+        response.body(new ConverterOpenempi().patientSearch(search_params, reply_format));
 
         return response;
     };
 
     public static Route readPatient = (request, response) -> {
-        Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientRead(request.params("id"), format));
+        Representation reply_format = request.attribute("reply_format");
+        response.body(new ConverterOpenempi().patientRead(request.params("id"), reply_format));
         return response;
     };
 
@@ -155,8 +155,8 @@ public class PatientController {
     };
 
     public static Route deletePatient = (request, response) -> {
-        Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientDelete(request.params("id"), format));
+        Representation reply_format = request.attribute("reply_format");
+        response.body(new ConverterOpenempi().patientDelete(request.params("id"), reply_format));
         return response;
     };
 }

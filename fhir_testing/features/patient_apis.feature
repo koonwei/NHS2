@@ -18,6 +18,14 @@ Scenario: Read a patient
     When I read a patient with id 1
     Then the server has response content "Read Patient 1" and code 200
 
+Scenario: Read a patient in XML
+    When I read a patient with id 1 and format application/xml
+    Then the server has XML content "Read Patient 1" and code 200
+
+Scenario: Read a patient in JSON
+    When I read a patient with id 1 and format application/json
+    Then the server has response content "Read Patient 1" and code 200
+
 Scenario: Update a patient
     When I update a patient with id 1 and family name "Foo", given name "Bar"
     Then the server has response content "Update Patient 1" and code 200

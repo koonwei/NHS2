@@ -35,8 +35,10 @@ public class ConverterOpenempi{
 		} catch (Exception e) {
 			response_raw.put("error", e);
 		}
-		if(format == Representation.XML)
-			return XML.toString(response_raw);
+		if(format == Representation.XML) {
+		    JSONObject xml_response = new JSONObject().put("patient", response_raw);
+            return XML.toString(xml_response);
+        }
 		return response_raw.toString();
 	}
 
