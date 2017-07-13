@@ -39,9 +39,11 @@ dependencies {
 	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
   	testCompile "junit:junit:4.11"
 	compile group: 'org.json', name: 'json', version: '20160810'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
-    compile 'io.sentry:sentry-log4j2:1.2.2'
+    	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
+    	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    	compile 'io.sentry:sentry-log4j2:1.2.2'
+	compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
+	compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
 }
 
 task wrapper(type: Wrapper) {
