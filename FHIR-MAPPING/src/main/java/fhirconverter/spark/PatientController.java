@@ -12,6 +12,7 @@ import org.json.XML;
 import spark.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static spark.Spark.stop;
 
@@ -82,16 +83,23 @@ public class PatientController {
 
     public static Route searchPatientByGet = (request, response) -> {
         Representation format = request.attribute("format");
-        LOGGER.debug("Body: " + request.body());
-        response.body(new ConverterOpenempi().patientSearch(null, format));
+
+        Map<String, String[]> params_map = request.queryMap().toMap();
+        JSONObject search_params = new JSONObject(params_map);
+
+        response.body(new ConverterOpenempi().patientSearch(search_params, format));
 
         return response;
     };
 
     public static Route searchPatientByPost = (request, response) -> {
         Representation format = request.attribute("format");
-        JSONObject body = new JSONObject(request.body());
-        response.body(new ConverterOpenempi().patientSearch(body, format));
+
+
+        Map<String, String[]> params_map = request.queryMap().toMap();
+        JSONObject search_params = new JSONObject(params_map);
+
+        response.body(new ConverterOpenempi().patientSearch(search_params, format));
 
         return response;
     };

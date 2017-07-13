@@ -24,7 +24,7 @@ public class ConverterOpenempi{
 			response_raw.put("error", e);
 		}
 		if(format == Representation.XML)
-			return XML.toString(response_raw) + "This is the patient received: " + params.toString();
+			return XML.toString(response_raw);
 		return response_raw.toString();
 	}
 
