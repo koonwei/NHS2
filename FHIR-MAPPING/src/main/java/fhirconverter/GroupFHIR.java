@@ -30,9 +30,9 @@ public class GroupFHIR extends OpenEMPIbase {
 		
 	}
 	
-	protected String create(JSONObject patient) {
+	protected JSONObject create(JSONObject patient) {
 		
-		return "";
+		return patient;
 	}
 	
 	protected String delete(String id) {

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 public class PatientTestCases{
 	/*
+	 * Change to diff to compare results
 	@Test
 	public void testPatientWorkFlow(){
 		PatientFHIR tester = new PatientFHIR();
@@ -17,7 +18,7 @@ public class PatientTestCases{
 		String expected = "{resourceType:\"Patient\",identifier:[{system:\"http://ns.electronichealth.net.au/id/hi/ihi/1.0\",value: 8003608166690503}], name:[{use: \"official\", given:[\"Sam\"], prefix:[ \"Mr\"]}]}";
 		Assert.assertTrue(jsonObj.has("resourceType"));		
 	}
-	*/
+
 	@Test
 	public void testPatientSearch() throws Exception {
 		PatientFHIR tester = new PatientFHIR();
@@ -40,7 +41,7 @@ public class PatientTestCases{
 	public void testPatientRead() {
 		PatientFHIR tester = new PatientFHIR();
 		JSONObject reply = new JSONObject();
-		String testerString = "1";
+		String testerString = "2";
   	        try {
  	       		reply = tester.read(testerString);
 			Assert.assertTrue(reply.has("entry"));
@@ -55,8 +56,9 @@ public class PatientTestCases{
 		} catch (Exception e) {
     			e.printStackTrace();
 		}
-			
+         			
 	}
+	*/
 	@Test
 	public void testPatientUpdate() {
 		
@@ -285,10 +287,10 @@ public class PatientTestCases{
             "}";
 		JSONObject create = new JSONObject(jsonCreate);
 		JSONObject create1 = new JSONObject(jsonCreate2);
-		String reply = tester.create(create);
-		String reply2 = tester.create(create1);
-		System.out.println(reply);
-		
+		//JSONObject reply = tester.create(create);  Lets do some mock up. Dont add straight to database :d by koon
+		//JSONObject reply2 = tester.create(create1);
+		//System.out.println(reply.toString());
+		//need to add diff code to compare 
 	}
 	@Test
 	public void testPatientDelete() {

@@ -19,12 +19,13 @@ import com.github.fge.jsonpatch.JsonPatch;
  */
 public abstract class OpenEMPIbase{
 	
-	public abstract String convertFHIR();
+
 	protected abstract JSONObject search(JSONObject parameters) throws Exception;
 	protected abstract JSONObject read(String id) throws Exception;
 	protected abstract String patch(String id, JsonPatch parameters) throws Exception;
-	protected abstract String create(JSONObject patient) throws Exception;
+	protected abstract JSONObject create(JSONObject patient) throws Exception;
 	protected abstract String delete(String id) throws Exception;
+	protected abstract String update(String id) throws Exception;
 	private static String sessionCode; 
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 	

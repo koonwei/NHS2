@@ -44,39 +44,41 @@ public class PatientFHIR extends OpenEMPIbase {
 	}
 	
 	protected JSONObject search(JSONObject parameters) throws Exception {
-		String result = this.commonSearchPersonByAttributes(parameters);
+		ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
+		JSONObject convertedResults = converterFHIR.conversionToOpenEMPI(parameters);
+		String result = this.commonSearchPersonByAttributes(convertedResults);
 		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
 		return converter.conversion(result);
 	}
 	
-	protected String update(String id) {	
+	protected String update(String id) throws Exception {	
 		return "";
 	}
 	
-	protected String patch(String id, JsonPatch patient) throws Exception {
+	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
 		String result = this.commonReadPerson(id);
 		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
 		JSONObject xmlResults = converter.conversion(result);
 		String jsonResults = xmlResults.toString();
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNodeResults = mapper.readTree(jsonResults);
-		JsonNode patched = patient.apply(jsonNodeResults);
+		System.out.println(jsonNodeResults.toString());
+		final JsonNode patched = patient.apply(jsonNodeResults);
 		JSONObject patchedResults = new JSONObject(patched.toString());
-
 		ConversionFHIR_to_OpenEMPI converter2 = new ConversionFHIR_to_OpenEMPI();
 		JSONObject convertedXML = converter2.conversionToOpenEMPI(patchedResults);
-		final String xmlPatch = XML.toString(convertedXML);		
+		final String xmlPatch = XML.toString(convertedXML);
+
 		return "";
 	}
 			
-	protected String create(JSONObject patient) throws Exception {
+	protected JSONObject create(JSONObject patient) throws Exception {
 		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		String xmlNewRecord = XML.toString(newRecordOpenEMPI);
-		System.out.println(newRecordOpenEMPI.toString());
-		System.out.println(xmlNewRecord);
 		String result = this.commonAddPerson(xmlNewRecord);
-		return "";
+		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
+		return converterOpenEmpi.conversion(result); // Ask yuan if he wants all the fields or just certain. 
 	}
 	
 	protected String delete(String id) throws Exception {
@@ -85,19 +87,4 @@ public class PatientFHIR extends OpenEMPIbase {
 		//return "";
 	}
 	
-	
-
-		public String convertFHIR(){ // call for converting	
-		FhirContext ctx = FhirContext.forDstu3();
-        	Patient patient = new Patient();
-        // you can use the Fluent API to chain calls
-        // see http://hapifhir.io/doc_fhirobjects.html
-        	patient.addName().setUse(HumanName.NameUse.OFFICIAL).addPrefix("Mr").addGiven("Sam"); //Removed addFamily. Causes error.
-        	patient.addIdentifier().setSystem("http://ns.electronichealth.net.au/id/hi/ihi/1.0").setValue("8003608166690503");
-        	System.out.println("Serialise Resource to the console to JSON.");
-        // create a new XML parser and serialize our Patient object with it
-        	String encoded = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient); 
-		return encoded;
-	}	
-
 }

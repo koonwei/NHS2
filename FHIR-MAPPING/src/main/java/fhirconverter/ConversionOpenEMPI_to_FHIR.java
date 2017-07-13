@@ -25,6 +25,7 @@ import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Bundle; 
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -47,11 +48,12 @@ public class ConversionOpenEMPI_to_FHIR {
 	protected JSONObject conversion(String result){
         JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
         int PRETTY_PRINT_INDENT_FACTOR = 4;
-        String jsonPrettyPrintString = xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
-        System.out.println(jsonPrettyPrintString); 
-        ArrayList<JSONObject> searchResults = new ArrayList<JSONObject>(); 
-		FhirContext ctx = FhirContext.forDstu3();
+        //String jsonPrettyPrintString = xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
+        //System.out.println(jsonPrettyPrintString);
+	JSONObject resourceBundle = new JSONObject();	
+	FhirContext ctx = FhirContext.forDstu3();
 		if(xmlJSONObj.has("people")){
+			Bundle bundle = new Bundle();
 			if (xmlJSONObj.optJSONObject("people")!=null) {
 				JSONArray persons = xmlJSONObj.optJSONObject("people").optJSONArray("person");
 				
@@ -60,33 +62,39 @@ public class ConversionOpenEMPI_to_FHIR {
 				 */
 				if(persons==null) {
 					JSONObject person = xmlJSONObj.getJSONObject("people").getJSONObject("person");
-					JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
-					searchResults.add(fhirPersonStructure);
+					//JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
+					//searchResults.add(fhirPersonStructure);
+					bundle = setBundle(bundle, personMapping(person));
 				}
 				else {
 					for (int i=0; i<persons.length(); i++) {
-						JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString((personMapping(persons.getJSONObject(i)))));
-						searchResults.add(fhirPersonStructure);
+						//JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString((personMapping(persons.getJSONObject(i)))));
+						//searchResults.add(fhirPersonStructure);
+						bundle = setBundle(bundle, personMapping(persons.getJSONObject(i)));
 					}
 				}		
 			}
+			resourceBundle = new JSONObject(ctx.newJsonParser().encodeResourceToString(bundle));
+			String jsonPrettyPrintString = resourceBundle.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
+        		System.out.println(jsonPrettyPrintString);
 		}
 		if(xmlJSONObj.has("person")){
 			JSONObject person = xmlJSONObj.getJSONObject("person");
 			JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
-			searchResults.add(fhirPersonStructure);	
-		}	
-		JSONObject people = new JSONObject();
-		people.put("resource", searchResults); 
-		for(int i = 0; i<searchResults.size(); i++)
-		{
-			System.out.println(searchResults.get(i));
-		} 
-		JSONObject replyJSON = new JSONObject();
-		replyJSON.put("entry", people);
-		return replyJSON;
+			return fhirPersonStructure;
+		}
+		return resourceBundle;
  	}	
 		
+	protected Bundle setBundle(Bundle bundle, Patient patient){
+		bundle.addEntry()
+   			.setResource(patient);
+		/* Extend if needed Koon
+			.getRequest()
+      				.setUrl("Patient")
+      				.setIfNoneExist("identifier=http://acme.org/mrns|12345"); */
+		return bundle;
+	}
 	protected Patient personMapping(JSONObject node)  { //tried automated using generic objects methods, but inner classes methods differ too much. Unable to get it more automated. By koon.
 		Patient p = new Patient();
 		
