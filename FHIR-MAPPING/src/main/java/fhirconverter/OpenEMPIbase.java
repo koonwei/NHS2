@@ -212,6 +212,7 @@ public abstract class OpenEMPIbase{
         	response += line;	
         }
         System.out.println("Abstract Class: OpenEMPIbase Method: commonAddPerson Response:" + response );
+   
         return response;
 	}
 	
