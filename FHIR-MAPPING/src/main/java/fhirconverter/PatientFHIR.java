@@ -64,11 +64,12 @@ public class PatientFHIR extends OpenEMPIbase {
 		return "";
 	}
 			
-	protected String create(JSONObject patient) {
+	protected String create(JSONObject patient) throws Exception {
 		JSONObject newRecordOpenEMPI = conversionToOpenEMPI(patient);
 		String xmlNewRecord = XML.toString(newRecordOpenEMPI);
 		System.out.println(newRecordOpenEMPI.toString());
 		System.out.println(xmlNewRecord);
+		String result = this.commonAddPerson(xmlNewRecord);
 		return "";
 	}
 	
@@ -89,23 +90,21 @@ public class PatientFHIR extends OpenEMPIbase {
 			
 			/* Name field is an array in the receiving JSONObject by the frontEnd */
 			JSONArray array = patient.optJSONArray("name");
-			
 			/* If array has content */
 			if(array!=null) {
-				
+					
 				/* OpenEMPI takes only one name
 				 * We have to find the name in the array list whose "use" value 
-				 * is "official". Otherwise, it will take the first one in the array.   
+				 * is "official". Otherwise, it will take thefirst one in the array.   
 				 */
 				boolean officialFound = false; // it found official name
 			
-				
+				System.out.println("HI I AM HERE AT ARRAY NAME!");	
 				for(int i=0; i<array.length(); i++) {
 					JSONObject details = array.getJSONObject(i);
-					
 					/* Define maiden name if it exists */
 					if((details.has("use"))&&details.optString("use").equals("maiden")) {
-						content.put("mothersMaidenName", details.getJSONObject("use").getString("family"));
+						content.put("mothersMaidenName", details.getString("family"));	
 					}
 					
 					
@@ -113,7 +112,7 @@ public class PatientFHIR extends OpenEMPIbase {
 					if((details.has("use"))&&(details.optString("use").equals("official"))) {
 						officialFound = true;
 						content = createName(content,details);
-						break;
+						continue;
 					}
 					
 				

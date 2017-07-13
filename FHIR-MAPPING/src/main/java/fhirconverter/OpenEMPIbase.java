@@ -23,7 +23,7 @@ public abstract class OpenEMPIbase{
 	protected abstract JSONObject search(JSONObject parameters) throws Exception;
 	protected abstract JSONObject read(String id) throws Exception;
 	protected abstract String patch(String id, JsonPatch parameters) throws Exception;
-	protected abstract String create(JSONObject patient);
+	protected abstract String create(JSONObject patient) throws Exception;
 	protected abstract String delete(String id) throws Exception;
 	private static String sessionCode; 
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
@@ -182,7 +182,7 @@ public abstract class OpenEMPIbase{
 	 * @return
 	 * @throws Exception
 	 */
-	protected String commonAddPerson(Map<String, String> parameters) throws Exception{
+	protected String commonAddPerson(String parameters) throws Exception{
 		
 		getSessionCode();
 		
@@ -196,8 +196,8 @@ public abstract class OpenEMPIbase{
         if(parameters.isEmpty())
         	return null;
         
+        String payload = "<person>" + parameters;
         /* -------------- to be updated -----------------*/
-        String payload = "<person>";
         payload = payload + "</person>";
         
         OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());

@@ -33,6 +33,7 @@ dependencies {
     compile 'io.sentry:sentry-logback:1.2.2'
 	  compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
 	  compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'		
 }
 
 task wrapper(type: Wrapper) {
