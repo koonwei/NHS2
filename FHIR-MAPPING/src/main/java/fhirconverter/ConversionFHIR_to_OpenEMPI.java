@@ -110,7 +110,7 @@ public class ConversionFHIR_to_OpenEMPI {
 		/* SET DEATH TIME FROM FHIR TO OPENEMPI */
 		if(patient.has("deceasedDateTime")) {
 			String date = patient.optString("deceasedDateTime");
-			date = date.split("-")[0];
+			date = date.substring(0, 19);
 			content.put("deathTime", date);
 		}
 		
