@@ -5,31 +5,30 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
 import org.json.JSONObject;
 
-import com.github.fge.jsonpatch.JsonPatch; 
+import com.github.fge.jsonpatch.JsonPatch;
+
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException; 
 /**
  * @author Koon, Shruti Sinha
  *
  */
 public abstract class OpenEMPIbase{
 	
-	public abstract String convertFHIR();
+
 	protected abstract JSONObject search(JSONObject parameters) throws Exception;
 	protected abstract JSONObject read(String id) throws Exception;
 	protected abstract String patch(String id, JsonPatch parameters) throws Exception;
 	protected abstract String create(JSONObject patient) throws Exception;
 	protected abstract String delete(String id) throws Exception;
+	protected abstract String update(String id) throws Exception;
 	private static String sessionCode; 
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 	
 	/**
-	 * This methods call the OpenEMPI API to get the session code
+	 * This methods call the OpenEMPI API to get the session cod
 	 * @throws Exception
 	 */
 	private static void getSessionCode() throws Exception{
@@ -115,7 +114,7 @@ public abstract class OpenEMPIbase{
 	 * @return String in XML format: person details 
 	 * @throws Exception
 	 */
-	protected String commonReadPerson(String parameter) throws Exception{
+	protected String commonReadPerson(String parameter) throws Exception, Exception{
 		
 		getSessionCode();
 		
@@ -192,27 +191,29 @@ public abstract class OpenEMPIbase{
         hurl.setDoOutput(true);
         hurl.setRequestProperty("Content-Type", "application/xml");
         hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
-        
-        if(parameters.isEmpty())
-        	return null;
-        
-        String payload = "<person>" + parameters;
+       
+        String payload = parameters;
         /* -------------- to be updated -----------------*/
-        payload = payload + "</person>";
+        //payload = payload + "</person>";
         
         OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
         osw.write(payload);;
         osw.flush();
         osw.close();
-        
-        BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-        String line;
-        String response = "";
-        while((line = in.readLine())!=null){
-        	response += line;	
-        }
-        System.out.println("Abstract Class: OpenEMPIbase Method: commonAddPerson Response:" + response );
-        return response;
+	String response = "";
+
+        try{ 
+        	BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+		String line;
+        	response = "";
+        	while((line = in.readLine())!=null){
+        		response += line;	
+        	}
+        	System.out.println("Abstract Class: OpenEMPIbase Method: commonAddPerson Response:" + response );
+   		return response;	
+	}catch (Exception e){
+		throw new ResourceNotFoundException("Resource not created");	
+	}
 	}
 	
 	/**
@@ -259,21 +260,5 @@ public abstract class OpenEMPIbase{
 		return null;
 	}
 	
-	/**
-	 * This method convert date in string format to date format 
-	 * @param date
-	 * @return
-	 */
-	protected Date convertStringtoDate(String date){
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		date = date.substring(0, date.length() - 8);
-		Date dateTransform = null;
-  		try{
-         		dateTransform = formatter.parse(date);
-			//SimpleDateFormat fhirFormat = new SimpleDateFormat("yyyy-MM-dd");
-		} catch (ParseException e){
-			e.printStackTrace();
-		}
-		return dateTransform;
-	}	
+	
 }

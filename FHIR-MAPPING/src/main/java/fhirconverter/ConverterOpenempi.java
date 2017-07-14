@@ -1,6 +1,8 @@
 package fhirconverter;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fhirconverter.spark.Representation;
 import org.json.JSONObject;
 import org.json.XML;
@@ -54,7 +56,11 @@ public class ConverterOpenempi{
 
 	public String patientUpdate(String id, JSONObject params, Representation format) {
 		JSONObject response_raw =  new JSONObject().put("message","Update Patient " + id);
-		response_raw.put("entry", mapper.convertFHIR());
+		try{
+			response_raw.put("entry", mapper.update(id));
+		}catch (Exception e){
+			response_raw.put("error",e);
+		}
 		if(format == Representation.XML)
 			return XML.toString(response_raw);
 		return response_raw.toString();
@@ -87,19 +93,17 @@ public class ConverterOpenempi{
   
 	public static void main(String[] args) throws Exception {
 		JSONObject patientSearch = new JSONObject();
-		patientSearch.put("familyName", new String("ppp"));
-      		patientSearch.put("givenName", new String("eee"));
-      		
+		JSONObject patientName = new JSONObject();
+	//	patientSearch.put("name", patientName.put("given", "eee"));
+      	//	patientSearch.put("givenName", new String("eee"));
       		//patientSearch.put("dateOfBirth", new String("2017-07-04T00:00:00-00:00"));
 		ConverterOpenempi test = new ConverterOpenempi();
-		test.patientSearch(patientSearch, Representation.JSON);
 		System.out.println("TESTING FOR READ");
-		test.patientRead("1", Representation.JSON);
-		
-		/*FIX THE CRASH*/
+		test.patientRead("44", Representation.JSON);
+		/*FIX THE CRASH */
 		//System.out.println("TESTING FOR DELETE");
 		//System.out.println(test.patientDelete("2"))
-		// SHIFT THIS TO TEST CASE ONCE TOMMORROW. BY KOON
+		// SHIFT THIS TO TEST CASE ONCE TOMMORROW. BY KOON. One more day!
 		final String jsonCreate = "{\"identifier\":[{\"system\":\"IHELOCAL\",\"value\":\"54645987312\"},{\"system\":\"2.16.840.1.113883.4.357\",\"value\":\"74fc9df0-66f6-11e7-b2e0-0242ac120003\"}],\"address\":[{\"country\":\"UK\",\"city\":\"erwtfg\",\"line\":[\"ffggfr\",\"retwert\"],\"postalCode\":\"65498\",\"text\":\"ffggfr retwert erwtfg dfghtry 65498 UK\",\"state\":\"dfghtry\"}],\"gender\":\"male\",\"meta\":{\"lastUpdated\":\"2017-07-12T00:00:00.000+00:00\"},\"multipleBirthInteger\":2,\"name\":[{\"given\":[\"eee\",\"adsfasd\"],\"prefix\":[\"Mr\"],\"family\":\"ppp\",\"suffix\":[\"Dr\"]}],\"telecom\":[{\"system\":\"email\",\"value\":\"dfgdfg@gmail.com\"},{\"system\":\"phone\",\"value\":\"044225216748963\"}],\"id\":\"1\",\"birthDate\":\"2017-07-11\",\"maritalStatus\":{\"text\":\"sfgrgrr\"},\"resourceType\":\"Patient\"}";
 		final String jsonCreate2 = "{\n" +
             "  \"resourceType\": \"Patient\",\n" +
@@ -315,9 +319,16 @@ public class ConverterOpenempi{
             "    }\n" +
             "  ]\n" +
             "}";
-		JSONObject create = new JSONObject(jsonCreate);
+//		JSONObject create = new JSONObject(jsonCreate);
 		JSONObject create1 = new JSONObject(jsonCreate2);
-		test.patientCreate(create, Representation.JSON);
-		test.patientCreate(create1, Representation.JSON);
+		JSONObject create = new JSONObject();
+//		test.patientCreate(create, Representation.JSON);
+		test.patientCreate(create, Representation.JSON); //dont create too many data
+		//test.patientSearch(create, Representation.JSON);
+		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" }]";
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode patchNode = mapper.readTree(jsonPatchTest);
+		final JsonPatch patch = JsonPatch.fromJson(patchNode);
+		test.patientPatch("2",patch, Representation.JSON);
 	}
 }
