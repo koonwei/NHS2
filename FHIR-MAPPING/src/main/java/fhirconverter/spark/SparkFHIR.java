@@ -1,7 +1,6 @@
 package fhirconverter.spark;
 
 import static spark.Spark.*;
-import fhirconverter.ConverterOpenempi;
 
 public class SparkFHIR {
 

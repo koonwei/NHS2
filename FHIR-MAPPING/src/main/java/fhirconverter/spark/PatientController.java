@@ -12,6 +12,7 @@ import org.json.XML;
 import spark.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static spark.Spark.stop;
 
@@ -19,6 +20,8 @@ public class PatientController {
     private static Logger LOGGER = LogManager.getLogger(Patient.class);
 
     private static FHIRParser parser = new FHIRParser(Patient.class);
+
+    private static ConverterOpenempi converterOpenempi = new ConverterOpenempi();
 
     private static JSONObject parseResource(String data, Representation format) throws DataFormatException, ClassCastException
     {
@@ -51,54 +54,96 @@ public class PatientController {
     private static String generateError(String errorMessage, Representation format)
     {
         JSONObject response_raw = new JSONObject().put("error", errorMessage);
-        if(format == Representation.XML)
-            return XML.toString(response_raw);
-        return response_raw.toString();
+        return jsonToString(response_raw, format);
     }
+
+    private static String jsonToString(JSONObject jsonObject, Representation format)
+    {
+		if(format == Representation.XML)
+			return XML.toString(jsonObject);
+        return jsonObject.toString();
+    }
+
+    ///////////////////////
+    //  Routing
+    ///////////////////////
 
     public static Route createPatient = (request, response) -> {
         Representation request_format = request.attribute("request_format");
         Representation reply_format = request.attribute("reply_format");
+
         LOGGER.debug("Request format: " + request_format + " Reply format: " + reply_format);
 
         try {
             JSONObject resource = parseResource(request.body(), request_format);
-            response.body(new ConverterOpenempi().patientCreate(resource, reply_format));
-            return response;
+            String reply = converterOpenempi.patientCreate(resource);
+            JSONObject response_raw = new JSONObject().put("message", "Patient " + reply + " Created");
+            response.body(jsonToString(response_raw, reply_format));
         }
-        catch (DataFormatException e)
+        catch (DataFormatException | ClassCastException e)
         {
             response.body(generateError("Invalid Value", reply_format));
+            response.status(400);
             LOGGER.info("Invalid Parameter Received", e);
             return response;
         }
-        catch (ClassCastException e)
+        catch (Exception e)
         {
-            response.body(generateError("Incompatible Type", reply_format));
-            LOGGER.info("Incompatible Type Received", e);
+            response.body(generateError(e.getMessage(), reply_format));
+            response.status(400);
+            LOGGER.info("Exception Caught", e);
             return response;
         }
+
+        return response;
     };
 
     public static Route searchPatientByGet = (request, response) -> {
-        Representation format = request.attribute("format");
-        LOGGER.debug("Body: " + request.body());
-        response.body(new ConverterOpenempi().patientSearch(null, format));
+        Representation reply_format = request.attribute("reply_format");
+
+        Map<String, String[]> params_map = request.queryMap().toMap();
+        JSONObject search_params = new JSONObject(params_map);
+        try {
+            JSONObject reply = converterOpenempi.patientSearch(search_params);
+            JSONObject response_raw = new JSONObject();
+            response_raw.put("entry", reply);
+            response.body(jsonToString(response_raw, reply_format));
+        }
+        catch (Exception e)
+        {
+            response.body(generateError(e.getMessage(), reply_format));
+            response.status(400);
+            LOGGER.info("Exception Caught", e);
+            return response;
+        }
 
         return response;
     };
 
     public static Route searchPatientByPost = (request, response) -> {
-        Representation format = request.attribute("format");
-        JSONObject body = new JSONObject(request.body());
-        response.body(new ConverterOpenempi().patientSearch(body, format));
+        Representation request_format = request.attribute("request_format");
+        Representation reply_format = request.attribute("reply_format");
+
+        JSONObject resource = parseResource(request.body(), request_format);
+
+        JSONObject search_params = new JSONObject(resource);
+
+        JSONObject reply = converterOpenempi.patientSearch(search_params);
+        JSONObject response_raw = new JSONObject();
+        response_raw.put("entry", reply);
+
+        response.body(jsonToString(response_raw, reply_format));
 
         return response;
     };
 
     public static Route readPatient = (request, response) -> {
-        Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientRead(request.params("id"), format));
+        Representation reply_format = request.attribute("reply_format");
+        JSONObject reply = converterOpenempi.patientRead(request.params("id"));
+        JSONObject response_raw = new JSONObject();
+        response_raw.put("entry", reply);
+
+        response.body(jsonToString(response_raw, reply_format));
         return response;
     };
 
@@ -110,7 +155,11 @@ public class PatientController {
 
         try {
             JSONObject resource = parseResource(request.body(), request_format);
-            response.body(new ConverterOpenempi().patientUpdate(id, resource, reply_format));
+            String reply = converterOpenempi.patientUpdate(id, resource);
+            JSONObject response_raw = new JSONObject();
+            response_raw.put("message", reply);
+
+            response.body(jsonToString(response_raw, reply_format));
             return response;
         }
         catch (DataFormatException e)
@@ -135,7 +184,10 @@ public class PatientController {
 
         try {
             JsonPatch patch = parsePatch(request.body(), request_format);
-            response.body(new ConverterOpenempi().patientPatch(id, patch, reply_format));
+            String reply = converterOpenempi.patientPatch(id, patch);
+            JSONObject response_raw = new JSONObject();
+            response_raw.put("message", reply);
+            response.body(jsonToString(response_raw, reply_format));
             return response;
         }
         catch (IOException e)
@@ -147,8 +199,20 @@ public class PatientController {
     };
 
     public static Route deletePatient = (request, response) -> {
-        Representation format = request.attribute("format");
-        response.body(new ConverterOpenempi().patientDelete(request.params("id"), format));
+        Representation reply_format = request.attribute("reply_format");
+        try {
+            String reply = converterOpenempi.patientDelete(request.params("id"));
+            JSONObject response_raw = new JSONObject();
+            response_raw.put("message", reply);
+            response.body(jsonToString(response_raw, reply_format));
+        }
+        catch (Exception e)
+        {
+            response.body(generateError(e.getMessage(), reply_format));
+            response.status(400);
+            LOGGER.info("Exception Caught", e);
+            return response;
+        }
         return response;
     };
 }

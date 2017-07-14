@@ -2,6 +2,7 @@
 
 require 'rest-client'
 require 'json'
+require 'crack/xml'
 require "rspec"
 include RSpec::Matchers
 
@@ -10,7 +11,7 @@ def new_patient(family_name, given_name)
 end
 
 def new_patch(family_name, given_name)
-  patch= [ {op: "replace", path: "/family", value: family_name}, {op: "replace", path: "/given", value: given_name}]
+  patch= [ {op: "add", path: "/given", value: given_name}]
 end
 
 #
@@ -19,15 +20,20 @@ end
 
 When(/^I create a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   payload = new_patient(family_name, given_name).to_json
-  @response = RestClient.post 'http://localhost:4567/fhir/patient', payload, :content_type => :json, :accept => :json
+  @response = RestClient.post 'http://localhost:4567/fhir/patient', payload, :content_type => 'application/json', :accept => :json
 end
 
 When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   @response = RestClient.get "http://localhost:4567/fhir/patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
 end
 
-When(/^I read a patient with id (\d+)$/) do |id|
-  @response = RestClient.get "http://localhost:4567/fhir/patient/#{id}", :content_type => :json, :accept => :json
+When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
+  if _format.nil?
+    url = "http://localhost:4567/fhir/patient/#{id}"
+  else
+    url = "http://localhost:4567/fhir/patient/#{id}?_format=#{_format}"
+  end
+  @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
 When(/^I update a patient with id (\d+) and family name "([^"]*)", given name "([^"]*)"$/) do |id, family_name, given_name|
@@ -48,8 +54,22 @@ end
 # Then
 #
 
-Then(/^the server has response content "([^"]*)" and code (\d+)$/) do |content, code|
+Then(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
+  json_response = JSON.parse(@response.body)
+  expect(json_response).to have_key(key)
+  expect(json_response[key]).to match(content)
+end
+
+Then(/^the server response has json key "([^"]*)"$/) do |key|
+  json_response = JSON.parse(@response.body)
+  expect(json_response).to have_key(key)
+end
+
+Then(/^the server response has XML tag "([^"]*)"$/) do |content|
+  xml_json = Crack::XML.parse(@response.body)
+  expect(xml_json).to have_key(content)
+end
+
+And(/^has status code (\d+)$/) do |code|
   expect(@response.code).to eq(code.to_i)
-  message = JSON.parse(@response.body)['message']
-  expect(message).to eq(content)
 end
