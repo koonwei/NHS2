@@ -8,7 +8,7 @@ Feature: Patient API
   
 Scenario: Create a new patient
     When I create a patient with family name "Foo" and given name "Bar"
-    Then the server has response with key "message" and content "Patient  Created"
+    Then the server has response with key "message" and content "Patient (\d+) Created"
     And has status code 200
 
 Scenario: Search a patient by GET
