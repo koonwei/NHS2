@@ -18,6 +18,7 @@ jobs:
     - stage: integration
       rvm: 2.4
       before_script:
+        - cp FHIR-MAPPING/config.properties.example FHIR-MAPPING/config.properties
         - cd fhir_testing
         - bundle install
       script:
