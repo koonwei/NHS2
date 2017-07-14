@@ -313,7 +313,7 @@ public class PatientTestCases{
 			"      \"family\": \"Andreas\",\r\n" + 
 			"      \"given\": [\r\n" + 
 			"        \"Oliver\"\r\n" + 
-			"      ],\r\n" + 
+			"      ],\r\n" + "\"use\":\"official\", "+
 			"      \"prefix\": [\r\n" + 
 			"        \"Mr\"\r\n" + 
 			"      ],\r\n" + 
@@ -350,7 +350,7 @@ public class PatientTestCases{
 			"  \"maritalStatus\": {\r\n" + 
 			"    \"text\": \"single\"\r\n" + 
 			"  },\r\n" + 
-			"  \"deceasedDateTime\": \"2017-08-08T07:06:12-04:00\",\r\n" + 
+			"  \"deceasedDateTime\": \"2017-08-08T07:06:12Z\",\r\n" + 
 			"\r\n" + 
 			"  \"multipleBirthInteger\": 2\r\n" + 
 			"}";
