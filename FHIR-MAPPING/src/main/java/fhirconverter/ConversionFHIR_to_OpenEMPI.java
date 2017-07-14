@@ -203,13 +203,13 @@ public class ConversionFHIR_to_OpenEMPI {
 			 */
 			if(details.has("prefix")) {
 				JSONArray prefix = details.getJSONArray("prefix");
-				if(prefix.length()>1)
+				if(prefix.length()>0)
 					content.put("prefix", prefix.getString(0));
 	
 			}
 			if(details.has("suffix")) {
 				JSONArray suffix = details.getJSONArray("suffix");
-				if(suffix.length()>1)
+				if(suffix.length()>0)
 					content.put("suffix", suffix.getString(0));
 			}
 			
