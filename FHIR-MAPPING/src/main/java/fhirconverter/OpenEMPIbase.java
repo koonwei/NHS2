@@ -1,19 +1,16 @@
 package fhirconverter;
 
-import fhirconverter.exceptions.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
 import org.json.JSONObject;
 
-import com.github.fge.jsonpatch.JsonPatch; 
+import com.github.fge.jsonpatch.JsonPatch;
+
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException; 
 /**
  * @author Koon, Shruti Sinha
  *
@@ -24,14 +21,14 @@ public abstract class OpenEMPIbase{
 	protected abstract JSONObject search(JSONObject parameters) throws Exception;
 	protected abstract JSONObject read(String id) throws Exception;
 	protected abstract String patch(String id, JsonPatch parameters) throws Exception;
-	protected abstract String create(JSONObject patient) throws ResourceNotFoundException, Exception;
+	protected abstract String create(JSONObject patient) throws Exception;
 	protected abstract String delete(String id) throws Exception;
 	protected abstract String update(String id) throws Exception;
 	private static String sessionCode; 
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 	
 	/**
-	 * This methods call the OpenEMPI API to get the session code
+	 * This methods call the OpenEMPI API to get the session cod
 	 * @throws Exception
 	 */
 	private static void getSessionCode() throws Exception{
@@ -117,7 +114,7 @@ public abstract class OpenEMPIbase{
 	 * @return String in XML format: person details 
 	 * @throws Exception
 	 */
-	protected String commonReadPerson(String parameter) throws ConversionException, Exception{
+	protected String commonReadPerson(String parameter) throws Exception, Exception{
 		
 		getSessionCode();
 		
