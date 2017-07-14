@@ -189,7 +189,7 @@ public class ConversionOpenEMPI_to_FHIR {
 		/* Death Date & Time */ 
 		if(node.has("deathTime")){
 			DateTimeType deceasedDate = new DateTimeType(node.optString("deathTime"));
-			p.setDeceased(deceasedDate);		
+			p.setDeceased(deceasedDate);	
 		}	
 		return p;
 	}

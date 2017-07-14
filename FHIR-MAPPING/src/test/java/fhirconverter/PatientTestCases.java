@@ -3,75 +3,85 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 
-import org.junit.*; 
+import org.junit.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.diff.JsonDiff;
+
+import ca.uhn.fhir.parser.IParser;
+import fhirconverter.spark.FHIRParser;
+
 import org.json.JSONException; 
 import org.json.JSONObject;
 import org.json.JSONArray;
 public class PatientTestCases{
-	/*
-	 * Change to diff to compare results
-	@Test
-	public void testPatientWorkFlow(){
-		PatientFHIR tester = new PatientFHIR();
-		String data = tester.convertFHIR();
-		JSONObject jsonObj = new JSONObject(data);
-		String expected = "{resourceType:\"Patient\",identifier:[{system:\"http://ns.electronichealth.net.au/id/hi/ihi/1.0\",value: 8003608166690503}], name:[{use: \"official\", given:[\"Sam\"], prefix:[ \"Mr\"]}]}";
-		Assert.assertTrue(jsonObj.has("resourceType"));		
-	}
+    private ObjectMapper mapper;
 
-	@Test
-	public void testPatientSearch() throws Exception {
-		PatientFHIR tester = new PatientFHIR();
-		JSONObject patientSearch = new JSONObject();
-		patientSearch.put("familyName", new String("ppp"));
-      		patientSearch.put("givenName", new String("eee"));
-	        JSONObject reply = new JSONObject();
-  	       	reply = tester.search(patientSearch);
-		Assert.assertTrue(reply.has("entry"));
-		JSONObject resource = reply.optJSONObject("entry");
-		Assert.assertTrue(resource.has("resource"));
-		JSONArray patient = resource.optJSONArray("resource");	
-		Assert.assertFalse(patient.equals(null));
-		JSONObject patientDetails = patient.getJSONObject(0);
-		Assert.assertTrue(patientDetails.has("resourceType"));
-		String resourceType = patientDetails.optString("resourceType");
-		Assert.assertEquals(resourceType, "Patient");
-	}
-	@Test
-	public void testPatientRead() {
-		PatientFHIR tester = new PatientFHIR();
-		JSONObject reply = new JSONObject();
-		String testerString = "2";
-  	        try {
- 	       		reply = tester.read(testerString);
-			Assert.assertTrue(reply.has("entry"));
-			JSONObject resource = reply.optJSONObject("entry");
-			Assert.assertTrue(resource.has("resource"));
-			JSONArray patient = resource.optJSONArray("resource");	
-			Assert.assertFalse(patient.equals(null));
-			JSONObject patientDetails = patient.getJSONObject(1);
-			Assert.assertTrue(patientDetails.has("resourceType"));
-			String resourceType = patientDetails.optString("resourceType");
-			Assert.assertEquals(resourceType, "Patient");	
-		} catch (Exception e) {
-    			e.printStackTrace();
-		}
-         			
-	}
-	*/
-	@Test
-	public void testPatientUpdate() {
-		
-	}
-	@Test
-	public void testPatientPatch() {
-		
-	}
-	@Test
-	public void testPatientCreate() throws Exception {
-		PatientFHIR tester = new PatientFHIR();
-		final String jsonCreate = "{\"identifier\":[{\"system\":\"IHELOCAL\",\"value\":\"54645987312\"},{\"system\":\"2.16.840.1.113883.4.357\",\"value\":\"74fc9df0-66f6-11e7-b2e0-0242ac120003\"}],\"address\":[{\"country\":\"UK\",\"city\":\"erwtfg\",\"line\":[\"ffggfr\",\"retwert\"],\"postalCode\":\"65498\",\"text\":\"ffggfr retwert erwtfg dfghtry 65498 UK\",\"state\":\"dfghtry\"}],\"gender\":\"male\",\"meta\":{\"lastUpdated\":\"2017-07-12T00:00:00.000+00:00\"},\"multipleBirthInteger\":2,\"name\":[{\"given\":[\"eee\",\"adsfasd\"],\"prefix\":[\"Mr\"],\"family\":\"ppp\",\"suffix\":[\"Dr\"]}],\"telecom\":[{\"system\":\"email\",\"value\":\"dfgdfg@gmail.com\"},{\"system\":\"phone\",\"value\":\"044225216748963\"}],\"id\":\"1\",\"birthDate\":\"2017-07-11\",\"maritalStatus\":{\"text\":\"sfgrgrr\"},\"resourceType\":\"Patient\"}";
-		final String jsonCreate2 = "{\n" +
+	final String searchParameters = "{ \"name\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"family\": \"Papantwniou\",\r\n" + 
+			"      \"given\": [\r\n" + 
+			"        \"Georgia\"\r\n" + 
+			"      ]\r\n" + 
+			"    }\r\n" + 
+			"  ]\r\n" + 
+			" }";
+	final String Record = "{\r\n" + 
+			"  \r\n" + 
+			"\"resourceType\": \"Patient\",\r\n" + 
+			"  \"id\": \"176\",\r\n" + 
+			"  \"meta\": {\r\n" + 
+			"    \"lastUpdated\": \"2017-07-14T00:00:00.000+00:00\"\r\n" + 
+			"  },\r\n" + 
+			"  \"identifier\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"SSN\",\r\n" + 
+			"      \"value\": \"54645987312\"\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"name\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"family\": \"Papantwniou\",\r\n" + "\"use\":\"official\","+
+			"      \"given\": [\r\n" + 
+			"        \"Georgia\",\r\n" + 
+			"        \"Elena\"\r\n" + 
+			"      ]\r\n" +  
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"telecom\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"email\",\r\n" + 
+			"      \"value\": \"elenaioannou@gmail.com\"\r\n" + 
+			"    },\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"phone\",\r\n" + 
+			"      \"value\": \"044225216748963\"\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"gender\": \"male\",\r\n" + 
+			"  \"birthDate\": \"2017-07-11\",\r\n" + 
+			"  \"address\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"text\": \"Kings Cross Penton Rise London London 589632 UK\",\r\n" + 
+			"      \"line\": [\r\n" + 
+			"        \"Kings Cross\",\r\n" + 
+			"        \"Penton Rise\"\r\n" + 
+			"      ],\r\n" + 
+			"      \"city\": \"London\",\r\n" + 
+			"      \"state\": \"London\",\r\n" + 
+			"      \"postalCode\": \"589632\",\r\n" + 
+			"      \"country\": \"UK\"\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"maritalStatus\": {\r\n" + 
+			"    \"text\": \"married\"\r\n" + 
+			"  },\r\n" + 
+			"  \"multipleBirthInteger\": 2\r\n" + 
+			"}";
+	
+	
+	final String jsonRecord = "{\n" +
             "  \"resourceType\": \"Patient\",\n" +
             "  \"id\": \"170445\",\n" +
             "  \"meta\": {\n" +
@@ -285,12 +295,112 @@ public class PatientTestCases{
             "    }\n" +
             "  ]\n" +
             "}";
-		JSONObject create = new JSONObject(jsonCreate);
-		JSONObject create1 = new JSONObject(jsonCreate2);
-		//JSONObject reply = tester.create(create);  Lets do some mock up. Dont add straight to database :d by koon
-		//JSONObject reply2 = tester.create(create1);
-		//System.out.println(reply.toString());
-		//need to add diff code to compare 
+	final String expectedSearch = "{\"entry\":[{\"resource\":" + Record + "}],\"resourceType\":\"Bundle\"}";
+	final String expectedRead = "{\"entry\":"+ Record + ",\"message\":\"Read Patient 176\"}";
+	
+	final String createPatient = "{\r\n" + 
+			"  \"resourceType\": \"Patient\",\r\n" + 
+			"  \"meta\": {\r\n" + 
+			"    \"lastUpdated\": \"2017-07-14T00:00:00.000+00:00\"\r\n" + 
+			"  },\r\n" + 
+			"  \"identifier\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"VirginiaDLN\",\r\n" + 
+			"      \"value\": \"54645987312\"\r\n" + 
+			"    }],\r\n" + 
+			"  \"name\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"family\": \"Andreas\",\r\n" + 
+			"      \"given\": [\r\n" + 
+			"        \"Oliver\"\r\n" + 
+			"      ],\r\n" + 
+			"      \"prefix\": [\r\n" + 
+			"        \"Mr\"\r\n" + 
+			"      ],\r\n" + 
+			"      \"suffix\": [\r\n" + 
+			"        \"Dr\"\r\n" + 
+			"      ]\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"telecom\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"email\",\r\n" + 
+			"      \"value\": \"mariaantoniou@gmail.com\"\r\n" + 
+			"    },\r\n" + 
+			"    {\r\n" + 
+			"      \"system\": \"phone\",\r\n" + 
+			"      \"value\": \"044225216748963\"\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"gender\": \"male\",\r\n" + 
+			"  \"birthDate\": \"2017-07-11\",\r\n" + 
+			"  \"address\": [\r\n" + 
+			"    {\r\n" + 
+			"      \"text\": \"Penton Street Caledonian Road Manchester Manchester 656498 UK\",\r\n" + 
+			"      \"line\": [\r\n" + 
+			"        \"Penton Street\",\r\n" + 
+			"        \"Caledonian Road\"\r\n" + 
+			"      ],\r\n" + 
+			"      \"city\": \"Manchester\",\r\n" + 
+			"      \"state\": \"Manchester\",\r\n" + 
+			"      \"postalCode\": \"656498\",\r\n" + 
+			"      \"country\": \"UK\"\r\n" + 
+			"    }\r\n" + 
+			"  ],\r\n" + 
+			"  \"maritalStatus\": {\r\n" + 
+			"    \"text\": \"single\"\r\n" + 
+			"  },\r\n" + 
+			"  \"deceasedDateTime\": \"2017-08-08T07:06:12-04:00\",\r\n" + 
+			"\r\n" + 
+			"  \"multipleBirthInteger\": 2\r\n" + 
+			"}";
+	
+	
+	/*
+	 * Change to diff to compare results
+	@Test
+	public void testPatientWorkFlow(){
+		PatientFHIR tester = new PatientFHIR();
+		String data = tester.convertFHIR();
+		JSONObject jsonObj = new JSONObject(data);
+		String expected = "{resourceType:\"Patient\",identifier:[{system:\"http://ns.electronichealth.net.au/id/hi/ihi/1.0\",value: 8003608166690503}], name:[{use: \"official\", given:[\"Sam\"], prefix:[ \"Mr\"]}]}";
+		Assert.assertTrue(jsonObj.has("resourceType"));		
+	}*/
+
+	@Test
+	public void testPatientSearch() throws Exception {
+		PatientFHIR tester = new PatientFHIR();		
+		JSONObject expected = new JSONObject(expectedSearch);
+		JSONObject parameters = new JSONObject(searchParameters);
+		JSONObject obtained_object = tester.search(parameters);		
+		String obtained_string = obtained_object.toString();		
+        Assert.assertEquals("Search operation failed." + "\n Search Result: \n" + obtained_string + "\n" + expected.toString() ,expected.toString(), obtained_object.toString());
+	}
+	@Test
+	public void testPatientRead() throws Exception {
+		PatientFHIR tester = new PatientFHIR();
+		JSONObject expected = new JSONObject(Record);
+		JSONObject obtained = tester.read("176");
+		Assert.assertEquals("Read operation failed: \nRead Result: \n" + obtained.toString() + " \n" + expected.toString() , expected.toString(), obtained.toString());		
+	}
+	
+	@Test
+	public void testPatientUpdate() {
+		
+	}
+	@Test
+	public void testPatientPatch() {
+		
+	}
+	@Test
+	public void testPatientCreate() throws Exception {
+		PatientFHIR tester = new PatientFHIR();
+		JSONObject create = new JSONObject(createPatient);
+		String newRecordID = tester.create(create);
+		JSONObject exists = tester.read(newRecordID);
+		exists.remove("id");
+		Assert.assertEquals("Create operation failed: \nCreate Result: \n" + exists.toString() + " \n" + create.toString() , exists.toString(), create.toString());		
+
 	}
 	@Test
 	public void testPatientDelete() {
