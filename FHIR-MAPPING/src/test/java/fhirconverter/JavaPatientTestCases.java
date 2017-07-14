@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JavaPatientTestCases{
+	/*
 	@Test
 	public void testPatientWorkFlow(){
 		PatientFHIR tester = new PatientFHIR();
@@ -13,4 +14,5 @@ public class JavaPatientTestCases{
 		String expected = "{resourceType:\"Patient\",identifier:[{system:\"http://ns.electronichealth.net.au/id/hi/ihi/1.0\",value: 8003608166690503}], name:[{use: \"official\", given:[\"Sam\"], prefix:[ \"Mr\"]}]}";
 		Assert.assertTrue(jsonObj.has("resourceType"));		
 	}
+	*/
 }
