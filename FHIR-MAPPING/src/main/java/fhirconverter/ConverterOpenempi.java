@@ -319,11 +319,12 @@ public class ConverterOpenempi{
             "    }\n" +
             "  ]\n" +
             "}";
-		JSONObject create = new JSONObject(jsonCreate);
+//		JSONObject create = new JSONObject(jsonCreate);
 		JSONObject create1 = new JSONObject(jsonCreate2);
+		JSONObject create = new JSONObject();
 //		test.patientCreate(create, Representation.JSON);
-//		test.patientCreate(create1, Representation.JSON); dont create too many data
-		test.patientSearch(create, Representation.JSON);
+		test.patientCreate(create, Representation.JSON); //dont create too many data
+		//test.patientSearch(create, Representation.JSON);
 		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" }]";
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);

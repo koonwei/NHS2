@@ -34,6 +34,9 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
+import fhirconverter.exceptions.*;
+
 public class PatientFHIR extends OpenEMPIbase {
 	Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
 	
@@ -72,13 +75,20 @@ public class PatientFHIR extends OpenEMPIbase {
 		return "";
 	}
 			
-	protected JSONObject create(JSONObject patient) throws Exception {
+	protected String create(JSONObject patient) throws ResourceNotFoundException, Exception{
 		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
-		String xmlNewRecord = XML.toString(newRecordOpenEMPI);
+		JSONObject records = new JSONObject();
+		records.put("person", newRecordOpenEMPI);
+		String xmlNewRecord = XML.toString(records);
 		String result = this.commonAddPerson(xmlNewRecord);
 		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
-		return converterOpenEmpi.conversion(result); // Ask yuan if he wants all the fields or just certain. 
+		JSONObject createdObject = converterOpenEmpi.conversion(result);
+		String replyCreatedNewRecord = "";
+		if(createdObject.has("id")){
+			replyCreatedNewRecord = createdObject.getString("id");	
+		}
+		return replyCreatedNewRecord; // Ask yuan if he wants all the fields or just certain. 
 	}
 	
 	protected String delete(String id) throws Exception {

@@ -1,11 +1,11 @@
 package fhirconverter;
 import org.json.JSONObject;
 
-
+import fhirconverter.exceptions.*;
 import com.github.fge.jsonpatch.JsonPatch; 
 
 public class PractitionerFHIR extends OpenEMPIbase {
-	protected JSONObject read(String id) {
+	protected JSONObject read(String id) throws Exception{
 		JSONObject a = new JSONObject();
 		return a;
 	}
@@ -31,9 +31,9 @@ public class PractitionerFHIR extends OpenEMPIbase {
 		
 	}
 	
-	protected JSONObject create(JSONObject patient) {
+	protected String create(JSONObject patient) {
 		
-		return patient;
+		return "";
 	}
 	
 	protected String delete(String id) {

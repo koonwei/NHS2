@@ -3,7 +3,7 @@ apply plugin: 'jacoco'
 
 apply plugin: 'application'
 
-mainClassName = 'fhirconverter.ConverterOpenempi'
+mainClassName = 'fhirconverter.spark.SparkFHIR'
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
