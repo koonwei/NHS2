@@ -1,7 +1,6 @@
 package fhirconverter;
 import org.json.JSONObject;
 
-import fhirconverter.exceptions.*;
 import com.github.fge.jsonpatch.JsonPatch; 
 
 public class PractitionerFHIR extends OpenEMPIbase {

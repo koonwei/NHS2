@@ -1,7 +1,7 @@
 package fhirconverter;
 import org.json.JSONObject;
+
 import com.github.fge.jsonpatch.JsonPatch;
-import fhirconverter.exceptions.*;
 
 public class GroupFHIR extends OpenEMPIbase {
 	protected JSONObject read(String id) throws Exception{
