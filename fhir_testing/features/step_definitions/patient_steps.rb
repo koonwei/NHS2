@@ -11,7 +11,7 @@ def new_patient(family_name, given_name)
 end
 
 def new_patch(family_name, given_name)
-  patch= [ {op: "replace", path: "/family", value: family_name}, {op: "replace", path: "/given", value: given_name}]
+  patch= [ {op: "add", path: "/given", value: given_name}]
 end
 
 #
@@ -54,14 +54,22 @@ end
 # Then
 #
 
-Then(/^the server has response content "([^"]*)" and code (\d+)$/) do |content, code|
-  expect(@response.code).to eq(code.to_i)
-  message = JSON.parse(@response.body)['message']
-  expect(message).to eq(content)
+Then(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
+  json_response = JSON.parse(@response.body)
+  expect(json_response).to have_key(key)
+  expect(json_response[key]).to eq(content)
 end
 
-Then(/^the server has XML content "([^"]*)" and code (\d+)$/) do |content, code|
+Then(/^the server response has json key "([^"]*)"$/) do |key|
+  json_response = JSON.parse(@response.body)
+  expect(json_response).to have_key(key)
+end
+
+Then(/^the server response has XML tag "([^"]*)"$/) do |content|
+  xml_json = Crack::XML.parse(@response.body)
+  expect(xml_json).to have_key(content)
+end
+
+And(/^has status code (\d+)$/) do |code|
   expect(@response.code).to eq(code.to_i)
-  message = Crack::XML.parse(@response.body)['patient']['message']
-  expect(message).to eq(content)
 end
