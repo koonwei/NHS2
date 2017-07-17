@@ -8,9 +8,10 @@ import java.net.URL;
 
 import org.json.JSONObject;
 
-import com.github.fge.jsonpatch.JsonPatch;
+//import com.github.fge.jsonpatch.JsonPatch;
 
 import fhirconverter.exceptions.ResourceNotFoundException;
+import fhirconverter.exceptions.OpenEMPIAuthenticationException;
 import fhirconverter.exceptions.ResourceNotCreatedException; 
 /**
  * @author Koon, Shruti Sinha
@@ -49,9 +50,12 @@ public class OpenEMPIbase{
 		osw.flush();
 		osw.close();
 		
+		try{
 		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
 		sessionCode = in.readLine();
-
+		}catch(Exception ex){
+			throw new OpenEMPIAuthenticationException("Session Not Validated");
+		}
 	}
 
 	/**
@@ -108,7 +112,7 @@ public class OpenEMPIbase{
 			System.out.println("Abstract Class: OpenEMPIbase Method: CommonSerachByAttributes Response:" + response );
 			return response;
 		}catch (Exception e){
-			throw new ResourceNotFoundException("Resource not found");	
+			throw new ResourceNotFoundException("Resource Not Found");	
 		}
 		
 	}
@@ -119,7 +123,7 @@ public class OpenEMPIbase{
 	 * @return String in XML format: person details 
 	 * @throws Exception
 	 */
-	protected String commonReadPerson(String parameter) throws Exception, Exception{
+	protected String commonReadPerson(String parameter) throws Exception{
 
 		getSessionCode();
 
@@ -132,6 +136,7 @@ public class OpenEMPIbase{
 		hurl.setRequestProperty("Content-Type", "application/xml"); 
 		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
+		try{
 		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
 		String line;
 		String response = "";
@@ -140,8 +145,11 @@ public class OpenEMPIbase{
 		}
 		System.out.println("Abstract Class: OpenEMPIbase Method: commonReadPerson Response:" + response );
 		return response;
+		}catch(Exception ex){
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
 	}
-
+	
 	/**
 	 * This methods invokes loadPerson API of OpenEMPI and updates person details
 	 * @param parameter
@@ -161,15 +169,14 @@ public class OpenEMPIbase{
 
 		if(parameters.isEmpty())
 			return null;
-
-		/* -------------- to be updated -----------------*/
-		String payload = "<person>" + parameters + "</person>";
+		String payload = parameters;
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
 		osw.write(payload);;
 		osw.flush();
 		osw.close();
 
+		try{
 		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
 		String line;
 		String response = "";
@@ -178,6 +185,9 @@ public class OpenEMPIbase{
 		}
 		System.out.println("Abstract Class: OpenEMPIbase Method: commonUpdateById Response:" + response );
 		return response;
+		}catch(Exception ex){
+			throw new ResourceNotCreatedException("Resource Not Updated");
+		}
 	}
 
 	/**
@@ -215,7 +225,7 @@ public class OpenEMPIbase{
 			System.out.println("Abstract Class: OpenEMPIbase Method: commonAddPerson Response:" + response );
 			return response;	
 		}catch (Exception e){
-			throw new ResourceNotCreatedException("Resource not created");	
+			throw new ResourceNotCreatedException("Resource Not Created");	
 		}
 	}
 
@@ -223,7 +233,7 @@ public class OpenEMPIbase{
 	 * This method takes personId and calls the commomReadPerson to retrieves the person details and then calls the deletePersonById API with the 
 	 * person details and delete the person form OpenEMPI
 	 * @param parameters
-	 * @return String: Successful if delete is successful otherwise unsuccessful
+	 * @return String: Successful if delete is successful otherwise throws exception
 	 * @throws Exception
 	 */
 	protected String commonDeletePersonById(String parameters) throws Exception{
@@ -246,6 +256,7 @@ public class OpenEMPIbase{
 		osw.flush();
 		osw.close();
 
+		try{
 		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
 		String line;
 		String response = "";
@@ -255,16 +266,20 @@ public class OpenEMPIbase{
 		System.out.println("Abstract Class: OpenEMPIbase Method: commonDeletePersonById Response:" + response );
 		if (response == "")
 			return "Delete Successful";
-		return response;
+		else
+			throw new ResourceNotFoundException("Resource Not Found");
+		}catch (Exception ex){
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
 	}
 
 	/**
 	 * This method takes personId as parameter and invokes removePersonById API with the person details and removes the person form OpenEMPI
 	 * @param parameters
-	 * @return String: Successful if delete is successful otherwise unsuccessful
+	 * @return String: Successful if delete is successful otherwise throws Exception
 	 * @throws Exception
 	 */
-	protected String commonRemovePersonById(String parameter) throws Exception, Exception{
+	protected String commonRemovePersonById(String parameter) throws Exception{
 
 		getSessionCode();
 
@@ -277,6 +292,7 @@ public class OpenEMPIbase{
 		hurl.setRequestProperty("Content-Type", "application/xml"); 
 		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
+		try{
 		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
 		String line;
 		String response = "";
@@ -286,7 +302,11 @@ public class OpenEMPIbase{
 		System.out.println("Abstract Class: OpenEMPIbase Method: commonRemovePersonById Response:" + response );
 		if (response == "")
 			return "Remove Successful";
-		return response;
+		else
+			throw new ResourceNotFoundException("Resource Not Found");
+		}catch(Exception ex){
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
 	}
 	
 	protected boolean validateJsonScheme(){
