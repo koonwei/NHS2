@@ -254,14 +254,41 @@ public abstract class OpenEMPIbase{
 		}
 		System.out.println("Abstract Class: OpenEMPIbase Method: commonDeletePersonById Response:" + response );
 		if (response == "")
-			return "Delete Success";
+			return "Delete Successful";
 		return response;
 	}
 
-	protected String commonPatchPerson(String id){
+	/**
+	 * This method takes personId as parameter and invokes removePersonById API with the person details and removes the person form OpenEMPI
+	 * @param parameters
+	 * @return String: Successful if delete is successful otherwise unsuccessful
+	 * @throws Exception
+	 */
+	protected String commonRemovePersonById(String parameter) throws Exception, Exception{
 
-		return null;
+		getSessionCode();
+
+		int id = Integer.parseInt(parameter);
+
+		URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/removePersonById?personId=" + id);
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("POST");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("Content-Type", "application/xml"); 
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+		String line;
+		String response = "";
+		while((line = in.readLine())!=null){
+			response += line;	
+		}
+		System.out.println("Abstract Class: OpenEMPIbase Method: commonRemovePersonById Response:" + response );
+		if (response == "")
+			return "Remove Successful";
+		return response;
 	}
+	
 	protected boolean validateJsonScheme(){
 		 //File schemaFile = new File("/resource/openempi.json");
 
