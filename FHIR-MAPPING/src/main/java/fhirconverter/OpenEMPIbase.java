@@ -184,6 +184,7 @@ public class OpenEMPIbase {
 
 		if (parameters.isEmpty())
 			return null;
+
 		String payload = parameters;
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());

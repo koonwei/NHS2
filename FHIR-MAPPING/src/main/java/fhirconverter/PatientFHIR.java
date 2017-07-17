@@ -118,11 +118,11 @@ public class PatientFHIR {
 		String result = caller.commonReadPerson(id);
 		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject xmlResults = converterOpenEmpi.conversion(result);
+		xmlResults.remove("identifier");
 		String jsonResults = xmlResults.toString();
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNodeResults = mapper.readTree(jsonResults);
 		JsonNode patched = null;
-		System.out.println(patient.toString());
 		try{
 			patched = patient.apply(jsonNodeResults);
 			System.out.println(patched.toString());
@@ -130,22 +130,33 @@ public class PatientFHIR {
 			e.printStackTrace();
 			throw new JsonPatchException("Resource does not contain the paths for remove or replace");
 		}
-		if(!patched.equals(null))
+		if(patched != null)
 		{
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
-			if(fhirSchemeRequirements == true){
+			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());
 				ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
 		 		JSONObject convertedXML = converterFHIR.conversionToOpenEMPI(patchedResults);
 				final JsonNode jsonNodePatched = mapper.readTree(convertedXML.toString());	
 				if(Utils.validateScheme(jsonNodePatched, "resource/openempiSchema.json")){
 					JSONObject convertedXMLvalidated = new JSONObject();
+					JSONObject xmlJsonObj = XML.toJSONObject(result);
+					JSONObject xmlPeopleObj = xmlJsonObj.getJSONObject("person");
+					System.out.println(xmlPeopleObj.toString());
+					JSONArray personIdentifiers = xmlPeopleObj.optJSONArray("personIdentifiers"); 
+					if(personIdentifiers == null){
+						JSONObject multiplePersons = xmlPeopleObj.getJSONObject("personIdentifiers");
+						convertedXML.put("personIdentifiers", multiplePersons);
+				       
+					}else{
+						JSONArray multiplePersons = xmlPeopleObj.getJSONArray("personIdentifiers");
+						convertedXML.put("personIdentifiers", multiplePersons);
+					}
+									
+					convertedXML.put("personId", id);
 					convertedXMLvalidated.put("person", convertedXML);
-					final String xmlPatch = XML.toString(convertedXMLvalidated);
-					/* TO DO 
-					 * connect to openempibase patch once done!
-					 */
-										
+					final String xmlPatch = XML.toString(convertedXMLvalidated);			
+					return caller.commonUpdatePerson(xmlPatch);
 				}else{
 					throw new OpenEMPISchemeNotMetException("The Parameters does not confine to OpenEMPIScheme");
 				}

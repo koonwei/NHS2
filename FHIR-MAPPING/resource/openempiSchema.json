@@ -21,10 +21,6 @@
 		"description": "Patient's Birth Place",
 		"type": "string"
 	},
-	"birthPlace":{
-		"description": "Patient's Birth Place",
-		"type": "string"
-	},
 	"city":{
 		"description": "Patient's city",
 		"type": "string"

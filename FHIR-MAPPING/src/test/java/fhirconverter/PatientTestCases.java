@@ -7,7 +7,6 @@ import org.junit.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.diff.JsonDiff;
 import com.github.fge.jackson.JacksonUtils; 
 import com.github.fge.jsonpatch.JsonPatch;  
 import com.github.fge.jsonpatch.JsonPatchException; 
@@ -186,7 +185,7 @@ public class PatientTestCases{
     
     
     
-	final String searchParameters = "{ \"name\": [\r\n" + 
+	final private String searchParameters = "{ \"name\": [\r\n" + 
 			"    {\r\n" + 
 			"      \"family\": \"Papantwniou\",\r\n" + 
 			"      \"given\": [\r\n" + 
@@ -195,7 +194,7 @@ public class PatientTestCases{
 			"    }\r\n" + 
 			"  ]\r\n" + 
 			" }";
-	final String Record = "{\r\n" + 
+	final private String Record = "{\r\n" + 
 			"  \r\n" + 
 			"\"resourceType\": \"Patient\",\r\n" + 
 			"  \"id\": \"176\",\r\n" + 
@@ -249,7 +248,7 @@ public class PatientTestCases{
 			"}";
 	
 	
-	final String jsonRecord = "{\n" +
+	final private String jsonRecord = "{\n" +
             "  \"resourceType\": \"Patient\",\n" +
             "  \"id\": \"170445\",\n" +
             "  \"meta\": {\n" +
@@ -463,10 +462,10 @@ public class PatientTestCases{
             "    }\n" +
             "  ]\n" +
             "}";
-	final String expectedSearch = "{\"entry\":[{\"resource\":" + Record + "}],\"resourceType\":\"Bundle\"}";
-	final String expectedRead = "{\"entry\":"+ Record + ",\"message\":\"Read Patient 176\"}";
+	final private String expectedSearch = "{\"entry\":[{\"resource\":" + Record + "}],\"resourceType\":\"Bundle\"}";
+	final private String expectedRead = "{\"entry\":"+ Record + ",\"message\":\"Read Patient 176\"}";
 	
-	final String createPatient = "{\r\n" + 
+	final private String createPatient = "{\r\n" + 
 			"  \"resourceType\": \"Patient\",\r\n" + 
 			"  \"meta\": {\r\n" + 
 			"    \"lastUpdated\": \"2017-07-14T00:00:00.000+00:00\"\r\n" + 
@@ -569,7 +568,7 @@ public class PatientTestCases{
 		assertEquals("Update Operation if the record doesn't exist failed: ", "Created" , reply);
 		
 	}
-	/*@Test(expected = FhirSchemeNotMetException.class)
+	@Test(expected = FhirSchemeNotMetException.class)
 	public void testPatientPatchPathNotExist() throws Exception{
 		PatientFHIR tester = new PatientFHIR();
 		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" }, {\"op\": \"add\", \"path\": \"/what is this\", \"value\": \"male\" } ]";
@@ -577,6 +576,24 @@ public class PatientTestCases{
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
 		tester.patch("233",patch);
+	}
+	@Test(expected = JsonPatchException.class)
+	public void testPatientPatchOperatorsNotExist() throws Exception{
+		PatientFHIR tester = new PatientFHIR();
+		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gende\", \"value\": \"male\" } ]";
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode patchNode = mapper.readTree(jsonPatchTest);
+		final JsonPatch patch = JsonPatch.fromJson(patchNode);
+		tester.patch("233",patch);
+	}
+	@Test
+	public void testPatientPatchRecord() throws Exception{
+		PatientFHIR tester = new PatientFHIR();
+		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" } ]";
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode patchNode = mapper.readTree(jsonPatchTest);
+		final JsonPatch patch = JsonPatch.fromJson(patchNode);
+		assertEquals(tester.patch("10",patch), true);
 	}
 	@Test
 	public void testPatientPatch() {
@@ -597,5 +614,5 @@ public class PatientTestCases{
 	}
 	@Test
 	public void testPatientDelete() {
-	}*/
+	}
 }
