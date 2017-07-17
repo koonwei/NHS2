@@ -423,14 +423,14 @@ public class FHIRParserTest {
                                         "{ \"op\": \"add\", \"path\": \"/active\", \"value\": [\"true\"] }," +
                                         "{ \"op\": \"remove\", \"path\": \"/deceasedDateTime\"} ]";
 
-    private FHIRParser patient_parser;
+    private FHIRParser<Patient> patient_parser;
     private ObjectMapper mapper;
     private IParser xml_parser;
     private IParser json_parser;
 
     @Before
     public void setUp(){
-        patient_parser = new FHIRParser(Patient.class);
+        patient_parser = new FHIRParser<>(Patient.class);
         mapper = new ObjectMapper();
         FhirContext ctx = FhirContext.forDstu3();
         xml_parser = ctx.newXmlParser();
