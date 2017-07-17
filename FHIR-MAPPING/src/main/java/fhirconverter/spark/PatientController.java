@@ -38,6 +38,7 @@ public class PatientController {
             JSONObject resource = parseResource(request.body(), request_format);
             String reply = converterOpenempi.patientCreate(resource);
             JSONObject response_raw = new JSONObject().put("message", "Patient " + reply + " Created");
+            response.header("location", serverAddress + "/Patient/" + reply);
             response.body(jsonToString(response_raw, reply_format));
             response.status(201);
             return response;
@@ -117,10 +118,8 @@ public class PatientController {
 
             int intId = Integer.parseInt(resourceId);
             JSONObject reply = converterOpenempi.patientRead(resourceId);
-            JSONObject response_raw = new JSONObject();
-            response_raw.put("entry", reply);
             response.header("location", serverAddress + "/Patient/" + resourceId);
-            response.body(jsonToString(response_raw, reply_format));
+            response.body(jsonToString(reply, reply_format));
             return response;
         }
         catch (ResourceNotFoundException e)
