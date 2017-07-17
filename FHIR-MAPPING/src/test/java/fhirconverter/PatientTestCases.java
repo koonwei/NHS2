@@ -23,6 +23,169 @@ import fhirconverter.exceptions.*;
 public class PatientTestCases{
     private ObjectMapper mapper;
 
+    final private String updateNotExist = "{\r\n" + 
+    		" \r\n" + 
+    		"\"resourceType\": \"Patient\",\r\n" + 
+    		"  \"meta\": {\r\n" + 
+    		"    \"versionId\": \"1\",\r\n" + 
+    		"    \"lastUpdated\": \"2017-07-12T10:19:56.629-04:00\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"identifier\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"OpenMRS\",\r\n" + 
+    		"      \"value\": \"56874987549879873\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"name\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"family\": \"Elizabeth\",\r\n" + 
+    		"      \"given\": [\r\n" + 
+    		"        \"Stamos\",\r\n" + 
+    		"        \"Mary\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"prefix\": [\r\n" + 
+    		"        \"Miss\"\r\n" + 
+    		"      ]\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"telecom\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"email\",\r\n" + 
+    		"      \"value\": \"elizabet@gmail.com\"\r\n" + 
+    		"    },\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"phone\",\r\n" + 
+    		"      \"value\": \"6789754597\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"gender\": \"female\",\r\n" + 
+    		"  \"birthDate\": \"1970-09-24\",\r\n" + 
+    		"  \"address\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"text\": \"Kings Cross Penton Rise London London 589632 UK\",\r\n" + 
+    		"      \"line\": [\r\n" + 
+    		"        \"Kings Cross\",\r\n" + 
+    		"        \"Penton Rise\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"city\": \"London\",\r\n" + 
+    		"      \"state\": \"London\",\r\n" + 
+    		"      \"postalCode\": \"589632\",\r\n" + 
+    		"      \"country\": \"UK\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"maritalStatus\": {\r\n" + 
+    		"    \"text\": \"married\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"multipleBirthInteger\": 2\r\n" + 
+    		"}\r\n" + 
+    		"";
+    final private String updateExists = "{\r\n" + 
+    		" \r\n" + 
+    		"\"resourceType\": \"Patient\",\r\n" + 
+    		"\"id\": \"300\",\r\n" + 
+    		"  \"meta\": {\r\n" + 
+    		"    \"versionId\": \"1\",\r\n" + 
+    		"    \"lastUpdated\": \"2017-07-12T10:19:56.629-04:00\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"identifier\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"SSN\",\r\n" + 
+    		"      \"value\": \"54645987312\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"name\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"family\": \"Marianna\",\r\n" + 
+    		"      \"given\": [\r\n" + 
+    		"        \"Antonopoulou\",\r\n" + 
+    		"        \"Malama\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"prefix\": [\r\n" + 
+    		"        \"Mrs\"\r\n" + 
+    		"      ]\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"telecom\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"email\",\r\n" + 
+    		"      \"value\": \"mariannaantonopoulou@gmail.com\"\r\n" + 
+    		"    },\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"phone\",\r\n" + 
+    		"      \"value\": \"6789797\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"gender\": \"female\",\r\n" + 
+    		"  \"birthDate\": \"1990-07-11\",\r\n" + 
+    		"  \"maritalStatus\": {\r\n" + 
+    		"    \"text\": \"married\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"multipleBirthInteger\": 2\r\n" + 
+    		"}\r\n" + 
+    		"";
+    final private String updateExistsCreate = "{\r\n" + 
+    		"  \r\n" + 
+    		"\"resourceType\": \"Patient\",\r\n" + 
+    		"  \"meta\": {\r\n" + 
+    		"    \"versionId\": \"1\",\r\n" + 
+    		"    \"lastUpdated\": \"2017-07-12T10:19:56.629-04:00\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"identifier\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"SSN\",\r\n" + 
+    		"      \"value\": \"54645987312\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"name\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"family\": \"Marina\",\r\n" + 
+    		"      \"given\": [\r\n" + 
+    		"        \"Antoniou\",\r\n" + 
+    		"        \"Malama\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"prefix\": [\r\n" + 
+    		"        \"Mrs\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"suffix\": [\r\n" + 
+    		"        \"Dr\"\r\n" + 
+    		"      ]\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"telecom\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"email\",\r\n" + 
+    		"      \"value\": \"elenaioannou@gmail.com\"\r\n" + 
+    		"    },\r\n" + 
+    		"    {\r\n" + 
+    		"      \"system\": \"phone\",\r\n" + 
+    		"      \"value\": \"0442564616748963\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"gender\": \"female\",\r\n" + 
+    		"  \"birthDate\": \"1990-07-11\",\r\n" + 
+    		"  \"address\": [\r\n" + 
+    		"    {\r\n" + 
+    		"      \"text\": \"Kings Cross Penton Rise London London 589632 UK\",\r\n" + 
+    		"      \"line\": [\r\n" + 
+    		"        \"Kings Cross\",\r\n" + 
+    		"        \"Penton Rise\"\r\n" + 
+    		"      ],\r\n" + 
+    		"      \"city\": \"London\",\r\n" + 
+    		"      \"state\": \"London\",\r\n" + 
+    		"      \"postalCode\": \"589632\",\r\n" + 
+    		"      \"country\": \"UK\"\r\n" + 
+    		"    }\r\n" + 
+    		"  ],\r\n" + 
+    		"  \"maritalStatus\": {\r\n" + 
+    		"    \"text\": \"married\"\r\n" + 
+    		"  },\r\n" + 
+    		"  \"multipleBirthInteger\": 2\r\n" + 
+    		"}\r\n" + 
+    		"";
+    
+    
+    
+    
 	final String searchParameters = "{ \"name\": [\r\n" + 
 			"    {\r\n" + 
 			"      \"family\": \"Papantwniou\",\r\n" + 
@@ -372,7 +535,7 @@ public class PatientTestCases{
 		Assert.assertTrue(jsonObj.has("resourceType"));		
 	}*/
 
-	@Test
+	/*@Test
 	public void testPatientSearch() throws Exception {
 		PatientFHIR tester = new PatientFHIR();		
 		JSONObject expected = new JSONObject(expectedSearch);
@@ -387,13 +550,26 @@ public class PatientTestCases{
 		JSONObject expected = new JSONObject(Record);
 		JSONObject obtained = tester.read("176");
 		Assert.assertEquals("Read operation failed: \nRead Result: \n" + obtained.toString() + " \n" + expected.toString() , expected.toString(), obtained.toString());		
-	}
+	}*/
 	
 	@Test
-	public void testPatientUpdate() {
+	public void testPatientUpdate() throws ResourceNotFoundException, Exception {
+		PatientFHIR tester = new PatientFHIR();	
+		JSONObject create = new JSONObject(updateExistsCreate);
+		String newRecordID = tester.create(create);
+
+		JSONObject updateCreate = new JSONObject(updateExists);
+		String replyExists = tester.update(newRecordID, updateCreate);
+		
+		assertEquals("Update Operation if the record exists failed: ", "Updated", replyExists );		
+
+		JSONObject update = new JSONObject(updateNotExist);
+		String reply = tester.update("850", update);
+		
+		assertEquals("Update Operation if the record doesn't exist failed: ", "Created" , reply);
 		
 	}
-	@Test(expected = FhirSchemeNotMetException.class)
+	/*@Test(expected = FhirSchemeNotMetException.class)
 	public void testPatientPatchPathNotExist() throws Exception{
 		PatientFHIR tester = new PatientFHIR();
 		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" }, {\"op\": \"add\", \"path\": \"/what is this\", \"value\": \"male\" } ]";
@@ -404,6 +580,9 @@ public class PatientTestCases{
 	}
 	@Test
 	public void testPatientPatch() {
+		
+		
+		
 		
 	}
 	@Test
@@ -418,5 +597,5 @@ public class PatientTestCases{
 	}
 	@Test
 	public void testPatientDelete() {
-	}
+	}*/
 }

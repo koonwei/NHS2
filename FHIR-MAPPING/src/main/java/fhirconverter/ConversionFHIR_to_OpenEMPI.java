@@ -128,17 +128,25 @@ public class ConversionFHIR_to_OpenEMPI {
 		/* SET IDENTIFIER FROM FHIR TO OPENEMPI */ //need fixing		
 		if(patient.has("identifier")) {
 			JSONArray identifierArray = new JSONArray();
-			JSONObject personIdentifier = new JSONObject();
+			JSONArray personIdentifier = new JSONArray();
 
-			
+			/**
+			 *
+			 * TODO: Get all the identifiers
+			 * 
+			 */
 			JSONArray receivedIdentifiers = patient.getJSONArray("identifier");
 			
 			if(receivedIdentifiers.length()>0) {
-				JSONObject systemID = receivedIdentifiers.getJSONObject(0);
-				personIdentifier.put("identifier", systemID.optString("value"));
-				JSONObject identifierDomain = new JSONObject();
-				identifierDomain.put("identifierDomainName", systemID.optString("system"));	
-				personIdentifier.put("identifierDomain", identifierDomain);				
+				for(int j=0; j<receivedIdentifiers.length(); j++) {
+					JSONObject identifier = new JSONObject();
+					JSONObject systemID = receivedIdentifiers.getJSONObject(j);
+					identifier.put("identifier", systemID.optString("value"));
+					JSONObject identifierDomain = new JSONObject();
+					identifierDomain.put("identifierDomainName", systemID.optString("system"));	
+					identifier.put("identifierDomain", identifierDomain);				
+					personIdentifier.put(identifier);
+				}
 				
 			}	
 			content.put("personIdentifiers", personIdentifier);
