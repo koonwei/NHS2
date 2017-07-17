@@ -14,7 +14,7 @@ public class FhirSchemeNotMetException extends Exception{
      */
     private static final long serialVersionUID = 67879777;
     
-    private String message;
+    //private String message;
      
     public FhirSchemeNotMetException(String message) {
 	 super(message);

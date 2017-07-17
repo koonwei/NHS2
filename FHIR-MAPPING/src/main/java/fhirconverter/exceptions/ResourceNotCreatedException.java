@@ -14,7 +14,7 @@ public class ResourceNotCreatedException extends Exception{
      */
     private static final long serialVersionUID = 67879776;
     
-    private String message;
+    //private String message;
      
     public ResourceNotCreatedException(String message) {
 	 super(message);
