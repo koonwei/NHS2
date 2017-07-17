@@ -4,7 +4,7 @@ require 'rest-client'
 
 def server_up_and_running?
     begin
-        RestClient.get 'http://localhost:4567/fhir/patient/1'
+        RestClient.get 'http://localhost:4567/fhir/meta'
     rescue StandardError => e
         $stdout.puts "Error #{e}"
         return false

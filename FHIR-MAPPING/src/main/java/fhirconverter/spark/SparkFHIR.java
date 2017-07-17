@@ -17,6 +17,11 @@ public class SparkFHIR {
             /*TODO*/
             after("/*", Filters.responseFormatValidater);
 
+            get("/meta", (req, resp) -> {
+                resp.status(204);
+                return resp;
+            });
+
             path("/Patient", () -> {
                 post(rootPath, PatientController.createPatient);
                 get(rootPath,  PatientController.searchPatientByGet);
