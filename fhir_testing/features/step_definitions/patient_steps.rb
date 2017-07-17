@@ -45,13 +45,18 @@ When(/^I create a patient with family name "([^"]*)" and given name "([^"]*)"$/)
   @response = RestClient.post 'http://localhost:4567/fhir/Patient', payload, :content_type => 'application/json', :accept => :json
 end
 
-When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
-  @response = RestClient.get "http://localhost:4567/fhir/Patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
-end
-
 When(/^I read a patient with the same id$/) do
   url = "http://localhost:4567/fhir/Patient/#{@id}"
   @response = RestClient.get url, :content_type => :json, :accept => :json
+end
+
+When(/^I delete a patient with the same id$/) do
+  url = "http://localhost:4567/fhir/Patient/#{@id}"
+  @response = RestClient.delete url, :content_type => :json, :accept => :json
+end
+
+When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
+  @response = RestClient.get "http://localhost:4567/fhir/Patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
 end
 
 When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
@@ -73,14 +78,6 @@ When(/^I patch a patient with id (\d+) and family name "([^"]*)", given name "([
   @response = RestClient.patch "http://localhost:4567/fhir/Patient/#{id}", payload, :content_type => :json, :accept => :json
 end
 
-When(/^I delete a patient with id (\d+)$/) do |id|
-  begin
-    @response = RestClient.delete "http://localhost:4567/fhir/Patient/#{id}", :content_type => :json, :accept => :json
-  rescue StandardError => e
-    @response = e.response
-  end
-end
-
 #
 # Then
 #
@@ -94,9 +91,22 @@ And(/^The server response has a body with the same id, family name "([^"]*)", an
   CheckPatientParameters(json_patient, @id, family_name, given_name)
 end
 
-And(/^The server response has header parameter with key "([^"]*)" and value "([^"]*)"$/) do |header_key, header_value|
-	expect(@response.headers).to have_key(header_key)
-	expect(@response.headers[header_key]).to eq(header_value)
+And(/^The server response has the id in the location header$/) do 
+  location = @response.headers[:location]
+  @id = location.scan(/\d+$/)[0]
+end
+
+And(/^The server has a patient stored with this id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
+  url = "http://localhost:4567/fhir/Patient/#{@id}"
+  response = RestClient.get url, :content_type => :json, :accept => :json
+  json_patient = JSON.parse(response.body)	
+  CheckPatientParameters(json_patient, @id, family_name, given_name)
+end
+
+And(/^The server has no patient stored with this id$/) do 
+  url = "http://localhost:4567/fhir/Patient/#{@id}"
+  response = RestClient.get url, :content_type => :json, :accept => :json
+  expect(response.code).to eq(204)
 end
 
 And(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
