@@ -126,9 +126,9 @@ public class PatientController {
 
         JSONObject resource = parseResource(request.body(), request_format);
 
-        JSONObject search_params = new JSONObject(resource);
+//        JSONObject search_params = new JSONObject(resource);
 
-        JSONObject reply = converterOpenempi.patientSearch(search_params);
+        JSONObject reply = converterOpenempi.patientSearch(resource);
         JSONObject response_raw = new JSONObject();
         response_raw.put("entry", reply);
 

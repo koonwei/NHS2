@@ -57,7 +57,9 @@ end
 Then(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
   json_response = JSON.parse(@response.body)
   expect(json_response).to have_key(key)
-  expect(json_response[key]).to match(content)
+  expect(json_response[key]).to match(content) do |id|
+    puts id
+  end
 end
 
 Then(/^the server response has json key "([^"]*)"$/) do |key|
