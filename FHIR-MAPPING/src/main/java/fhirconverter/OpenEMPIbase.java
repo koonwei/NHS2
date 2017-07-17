@@ -33,7 +33,7 @@ public class OpenEMPIbase {
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 
 	/**
-	 * This methods call the OpenEMPI API to get the session cod
+	 * This methods call the OpenEMPI API to get the session code
 	 * 
 	 * @throws Exception
 	 */
@@ -123,14 +123,13 @@ public class OpenEMPIbase {
 		} catch (Exception e) {
 			throw new ResourceNotFoundException("Resource Not Found");
 		}
-
 	}
 
 	/**
 	 * This methods invokes loadPerson API of OpenEMPI and retrieves person
 	 * details based on personId
 	 * 
-	 * @param parameter
+	 * @param parameter: personId
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
@@ -166,7 +165,7 @@ public class OpenEMPIbase {
 	 * This methods invokes loadPerson API of OpenEMPI and updates person
 	 * details
 	 * 
-	 * @param parameter
+	 * @param parameters: person element in XML string format 
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
@@ -194,7 +193,7 @@ public class OpenEMPIbase {
 
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			if (in.toString() == "") {
+			if (in.toString().equals("")) {
 				this.commonAddPerson(parameters);
 				return "Created";
 			} else {
@@ -215,8 +214,8 @@ public class OpenEMPIbase {
 	 * This method invokes addPerson API of OpenEMPI to create a new patient
 	 * record
 	 * 
-	 * @param parameters
-	 * @return
+	 * @param parameters: person element in XML string format
+	 * @return newly created person element in XML string format
 	 * @throws Exception
 	 */
 	protected String commonAddPerson(String parameters) throws Exception {
