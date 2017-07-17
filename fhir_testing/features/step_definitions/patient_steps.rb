@@ -14,6 +14,16 @@ def new_patch(family_name, given_name)
   patch= [ {op: "add", path: "/given", value: given_name}]
 end
 
+
+#
+# Given
+#
+
+Given(/^The server has a patient stored with id (\d+), family name "([^"]*)", and given name "([^"]*)"$/) do |id, family_name, given_name|
+  payload = new_patient(family_name, given_name).to_json
+  @response = RestClient.put "http://localhost:4567/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
+end
+
 #
 # When
 #
@@ -54,7 +64,16 @@ end
 # Then
 #
 
-Then(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
+Then(/^The server response has status code (\d+)$/) do |code|
+  expect(@response.code).to eq(code.to_i)
+end
+
+And(/^The server response has header parameter with key "([^"]*)" and value "([^"]*)"$/) do |header_key, header_value|
+	expect(@response.headers).to have_key(header_key)
+	expect(@response.headers[header_key]).to eq(header_value)
+end
+
+And(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
   json_response = JSON.parse(@response.body)
   expect(json_response).to have_key(key)
   expect(json_response[key]).to match(content) do |id|
@@ -62,16 +81,19 @@ Then(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |k
   end
 end
 
-Then(/^the server response has json key "([^"]*)"$/) do |key|
+And(/^the server response has json key "([^"]*)"$/) do |key|
   json_response = JSON.parse(@response.body)
   expect(json_response).to have_key(key)
 end
 
-Then(/^the server response has XML tag "([^"]*)"$/) do |content|
+And(/^the server response has XML tag "([^"]*)"$/) do |content|
   xml_json = Crack::XML.parse(@response.body)
   expect(xml_json).to have_key(content)
 end
 
-And(/^has status code (\d+)$/) do |code|
-  expect(@response.code).to eq(code.to_i)
+And(/^A patient is stored with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
+  payload = new_patient(family_name, given_name).to_json
+  @response = RestClient.put "http://localhost:4567/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
 end
+
+
