@@ -19,9 +19,12 @@ end
 # Given
 #
 
-Given(/^The server has a patient stored with id (\d+), family name "([^"]*)", and given name "([^"]*)"$/) do |id, family_name, given_name|
+Given(/^The server has a patient stored with family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
   payload = new_patient(family_name, given_name).to_json
-  @response = RestClient.put "http://localhost:4567/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
+  response = RestClient.post 'http://localhost:4567/fhir/Patient', payload, :content_type => 'application/json', :accept => :json
+  location = response.headers[:location]
+  @id = location.scan(/\d+$/)[0]
+
 end
 
 #
@@ -35,6 +38,11 @@ end
 
 When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   @response = RestClient.get "http://localhost:4567/fhir/Patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
+end
+
+When(/^I read a patient with the same id$/) do
+  url = "http://localhost:4567/fhir/Patient/#{@id}"
+  @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
 When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
@@ -70,6 +78,18 @@ end
 
 Then(/^The server response has status code (\d+)$/) do |code|
   expect(@response.code).to eq(code.to_i)
+end
+
+And(/^The server response has a body with the same id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
+	json_response = JSON.parse(@response.body)
+	expect(json_response).to have_key("id")
+	expect(json_response["id"]).to eq(@id)
+	expect(json_response).to have_key("name")
+	expect(json_response["name"][0]).to have_key("family")
+	expect(json_response["name"][0]).to have_key("given")
+	puts json_response["name"][0]["family"]
+	expect(json_response["name"][0]["family"]).to eq(family_name)
+	expect(json_response["name"][0]["given"][0]).to eq(given_name)
 end
 
 And(/^The server response has header parameter with key "([^"]*)" and value "([^"]*)"$/) do |header_key, header_value|
