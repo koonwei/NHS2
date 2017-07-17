@@ -3,7 +3,7 @@ import org.json.JSONObject;
 
 import com.github.fge.jsonpatch.JsonPatch;
 
-public class GroupFHIR extends OpenEMPIbase {
+public class GroupFHIR {
 	protected JSONObject read(String id) throws Exception{
 		JSONObject a = new JSONObject();
 		return a;
@@ -17,7 +17,7 @@ public class GroupFHIR extends OpenEMPIbase {
 		return a;
 	}
 	
-	protected String update(String id) {
+	protected String update(String id, JSONObject patient) {
 		
 		return "";
 	}

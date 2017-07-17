@@ -10,12 +10,8 @@ import org.json.XML;
 import java.util.HashMap;
 
 public class ConverterOpenempi{
-	OpenEMPIbase mapper;
+	PatientFHIR mapper = new PatientFHIR();
   
-  	public ConverterOpenempi(){
-		mapper = new PatientFHIR();	
-	}
-
 	// Patient
 
 	public String patientCreate(JSONObject params, Representation format) {
@@ -57,7 +53,7 @@ public class ConverterOpenempi{
 	public String patientUpdate(String id, JSONObject params, Representation format) {
 		JSONObject response_raw =  new JSONObject().put("message","Update Patient " + id);
 		try{
-			response_raw.put("entry", mapper.update(id));
+			response_raw.put("entry", mapper.update(id, params));
 		}catch (Exception e){
 			response_raw.put("error",e);
 		}

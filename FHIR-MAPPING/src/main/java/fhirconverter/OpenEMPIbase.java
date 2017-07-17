@@ -16,15 +16,15 @@ import fhirconverter.exceptions.ResourceNotCreatedException;
  * @author Koon, Shruti Sinha
  *
  */
-public abstract class OpenEMPIbase{
+public class OpenEMPIbase{
 
 	private static String sessionCode; 
-	protected abstract JSONObject search(JSONObject parameters) throws Exception;
+	/*protected abstract JSONObject search(JSONObject parameters) throws Exception;
 	protected abstract JSONObject read(String id) throws Exception;
 	protected abstract String patch(String id, JsonPatch parameters) throws Exception;
 	protected abstract String create(JSONObject patient) throws Exception;
 	protected abstract String delete(String id) throws Exception;
-	protected abstract String update(String id) throws Exception;
+	protected abstract String update(String id, JSONObject patient) throws Exception;*/
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 
 	/**

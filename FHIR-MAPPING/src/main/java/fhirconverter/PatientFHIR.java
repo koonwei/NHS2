@@ -36,11 +36,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fhirconverter.exceptions.*;
 
-public class PatientFHIR extends OpenEMPIbase {
+public class PatientFHIR {
 	Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
-	
+	OpenEMPIbase caller = new OpenEMPIbase();
+
 	protected JSONObject read(String id) throws Exception {
-		String result = this.commonReadPerson(id);	
+		String result = caller.commonReadPerson(id);	
 		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
 		return converter.conversion(result);
 	}
@@ -48,17 +49,31 @@ public class PatientFHIR extends OpenEMPIbase {
 	protected JSONObject search(JSONObject parameters) throws Exception {
 		ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
 		JSONObject convertedResults = converterFHIR.conversionToOpenEMPI(parameters);
-		String result = this.commonSearchPersonByAttributes(convertedResults);
+		String result = caller.commonSearchPersonByAttributes(convertedResults);
 		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
 		return converter.conversion(result);
 	}
 	
-	protected String update(String id) throws Exception {	
-		return "";
+	protected String update(String id, JSONObject patient) throws Exception {	
+		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
+		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
+		newRecordOpenEMPI.put("personId", id);
+		JSONObject records = new JSONObject();
+		records.put("person", newRecordOpenEMPI);
+		String xmlNewRecord = XML.toString(records);
+		String result = caller.commonUpdatePerson(xmlNewRecord);
+		/*ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
+		JSONObject createdObject = converterOpenEmpi.conversion(result);
+		String replyCreatedNewRecord = "";
+		if(createdObject.has("id")){
+			replyCreatedNewRecord = createdObject.getString("id");	
+		}*/
+		return result; // Ask yuan if he wants all the fields or just certain. 
+
 	}
 	
 	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
-		String result = this.commonReadPerson(id);
+		String result = caller.commonReadPerson(id);
 		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject xmlResults = converterOpenEmpi.conversion(result);
 		String jsonResults = xmlResults.toString();
@@ -106,7 +121,7 @@ public class PatientFHIR extends OpenEMPIbase {
 		JSONObject records = new JSONObject();
 		records.put("person", newRecordOpenEMPI);
 		String xmlNewRecord = XML.toString(records);
-		String result = this.commonAddPerson(xmlNewRecord);
+		String result = caller.commonAddPerson(xmlNewRecord);
 		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject createdObject = converterOpenEmpi.conversion(result);
 		String replyCreatedNewRecord = "";
@@ -117,7 +132,7 @@ public class PatientFHIR extends OpenEMPIbase {
 	}
 	
 	protected String delete(String id) throws Exception {
-		String result = this.commonDeletePersonById(id);
+		String result = caller.commonDeletePersonById(id);
 		return result;
 		//return "";
 	}
