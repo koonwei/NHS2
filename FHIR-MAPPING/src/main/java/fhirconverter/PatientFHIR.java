@@ -58,38 +58,41 @@ public class PatientFHIR {
 		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		newRecordOpenEMPI.put("personId", id);
-		if(newRecordOpenEMPI.has("personIdentifiers")) {
-			newRecordOpenEMPI.remove("personIdentifiers");
-		}
+		
 		
 		JSONObject records = new JSONObject();
 		
 		
 		String readResult = caller.commonReadPerson(id);
-		JSONObject xmlRead = XML.toJSONObject(readResult);
-		JSONArray personIdentifiers = new JSONArray();
-		if(xmlRead.has("person")){
-			JSONObject person = xmlRead.getJSONObject("person");
-			if(person.has("personIdentifiers")) {
-				personIdentifiers = person.getJSONArray("personIdentifiers");
-				for(int j=0; j<personIdentifiers.length(); j++) {
-					JSONObject identifierRecord = personIdentifiers.getJSONObject(j);
-					if((identifierRecord.has("identifierDomain"))&&(identifierRecord.optString("identifierDomainName").equals("OpenEMPI"))) {
-						
-						JSONObject identifier = new JSONObject();
-						identifier.put("identifier", identifierRecord.optString("identifier"));
-						JSONObject identifierDomain = new JSONObject();
-						identifierDomain.put("identifierDomainName", identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName"));	
-						identifier.put("identifierDomain", identifierDomain);				
-						personIdentifiers.put(identifier);
-						
-					}
-				}
-						
+		if(!readResult.equals("")) {
+			if(newRecordOpenEMPI.has("personIdentifiers")) {
+				newRecordOpenEMPI.remove("personIdentifiers");
 			}
-		
+			
+			JSONObject xmlRead = XML.toJSONObject(readResult);
+			JSONArray personIdentifiers = new JSONArray();
+			if(xmlRead.has("person")){
+				JSONObject person = xmlRead.getJSONObject("person");
+				if(person.has("personIdentifiers")) {
+					personIdentifiers = person.getJSONArray("personIdentifiers");
+					for(int j=0; j<personIdentifiers.length(); j++) {
+						JSONObject identifierRecord = personIdentifiers.getJSONObject(j);
+						if((identifierRecord.has("identifierDomain"))&&(identifierRecord.optString("identifierDomainName").equals("OpenEMPI"))) {
+							
+							JSONObject identifier = new JSONObject();
+							identifier.put("identifier", identifierRecord.optString("identifier"));
+							JSONObject identifierDomain = new JSONObject();
+							identifierDomain.put("identifierDomainName", identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName"));	
+							identifier.put("identifierDomain", identifierDomain);				
+							personIdentifiers.put(identifier);
+							
+						}
+					}
+							
+				}
+			}
+			newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
 		}
-		newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
 		records.put("person", newRecordOpenEMPI);
 
 		/**
@@ -100,9 +103,8 @@ public class PatientFHIR {
 		
 		
 		
-		
 		String xmlNewRecord = XML.toString(records);
-		System.out.println("FOCUS - THIS IS WHAT WE SENT TO OPENEMPIBASE: \n" + xmlNewRecord);
+		System.out.println("***sos** SEND TO OPENEMPIBASE: \n" + xmlNewRecord );
 		String result = caller.commonUpdatePerson(xmlNewRecord);
 		/*ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject createdObject = converterOpenEmpi.conversion(result);

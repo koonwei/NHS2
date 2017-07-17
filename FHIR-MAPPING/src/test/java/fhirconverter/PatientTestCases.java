@@ -561,12 +561,15 @@ public class PatientTestCases{
 		String replyExists = tester.update(newRecordID, updateCreate);
 		
 		assertEquals("Update Operation if the record exists failed: ", "Updated", replyExists );		
-
+		
+		
 		JSONObject update = new JSONObject(updateNotExist);
-		String reply = tester.update("850", update);
+		String reply = tester.update("1001", update);
 		
 		assertEquals("Update Operation if the record doesn't exist failed: ", "Created" , reply);
-		
+
+		OpenEMPIbase delete = new OpenEMPIbase();
+		delete.commonRemovePersonById("1001");
 	}
 	@Test(expected = FhirSchemeNotMetException.class)
 	public void testPatientPatchPathNotExist() throws Exception{

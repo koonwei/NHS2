@@ -193,15 +193,15 @@ public class OpenEMPIbase {
 
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			if (in.toString().equals("")) {
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+			if (response.equals("")) {
 				this.commonAddPerson(parameters);
 				return "Created";
 			} else {
-				String line;
-				String response = "";
-				while ((line = in.readLine()) != null) {
-					response += line;
-				}
 				System.out.println("Abstract Class: OpenEMPIbase Method: commonUpdateById Response:" + response);
 				return "Updated";
 			}
