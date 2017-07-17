@@ -30,34 +30,38 @@ end
 
 When(/^I create a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   payload = new_patient(family_name, given_name).to_json
-  @response = RestClient.post 'http://localhost:4567/fhir/patient', payload, :content_type => 'application/json', :accept => :json
+  @response = RestClient.post 'http://localhost:4567/fhir/Patient', payload, :content_type => 'application/json', :accept => :json
 end
 
 When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
-  @response = RestClient.get "http://localhost:4567/fhir/patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
+  @response = RestClient.get "http://localhost:4567/fhir/Patient?family=#{family_name}&given=#{given_name}", :content_type => :json, :accept => :json
 end
 
 When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
   if _format.nil?
-    url = "http://localhost:4567/fhir/patient/#{id}"
+    url = "http://localhost:4567/fhir/Patient/#{id}"
   else
-    url = "http://localhost:4567/fhir/patient/#{id}?_format=#{_format}"
+    url = "http://localhost:4567/fhir/Patient/#{id}?_format=#{_format}"
   end
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
 When(/^I update a patient with id (\d+) and family name "([^"]*)", given name "([^"]*)"$/) do |id, family_name, given_name|
   payload = new_patient(family_name, given_name).to_json
-  @response = RestClient.put "http://localhost:4567/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
+  @response = RestClient.put "http://localhost:4567/fhir/Patient/#{id}", payload, :content_type => :json, :accept => :json
 end
 
 When(/^I patch a patient with id (\d+) and family name "([^"]*)", given name "([^"]*)"$/) do |id, family_name, given_name|
   payload = new_patch(family_name, given_name).to_json
-  @response = RestClient.patch "http://localhost:4567/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
+  @response = RestClient.patch "http://localhost:4567/fhir/Patient/#{id}", payload, :content_type => :json, :accept => :json
 end
 
 When(/^I delete a patient with id (\d+)$/) do |id|
-  @response = RestClient.delete "http://localhost:4567/fhir/patient/#{id}", :content_type => :json, :accept => :json
+  begin
+    @response = RestClient.delete "http://localhost:4567/fhir/Patient/#{id}", :content_type => :json, :accept => :json
+  rescue StandardError => e
+    @response = e.response
+  end
 end
 
 #
