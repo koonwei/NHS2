@@ -262,6 +262,12 @@ public abstract class OpenEMPIbase{
 
 		return null;
 	}
+	protected boolean validateJsonScheme(){
+		 //File schemaFile = new File("/resource/openempi.json");
+
+		return true;
+	
+	}
 
 
 }

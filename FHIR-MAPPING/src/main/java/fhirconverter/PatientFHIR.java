@@ -34,7 +34,6 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import fhirconverter.exceptions.*;
 
 public class PatientFHIR extends OpenEMPIbase {
@@ -60,18 +59,44 @@ public class PatientFHIR extends OpenEMPIbase {
 	
 	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
 		String result = this.commonReadPerson(id);
-		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
-		JSONObject xmlResults = converter.conversion(result);
+		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
+		JSONObject xmlResults = converterOpenEmpi.conversion(result);
 		String jsonResults = xmlResults.toString();
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNodeResults = mapper.readTree(jsonResults);
-		System.out.println(jsonNodeResults.toString());
-		final JsonNode patched = patient.apply(jsonNodeResults);
-		JSONObject patchedResults = new JSONObject(patched.toString());
-		ConversionFHIR_to_OpenEMPI converter2 = new ConversionFHIR_to_OpenEMPI();
-		JSONObject convertedXML = converter2.conversionToOpenEMPI(patchedResults);
-		final String xmlPatch = XML.toString(convertedXML);
+		JsonNode patched = null;
+		System.out.println(patient.toString());
+		try{
+			patched = patient.apply(jsonNodeResults);
+			System.out.println(patched.toString());
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new JsonPatchException("Resource does not contain the paths for remove or replace");
+		}
+		if(!patched.equals(null))
+		{
+			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
+			if(fhirSchemeRequirements == true){
+				JSONObject patchedResults = new JSONObject(patched.toString());
+				ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
+		 		JSONObject convertedXML = converterFHIR.conversionToOpenEMPI(patchedResults);
+				final JsonNode jsonNodePatched = mapper.readTree(convertedXML.toString());	
+				if(Utils.validateScheme(jsonNodePatched, "resource/openempiSchema.json")){
+					JSONObject convertedXMLvalidated = new JSONObject();
+					convertedXMLvalidated.put("person", convertedXML);
+					final String xmlPatch = XML.toString(convertedXMLvalidated);
+					/* TO DO 
+					 * connect to openempibase patch once done!
+					 */
+										
+				}else{
+					throw new OpenEMPISchemeNotMetException("The Parameters does not confine to OpenEMPIScheme");
+				}
+			}else{
+				throw new FhirSchemeNotMetException("The parameters does not confine to FHIR Standards for OpenEMPIScheme");
+			}
 
+		}
 		return "";
 	}
 			

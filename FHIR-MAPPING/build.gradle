@@ -4,6 +4,7 @@ apply plugin: 'jacoco'
 apply plugin: 'application'
 
 mainClassName = 'fhirconverter.spark.SparkFHIR'
+//fhirconverter.spark.SparkFHIR
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
@@ -23,17 +24,18 @@ dependencies {
     compile group: 'com.phloc', name: 'phloc-commons', version: '4.4.6'
 
     compile "com.sparkjava:spark-core:2.6.0"
-  	testCompile "junit:junit:4.11"
+    testCompile "junit:junit:4.11"
     testCompile 'org.mockito:mockito-core:2.7.22'
     compile group: 'com.github.fge', name: 'json-patch', version: '1.9';
-	  compile group: 'org.json', name: 'json', version: '20160810'
+    compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
     compile 'io.sentry:sentry-log4j2:1.2.2'
     compile 'io.sentry:sentry-logback:1.2.2'
-	  compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
-	  compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'		
+    compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
+    compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'		
+    compile(group: "com.github.java-json-tools", name: "json-schema-validator", version: "2.2.8");
 }
 
 task wrapper(type: Wrapper) {

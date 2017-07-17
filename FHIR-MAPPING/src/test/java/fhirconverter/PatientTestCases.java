@@ -8,6 +8,9 @@ import org.junit.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.diff.JsonDiff;
+import com.github.fge.jackson.JacksonUtils; 
+import com.github.fge.jsonpatch.JsonPatch;  
+import com.github.fge.jsonpatch.JsonPatchException; 
 
 import ca.uhn.fhir.parser.IParser;
 import fhirconverter.spark.FHIRParser;
@@ -15,6 +18,8 @@ import fhirconverter.spark.FHIRParser;
 import org.json.JSONException; 
 import org.json.JSONObject;
 import org.json.JSONArray;
+
+import fhirconverter.exceptions.*;
 public class PatientTestCases{
     private ObjectMapper mapper;
 
@@ -388,13 +393,22 @@ public class PatientTestCases{
 	public void testPatientUpdate() {
 		
 	}
+	@Test(expected = FhirSchemeNotMetException.class)
+	public void testPatientPatchPathNotExist() throws Exception{
+		PatientFHIR tester = new PatientFHIR();
+		final String jsonPatchTest = "[ { \"op\": \"replace\", \"path\": \"/gender\", \"value\": \"male\" }, {\"op\": \"add\", \"path\": \"/what is this\", \"value\": \"male\" } ]";
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode patchNode = mapper.readTree(jsonPatchTest);
+		final JsonPatch patch = JsonPatch.fromJson(patchNode);
+		tester.patch("233",patch);
+	}
 	@Test
 	public void testPatientPatch() {
 		
 	}
 	@Test
 	public void testPatientCreate() throws Exception {
-		PatientFHIR tester = new PatientFHIR();
+		PatientFHIR tester = new PatientFHIR();	
 		JSONObject create = new JSONObject(createPatient);
 		String newRecordID = tester.create(create);
 		JSONObject exists = tester.read(newRecordID);
