@@ -14,6 +14,15 @@ def new_patch(family_name, given_name)
   patch= [ {op: "add", path: "/given", value: given_name}]
 end
 
+def CheckPatientParameters (patient, id, family_name, given_name)
+  expect(patient).to have_key("id")
+  expect(patient["id"]).to eq(id)
+  expect(patient).to have_key("name")
+  expect(patient["name"][0]).to have_key("family")
+  expect(patient["name"][0]).to have_key("given")
+  expect(patient["name"][0]["family"]).to eq(family_name)
+  expect(patient["name"][0]["given"][0]).to eq(given_name)
+end
 
 #
 # Given
@@ -81,15 +90,8 @@ Then(/^The server response has status code (\d+)$/) do |code|
 end
 
 And(/^The server response has a body with the same id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
-	json_response = JSON.parse(@response.body)
-	expect(json_response).to have_key("id")
-	expect(json_response["id"]).to eq(@id)
-	expect(json_response).to have_key("name")
-	expect(json_response["name"][0]).to have_key("family")
-	expect(json_response["name"][0]).to have_key("given")
-	puts json_response["name"][0]["family"]
-	expect(json_response["name"][0]["family"]).to eq(family_name)
-	expect(json_response["name"][0]["given"][0]).to eq(given_name)
+  json_patient = JSON.parse(@response.body)	
+  CheckPatientParameters(json_patient, @id, family_name, given_name)
 end
 
 And(/^The server response has header parameter with key "([^"]*)" and value "([^"]*)"$/) do |header_key, header_value|
