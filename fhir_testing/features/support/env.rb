@@ -4,15 +4,15 @@ require 'rest-client'
 
 def server_up_and_running?
     begin
-        response = RestClient.get 'http://localhost:4567/fhir/patient/1'
-    rescue Exception => e
+        RestClient.get 'http://localhost:4567/fhir/meta'
+    rescue StandardError => e
         $stdout.puts "Error #{e}"
         return false
     end
 end
 
 def start_server
-    res = system 'sh start_server.sh'
+    system 'sh start_server.sh'
     $stdout.puts 'wait 15 seconds fo server to start...'
     sleep(15)
     attempts_left = 30
@@ -28,7 +28,7 @@ def start_server
 end
 
 def stop_server
-    res = system 'sh stop_server.sh'
+    system 'sh stop_server.sh'
 end
 
 stop_server
