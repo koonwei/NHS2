@@ -155,6 +155,9 @@ public class OpenEMPIbase {
 				response += line;
 			}
 			System.out.println("Abstract Class: OpenEMPIbase Method: commonReadPerson Response:" + response);
+			if(response == ""){
+				throw new ResourceNotFoundException("Resource Not Found");
+			}
 			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -258,7 +261,7 @@ public class OpenEMPIbase {
 	 * 
 	 * @param parameters
 	 * @return String: Successful if delete is successful otherwise throws
-	 *         exception
+	 *         ResourceNotFoundException
 	 * @throws Exception
 	 */
 	protected String commonDeletePersonById(String parameters) throws Exception {
@@ -306,7 +309,7 @@ public class OpenEMPIbase {
 	 * 
 	 * @param parameters
 	 * @return String: Successful if remove is successful otherwise throws
-	 *         Exception
+	 *         ResourceNotFoundException
 	 * @throws Exception
 	 */
 	protected String commonRemovePersonById(String parameter) throws Exception {
