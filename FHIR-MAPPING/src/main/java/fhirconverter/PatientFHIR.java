@@ -47,9 +47,7 @@ public class PatientFHIR {
 	}
 	
 	protected JSONObject search(JSONObject parameters) throws Exception {
-		ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
-		JSONObject convertedResults = converterFHIR.conversionToOpenEMPI(parameters);
-		String result = caller.commonSearchPersonByAttributes(convertedResults);
+		String result = caller.commonSearchPersonByAttributes(parameters);
 		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
 		return converter.conversion(result);
 	}
