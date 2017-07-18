@@ -25,11 +25,6 @@ Scenario: Delete a patient
     Then The server response has status code 204
     And The server has no patient stored with this id 
 
-#Scenario: Search a patient by GET
-#    When I search a patient with family name "Foo" and given name "Bar"
-#    Then the server response has json key "entry" 
-#    And has status code 200
-
 #Scenario: Read a patient in XML
 #    When I read a patient with id 1 and format application/xml
 #    Then the server response has XML tag "entry"
@@ -38,6 +33,11 @@ Scenario: Delete a patient
 #Scenario: Read a patient in JSON
 #    When I read a patient with id 1 and format application/json
 #    Then the server response has json key "entry"
+#    And has status code 200
+
+#Scenario: Search a patient by GET
+#    When I search a patient with family name "Foo" and given name "Bar"
+#    Then the server response has json key "entry" 
 #    And has status code 200
 
 #Scenario: Update a patient
