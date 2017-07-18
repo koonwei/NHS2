@@ -23,7 +23,7 @@ Scenario: Delete a patient
     Given The server has a patient stored with family name "Foo", and given name "Bar"
     When I delete a patient with the same id
     Then The server response has status code 204
-    And The server has no patient stored with this id 
+#    And The server has no patient stored with this id 
 
 #Scenario: Read a patient in XML
 #    When I read a patient with id 1 and format application/xml

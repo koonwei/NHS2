@@ -33,7 +33,7 @@ end
 
 stop_server
 
-#start_server
+start_server
 
 at_exit do 
     stop_server
