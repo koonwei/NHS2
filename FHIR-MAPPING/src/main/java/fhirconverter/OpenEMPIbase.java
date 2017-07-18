@@ -65,8 +65,8 @@ public class OpenEMPIbase {
 
 	/**
 	 * This methods invokes findPersonsByAttributes API of OpenEMPI and
-	 * retrieves person details based on family name, given name or date of
-	 * birth
+	 * retrieves person details based on family name, given name, suffix,
+	 * prefix, gender or date of birth
 	 * 
 	 * @param parameters
 	 * @return String in XML format: person details
@@ -75,52 +75,67 @@ public class OpenEMPIbase {
 	protected String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
 
 		getSessionCode();
+		
 		String familyName = null;
-		String givenName = null;
 		String dob = null;
+		String gender = null;
+		String finalresponse = "";
+		String value = "";
+		String[] name = new String[] { "givenName", "suffix", "prefix" };
 		URL url = new URL(
 				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/findPersonsByAttributes");
-		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
-		hurl.setRequestMethod("POST");
-		hurl.setDoOutput(true);
-		hurl.setRequestProperty("Content-Type", "application/xml");
-		hurl.setRequestProperty("Accept", "application/xml");
-		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
 		if (parameters.length() == 0)
 			return null;
-
-		String payload = "<person>";
-
-		if (parameters.has("familyName")) {
-			familyName = parameters.getString("familyName");
-			payload = payload + "<familyName>" + familyName + "</familyName>";
-		}
-		if (parameters.has("givenName")) {
-			givenName = parameters.getString("givenName");
-			payload = payload + "<givenName>" + givenName + "</givenName>";
-		}
-		if (parameters.has("dateOfBirth")) {
-			dob = parameters.getString("dateOfBirth");
-			payload = payload + "<dateOfBirth>" + dob + "</dateOfBirth>";
-		}
-		payload = payload + "</person>";
-
-		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(payload);
-		osw.flush();
-		osw.close();
-
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			String line;
-			String response = "";
-			while ((line = in.readLine()) != null) {
-				response += line;
+			for (int i = 0; i < 3; i++) {
+
+				String payload = "<person>";
+				if (parameters.has("family")) {
+					familyName = parameters.getString("family");
+					payload = payload + "<familyName>" + familyName + "</familyName>";
+				}
+				if (parameters.has("name")) {
+					value = parameters.getString("name");
+					payload = payload + "<" + name[i] + ">" + value + "</" + name[i] + ">";
+				}
+				if (parameters.has("birthdate")) {
+					dob = parameters.getString("birthdate");
+					payload = payload + "<dateOfBirth>" + dob + "</dateOfBirth>";
+				}
+				// TODO : to be confirmed
+				if (parameters.has("gender")) {
+					gender = parameters.getString("gender");
+					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
+				}
+				payload = payload + "</person>";
+
+				HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+				hurl.setRequestMethod("POST");
+				hurl.setDoOutput(true);
+				hurl.setRequestProperty("Content-Type", "application/xml");
+				hurl.setRequestProperty("Accept", "application/xml");
+				hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+				OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
+				osw.write(payload);
+				osw.flush();
+				osw.close();
+
+				BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+				String line;
+				String response = "";
+				while ((line = in.readLine()) != null) {
+					response += line;
+				}
+				if (response.contains("person")) {
+					finalresponse += response;
+				}
 			}
-			System.out.println("Abstract Class: OpenEMPIbase Method: CommonSerachByAttributes Response:" + response);
-			return response;
-		} catch (Exception e) {
+			System.out
+					.println("Abstract Class: OpenEMPIbase Method: CommonSerachByAttributes Response:" + finalresponse);
+			Utils.removeDuplicateRecords(finalresponse);
+			return finalresponse;
+		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
 		}
 	}
@@ -129,7 +144,8 @@ public class OpenEMPIbase {
 	 * This methods invokes loadPerson API of OpenEMPI and retrieves person
 	 * details based on personId
 	 * 
-	 * @param parameter: personId
+	 * @param parameter:
+	 *            personId
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
@@ -155,7 +171,7 @@ public class OpenEMPIbase {
 				response += line;
 			}
 			System.out.println("Abstract Class: OpenEMPIbase Method: commonReadPerson Response:" + response);
-			if(response == ""){
+			if (response == "") {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			return response;
@@ -168,7 +184,8 @@ public class OpenEMPIbase {
 	 * This methods invokes loadPerson API of OpenEMPI and updates person
 	 * details
 	 * 
-	 * @param parameters: person element in XML string format 
+	 * @param parameters:
+	 *            person element in XML string format
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
@@ -217,7 +234,8 @@ public class OpenEMPIbase {
 	 * This method invokes addPerson API of OpenEMPI to create a new patient
 	 * record
 	 * 
-	 * @param parameters: person element in XML string format
+	 * @param parameters:
+	 *            person element in XML string format
 	 * @return newly created person element in XML string format
 	 * @throws Exception
 	 */
@@ -293,9 +311,10 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			System.out.println("Abstract Class: OpenEMPIbase Method: commonDeletePersonById Response:" + response);
-			if (response == "")
+			if (response == ""){
+				System.out.println("Abstract Class: OpenEMPIbase Method: commonDeletePersonById Response:" + "Delete Successful");
 				return "Delete Successful";
+			}
 			else
 				throw new ResourceNotFoundException("Resource Not Found");
 		} catch (Exception ex) {
@@ -333,9 +352,10 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			System.out.println("Abstract Class: OpenEMPIbase Method: commonRemovePersonById Response:" + response);
-			if (response == "")
+			if (response == ""){
+				System.out.println("Abstract Class: OpenEMPIbase Method: commonRemovePersonById Response:" + "Remove Successful");
 				return "Remove Successful";
+			}
 			else
 				throw new ResourceNotFoundException("Resource Not Found");
 		} catch (Exception ex) {
