@@ -6,9 +6,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.logging.log4j.*;
 import org.json.JSONObject;
-
-//import com.github.fge.jsonpatch.JsonPatch;
 
 import fhirconverter.exceptions.ResourceNotFoundException;
 import fhirconverter.exceptions.OpenEMPIAuthenticationException;
@@ -31,6 +30,8 @@ public class OpenEMPIbase {
 	 * patient) throws Exception;
 	 */
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
+
+	static final Logger logger = LogManager.getLogger(OpenEMPIbase.class.getName());
 
 	/**
 	 * This methods call the OpenEMPI API to get the session code
@@ -69,24 +70,32 @@ public class OpenEMPIbase {
 	 * prefix, gender or date of birth
 	 * 
 	 * @param parameters
+	 *            : JSONObjects
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
 	protected String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
 
+		if (parameters.length() == 0)
+			throw new ResourceNotFoundException("Resource Not Found");
+
 		getSessionCode();
-		
+		URL url = new URL(
+				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/findPersonsByAttributes");
+
 		String familyName = null;
 		String dob = null;
 		String gender = null;
 		String finalresponse = "";
 		String value = "";
-		String[] name = new String[] { "givenName", "suffix", "prefix" };
-		URL url = new URL(
-				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/findPersonsByAttributes");
 
-		if (parameters.length() == 0)
-			return null;
+		/*
+		 * The FHIR request can contain given name, suffix or prefix in the name
+		 * field. So openEMPI findPersonsByAttributes API is invoked 3 times
+		 * with name as givenName, suffix and prefix and the three responses are
+		 * combined and checked to remove any duplicate entries.
+		 */
+		String[] name = new String[] { "givenName", "suffix", "prefix" };
 		try {
 			for (int i = 0; i < 3; i++) {
 
@@ -131,10 +140,61 @@ public class OpenEMPIbase {
 					finalresponse += response;
 				}
 			}
-			System.out
-					.println("Abstract Class: OpenEMPIbase Method: CommonSerachByAttributes Response:" + finalresponse);
 			Utils.removeDuplicateRecords(finalresponse);
+			logger.info("*** Method: CommonSerachByAttributes Response:" + finalresponse + " ***");
+			logger.info("*** Method: CommonSerachByAttributes Response:" + finalresponse + " ***");
 			return finalresponse;
+		} catch (Exception ex) {
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
+	}
+
+	/**
+	 * This methods invokes findPersonById API of OpenEMPI and retrieves person
+	 * details based on identifier
+	 * 
+	 * @param parameters
+	 *            : JSONObjects
+	 * @return String in XML format: person details
+	 * @throws Exception
+	 */
+	protected String commonSearchPersonById(JSONObject parameters) throws Exception {
+
+		if (parameters.length() == 0)
+			throw new ResourceNotFoundException("Resource Not Found");
+
+		getSessionCode();
+
+		URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/findPersonById");
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("POST");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("Content-Type", "application/xml");
+		hurl.setRequestProperty("mediaType", "application/xml");
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		String identifier = parameters.getString("identifier");
+		String identifierDomainName = parameters.getString("identifierDomainName");
+		String payload = "	<personIdentifier>" 
+						+ "<identifier>" + identifier + "</identifier>" 
+						+ "<identifierDomain>"
+						+ "<identifierDomainName>" + identifierDomainName + "</identifierDomainName>" 
+						+ "</identifierDomain> </personIdentifier>";
+
+		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
+		osw.write(payload);
+		osw.flush();
+		osw.close();
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+			logger.info("*** Method: commonSearchPersonById Response:" + response + " ***");
+			logger.debug("*** Method: commonSearchPersonById Response:" + response + " ***");
+			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
 		}
@@ -170,7 +230,8 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			System.out.println("Abstract Class: OpenEMPIbase Method: commonReadPerson Response:" + response);
+			logger.info("*** Method: commonReadPerson Response:" + response + "***");
+			logger.debug("*** Method: commonReadPerson Response:" + response + "***");
 			if (response == "") {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
@@ -204,10 +265,8 @@ public class OpenEMPIbase {
 		if (parameters.isEmpty())
 			return null;
 
-		String payload = parameters;
-
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(payload);
+		osw.write(parameters);
 		osw.flush();
 		osw.close();
 
@@ -220,13 +279,16 @@ public class OpenEMPIbase {
 			}
 			if (response.equals("")) {
 				this.commonAddPerson(parameters);
+				logger.info("*** Method: commonUpdateById Response: ** Created ** " + response + " ***");
+				logger.debug("*** Method: commonUpdateById Response: ** Created ** " + response + " ***");
 				return "Created";
 			} else {
-				System.out.println("Abstract Class: OpenEMPIbase Method: commonUpdateById Response:" + response);
+				logger.info("*** Method: commonUpdateById Response: ** Updated ** " + response + " ***");
+				logger.debug("*** Method: commonUpdateById Response: ** Updated ** " + response + " ***");
 				return "Updated";
 			}
 		} catch (Exception ex) {
-			throw new ResourceNotCreatedException("Resource Not Updated");
+			throw new ResourceNotCreatedException("Resource Not Created/Updated");
 		}
 	}
 
@@ -250,10 +312,22 @@ public class OpenEMPIbase {
 		hurl.setRequestProperty("Content-Type", "application/xml");
 		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
-		String payload = parameters;
+		/*
+		 * Checks if NHS identifier exist in OpenEMPI database. If NHS
+		 * identifier doesn't exist, then a new identifier is created for NHS
+		 * otherwise proceed to add person
+		 */
+		if (parameters.contains("NHS")) {
+			logger.info("*** Identifier Domain is NHS ***");
+			if (!this.checkIfIdendifierExists("NHS")) {
+				logger.info("*** Identifier Domain is NHS does not exist in OpenEMPI database ***");
+				this.addIdentifier("NHS");
+				logger.info("*** Identifier Domain is NHS added to OpenEMPI database ***");
+			}
+		}
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(payload);
+		osw.write(parameters);
 		osw.flush();
 		osw.close();
 		String response = "";
@@ -265,7 +339,8 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			System.out.println("Abstract Class: OpenEMPIbase Method: commonAddPerson Response:" + response);
+			logger.info("*** Method: commonAddPerson Response:" + response + "***");
+			logger.info("*** Method: commonAddPerson Response:" + response + "***");
 			return response;
 		} catch (Exception e) {
 			throw new ResourceNotCreatedException("Resource Not Created");
@@ -300,7 +375,6 @@ public class OpenEMPIbase {
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
 		osw.write(payload);
-		;
 		osw.flush();
 		osw.close();
 
@@ -311,11 +385,11 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			if (response == ""){
-				System.out.println("Abstract Class: OpenEMPIbase Method: commonDeletePersonById Response:" + "Delete Successful");
+			if (response == "") {
+				logger.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
+				logger.debug("*** Method: commonDeletePersonById Response: Delete Successful ***");
 				return "Delete Successful";
-			}
-			else
+			} else
 				throw new ResourceNotFoundException("Resource Not Found");
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -326,7 +400,8 @@ public class OpenEMPIbase {
 	 * This method takes personId as parameter and invokes removePersonById API
 	 * with the person details and removes the person form OpenEMPI
 	 * 
-	 * @param parameters
+	 * @param parameters:
+	 *            String
 	 * @return String: Successful if remove is successful otherwise throws
 	 *         ResourceNotFoundException
 	 * @throws Exception
@@ -352,14 +427,108 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			if (response == ""){
-				System.out.println("Abstract Class: OpenEMPIbase Method: commonRemovePersonById Response:" + "Remove Successful");
+			if (response == "") {
+				logger.info("*** Method: commonRemovePersonById Response: Remove Successful ***");
+				logger.debug("*** Method: commonRemovePersonById Response: Remove Successful ***");
 				return "Remove Successful";
-			}
-			else
+			} else
 				throw new ResourceNotFoundException("Resource Not Found");
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
+		}
+	}
+
+	/**
+	 * This method takes identifier name and invokes openEMPI API to retrieve
+	 * all the existing identifier domain. It then checks if the given
+	 * identifier exists or not. Returns true or false accordingly
+	 * 
+	 * @param identifierName
+	 *            : String
+	 * @return Boolean: True if identifier exists in openEMPI database,
+	 *         otherwise false
+	 * @throws Exception
+	 */
+	protected Boolean checkIfIdendifierExists(String identifierName) throws Exception {
+
+		getSessionCode();
+
+		URL url = new URL(
+				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/getIdentifierDomains");
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("GET");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+			if (response.contains(identifierName)){
+				logger.info("*** Method: checkIfIdendifierExists Response: true ***");
+				logger.debug("*** Method: checkIfIdendifierExists Response: true ***");
+				return true;
+			}
+			else{
+				logger.info("*** Method: checkIfIdendifierExists Response: false ***");
+				logger.debug("*** Method: checkIfIdendifierExists Response: false ***");
+				return false;
+			}
+		} catch (Exception ex) {
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
+
+	}
+
+	/**
+	 * This methods takes identifier name and invokes openEMPI API to add the
+	 * identifier details
+	 * 
+	 * @param identifierName:
+	 *            String
+	 * @return String: newly created identifier details
+	 * @throws Exception
+	 */
+	protected String addIdentifier(String identifierName) throws Exception {
+
+		getSessionCode();
+
+		URL url = new URL(
+				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addIdentifierDomain");
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("PUT");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("mediaType", "*/*");
+		hurl.setRequestProperty("Content-Type", "application/xml");
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		String payload = "<identifierDomain>" + 
+				"<identifierDomainName>" + identifierName + "</identifierDomainName>"
+				+ "<namespaceIdentifier>" + identifierName + "</namespaceIdentifier>" 
+				+ "<universalIdentifier>" + identifierName + "</universalIdentifier>" 
+				+ "<universalIdentifierTypeCode>" + identifierName+ "</universalIdentifierTypeCode>" 
+				+ "</identifierDomain>";
+
+		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
+		osw.write(payload);
+		osw.flush();
+		osw.close();
+
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+			logger.info("*** Method: addIdentifier Response:" + response + " ***");
+			logger.debug("*** Method: addIdentifier Response:" + response + " ***");
+			return response;
+		} catch (Exception ex) {
+			throw new ResourceNotCreatedException("Resource Not Created");
 		}
 	}
 
@@ -368,5 +537,4 @@ public class OpenEMPIbase {
 		return true;
 
 	}
-
 }

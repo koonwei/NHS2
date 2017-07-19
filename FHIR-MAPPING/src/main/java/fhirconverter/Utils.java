@@ -1,6 +1,8 @@
 package fhirconverter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
@@ -43,10 +45,21 @@ public final class Utils{
 	/**
 	 * @param finalresponse
 	 */
-	public static String removeDuplicateRecords(String finalresponse) {
+	public static String removeDuplicateRecords(String response) {
+		
+		response = response.replaceAll("</person>", "</person>\n");
+		String[] people = response.split("\n");
+
+		Set<String> set = new HashSet<String>();
+		for(int i = 0; i < people.length; i++){
+			 set.add(people[i]);
+		}
+		String finalresponse = set.toString();
+		finalresponse = finalresponse.replaceAll(", ", "");
+		finalresponse = finalresponse.replaceAll("]", "");
+		finalresponse = finalresponse.replace("[", "");
 		
 		return finalresponse;
-		// TODO Auto-generated method stub
 		
 	}	
 }
