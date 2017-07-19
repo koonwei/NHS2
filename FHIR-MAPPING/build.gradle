@@ -1,9 +1,27 @@
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+//    }
+//}
+
 apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'jacoco'
-
 apply plugin: 'application'
+//apply plugin: 'org.springframework.boot'
 
-mainClassName = 'fhirconverter.spark.SparkFHIR'
+//mainClassName = 'fhirconverter.spark.Application'
+
+apply plugin: 'war'
+
+war {
+    baseName = 'fhirconverter'
+    version =  '0.5.0'
+}
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
@@ -15,25 +33,35 @@ repositories {
 }
 
 dependencies {
-	compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
-	compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
 
-    //Modules used for Resource Validation
-    compile group: 'com.phloc', name: 'phloc-schematron', version: '2.7.1'
-    compile group: 'com.phloc', name: 'phloc-commons', version: '4.4.6'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
 
-    compile "com.sparkjava:spark-core:2.6.0"
-  	testCompile "junit:junit:4.11"
-    testCompile 'org.mockito:mockito-core:2.7.22'
+
     compile group: 'com.github.fge', name: 'json-patch', version: '1.9';
-	  compile group: 'org.json', name: 'json', version: '20160810'
+    compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
     compile 'io.sentry:sentry-log4j2:1.2.2'
     compile 'io.sentry:sentry-logback:1.2.2'
-	  compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
-	  compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.1.1'		
+    compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
+    compile(group: "com.github.fge", name: "json-patch", version: "1.9");
+
+    compile 'org.thymeleaf:thymeleaf:latest.release'
+
+    compile 'org.springframework:spring-web:latest.release'
+//    compile("org.springframework.boot:spring-boot-starter-web")
+//        exclude module: "spring-boot-starter-tomcat"
+//    }
+//    compile("org.springframework.boot:spring-boot-starter-jetty")
+//    compile("org.springframework.boot:spring-boot-starter-actuator")
+//    compile("org.thymeleaf:thymeleaf-spring4")
+//    compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+
+
+    testCompile "junit:junit:4.11"
+    testCompile 'org.mockito:mockito-core:2.7.22'
 }
 
 task wrapper(type: Wrapper) {
