@@ -543,13 +543,14 @@ public class PatientTestCases{
 		String obtained_string = obtained_object.toString();		
         Assert.assertEquals("Search operation failed." + "\n Search Result: \n" + obtained_string + "\n" + expected.toString() ,expected.toString(), obtained_object.toString());
 	}
+	*/
 	@Test
 	public void testPatientRead() throws Exception {
 		PatientFHIR tester = new PatientFHIR();
 		JSONObject expected = new JSONObject(Record);
-		JSONObject obtained = tester.read("176");
+		JSONObject obtained = tester.read("3");
 		Assert.assertEquals("Read operation failed: \nRead Result: \n" + obtained.toString() + " \n" + expected.toString() , expected.toString(), obtained.toString());		
-	}*/
+	}
 	
 	@Test
 	public void testPatientUpdate() throws ResourceNotFoundException, Exception {

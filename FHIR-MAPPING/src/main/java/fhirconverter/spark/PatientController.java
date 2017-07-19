@@ -6,7 +6,7 @@ import fhirconverter.ConverterOpenempi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hl7.fhir.dstu3.model.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import org.json.JSONObject;
 import org.json.XML;
 import spark.*;
