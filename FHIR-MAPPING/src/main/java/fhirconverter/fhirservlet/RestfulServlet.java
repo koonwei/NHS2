@@ -1,4 +1,4 @@
-package fhirconverter.spark;
+package fhirconverter.fhirservlet;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
@@ -9,6 +9,7 @@ import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import org.springframework.web.cors.CorsConfiguration;
 
+import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * This servlet is the actual FHIR server itself
  */
-//@WebServlet(urlPatterns= {"/fhir/*"}, displayName="FHIR Server")
+@WebServlet(urlPatterns= {"/fhir/*"}, displayName="FHIR Server")
 public class RestfulServlet extends RestfulServer {
 
     private static final long serialVersionUID = 1L;

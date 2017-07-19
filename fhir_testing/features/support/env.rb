@@ -4,7 +4,7 @@ require 'rest-client'
 
 def server_up_and_running?
     begin
-        RestClient.get 'http://localhost:4567/fhir/meta'
+        RestClient.get 'http://localhost:8080/fhir/metadata'
     rescue StandardError => e
         $stdout.puts "Error #{e}"
         return false

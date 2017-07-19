@@ -1,4 +1,4 @@
-package fhirconverter.spark;
+package fhirconverter.fhirservlet;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;

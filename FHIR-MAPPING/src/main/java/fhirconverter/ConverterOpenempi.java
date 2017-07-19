@@ -3,11 +3,9 @@ package fhirconverter;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fhirconverter.spark.Representation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.json.XML;
 
 public class ConverterOpenempi{
     private Logger LOGGER = LogManager.getLogger(ConverterOpenempi.class);

@@ -1,4 +1,4 @@
-package fhirconverter.spark;
+package fhirconverter.fhirservlet;
 
 import org.junit.Test;
 
