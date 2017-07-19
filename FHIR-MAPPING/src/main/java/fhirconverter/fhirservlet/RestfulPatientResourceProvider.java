@@ -45,6 +45,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
         try {
             String jsonStringPatient = FhirContext.forDstu3().newJsonParser().encodeResourceToString(patient);
+            LOGGER.info(jsonStringPatient);
             JSONObject resource = new JSONObject(jsonStringPatient);
 
             String reply = converterOpenempi.patientCreate(resource);
@@ -88,10 +89,14 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     public List<Patient> searchPatient(@OptionalParam(name = Patient.SP_FAMILY) StringType familyName,
                                        @OptionalParam(name = Patient.SP_GIVEN) StringType givenName,
                                        @OptionalParam(name = Patient.SP_GENDER) StringType gender,
-                                       @OptionalParam(name = Patient.SP_BIRTHDATE) DateParam brithDate,
+                                       @OptionalParam(name = Patient.SP_BIRTHDATE) DateParam birthDate,
                                        @OptionalParam(name = Patient.SP_IDENTIFIER) TokenParam identifierToken) {
 
         try {
+            if(identifierToken.getSystem() == null)
+            {
+                throw new DataFormatException("Incomplete identifier");
+            }
             JSONObject searchParams = new JSONObject();
 
             if (familyName != null)
@@ -100,13 +105,19 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
                 searchParams.put("given", givenName.getValue());
             if (gender != null)
                 searchParams.put("gender", gender.getValue());
-            if (brithDate != null)
-                searchParams.put("birthdate", brithDate.getValueAsString());
-            if (identifierToken != null)
-                searchParams.put("identifiers", identifierToken.getValue());
+            if (birthDate != null)
+                searchParams.put("birthdate", birthDate.getValueAsString());
+            if (identifierToken != null) {
+                searchParams.put("identifier_domain", identifierToken.getSystem());
+                searchParams.put("identifier_value", identifierToken.getValue());
+            }
 
-            LOGGER.info("FamilyName " + familyName);
-            LOGGER.info("GivenName " + givenName);
+            LOGGER.info("FamilyName: " + familyName);
+            LOGGER.info("GivenName: " + givenName);
+            LOGGER.info("Gender: " + gender);
+            LOGGER.info("BirthDate: " + birthDate);
+            LOGGER.info("Identifiers: " + identifierToken);
+
 
             List<Patient> patients = new ArrayList<Patient>();
             return patients;
