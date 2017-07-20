@@ -1,23 +1,28 @@
 package fhirconverter.spark;
 
 import static spark.Spark.*;
-import fhirconverter.ConverterOpenempi;
 
 public class SparkFHIR {
 
     private static final String rootPath = "";
     private static final String searchPath = "/_search";
+    private static final String basePath = "/fhir";
 
     public static void main(String[] args) {
 
-        path("/fhir", () -> {
+        path(basePath, () -> {
             before("/*", Filters.formatFilter);
             /*TODO*/
             before("/*", (req, resp) -> System.out.println("Validate Parameters!"));
             /*TODO*/
             after("/*", Filters.responseFormatValidater);
 
-            path("/patient", () -> {
+            get("/meta", (req, resp) -> {
+                resp.status(204);
+                return resp;
+            });
+
+            path("/Patient", () -> {
                 post(rootPath, PatientController.createPatient);
                 get(rootPath,  PatientController.searchPatientByGet);
                 post(searchPath,  PatientController.searchPatientByPost);
