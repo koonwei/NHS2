@@ -107,7 +107,7 @@
 		"type": "string"
 	},
    	"personIdentifiers": {
-		"type": "object",
+		"type": "array",
 		"properties": {
          		"dateCreated": {"type": "string"},
          		"identifier":  {"type": "string"},

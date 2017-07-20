@@ -38,13 +38,8 @@ import org.json.XML;
 
 import ca.uhn.fhir.context.FhirContext;
 
-public class ConversionOpenEMPI_to_FHIR {
+public class ConversionOpenEmpiToFHIR {
 	
-	/**
-	 * This method convert date in string format to date format 
-	 * @param date
-	 * @return
-	 */
 	protected JSONObject conversion(String result){
         JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
         int PRETTY_PRINT_INDENT_FACTOR = 4;

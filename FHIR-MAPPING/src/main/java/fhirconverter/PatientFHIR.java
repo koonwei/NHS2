@@ -42,18 +42,18 @@ public class PatientFHIR {
 
 	protected JSONObject read(String id) throws Exception {
 		String result = caller.commonReadPerson(id);	
-		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
+		ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
 		return converter.conversion(result);
 	}
 	
 	protected JSONObject search(JSONObject parameters) throws Exception {
 		String result = caller.commonSearchPersonByAttributes(parameters);
-		ConversionOpenEMPI_to_FHIR converter = new ConversionOpenEMPI_to_FHIR();
+		ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
 		return converter.conversion(result);
 	}
 	
 	protected String update(String id, JSONObject patient) throws Exception {	
-		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
+		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		newRecordOpenEMPI.put("personId", id);
 		
@@ -116,7 +116,7 @@ public class PatientFHIR {
 	
 	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
 		String result = caller.commonReadPerson(id);
-		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
+		ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 		JSONObject xmlResults = converterOpenEmpi.conversion(result);
 		xmlResults.remove("identifier");
 		String jsonResults = xmlResults.toString();
@@ -135,7 +135,7 @@ public class PatientFHIR {
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
 			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());
-				ConversionFHIR_to_OpenEMPI converterFHIR = new ConversionFHIR_to_OpenEMPI();
+				ConversionFHIRToOpenEmpi converterFHIR = new ConversionFHIRToOpenEmpi();
 		 		JSONObject convertedXML = converterFHIR.conversionToOpenEMPI(patchedResults);
 				final JsonNode jsonNodePatched = mapper.readTree(convertedXML.toString());	
 				if(Utils.validateScheme(jsonNodePatched, "resource/openempiSchema.json")){
@@ -169,13 +169,13 @@ public class PatientFHIR {
 	}
 			
 	protected String create(JSONObject patient) throws ResourceNotFoundException, Exception{
-		ConversionFHIR_to_OpenEMPI converter = new ConversionFHIR_to_OpenEMPI();
+		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		JSONObject records = new JSONObject();
 		records.put("person", newRecordOpenEMPI);
 		String xmlNewRecord = XML.toString(records);
 		String result = caller.commonAddPerson(xmlNewRecord);
-		ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
+		ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 		JSONObject createdObject = converterOpenEmpi.conversion(result);
 		String replyCreatedNewRecord = "";
 		if(createdObject.has("id")){

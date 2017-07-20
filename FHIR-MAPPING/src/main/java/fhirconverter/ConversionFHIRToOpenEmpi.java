@@ -18,7 +18,7 @@ package fhirconverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ConversionFHIR_to_OpenEMPI {
+public class ConversionFHIRToOpenEmpi {
 	
 	
 	protected JSONObject conversionToOpenEMPI(JSONObject patient) {
@@ -40,7 +40,7 @@ public class ConversionFHIR_to_OpenEMPI {
 					
 					/* Define maiden name if it exists */
 					if((details.has("use"))&&details.optString("use").equals("maiden")) {
-						content.put("mothersMaidenName", details.getString("use"));
+						content.put("mothersMaidenName", details.optString("family"));
 					}
 					
 					if((details.has("use"))&&(details.optString("use").equals("official"))) {
