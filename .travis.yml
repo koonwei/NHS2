@@ -10,7 +10,7 @@ before_script:
   - cp FHIR-MAPPING/config.properties.example FHIR-MAPPING/config.properties
 
 script: 
-  - gradle -p FHIR-MAPPING build 
+  # - gradle -p FHIR-MAPPING build 
   - gradle -p FHIR-MAPPING test --stacktrace --debug
 
 jobs:
