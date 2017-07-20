@@ -45,7 +45,7 @@ public class OpenEMPIbase {
 		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
 		hurl.setRequestMethod("PUT");
 		hurl.setDoOutput(true);
-		hurl.setRequestProperty("Content-Type", "application/xml"); // application/json
+		hurl.setRequestProperty("Content-Type", "application/xml");
 		hurl.setRequestProperty("Accept", "application/xml");
 		String payload = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<authenticationRequest><password>" + _instance.password + "</password><username>"
@@ -175,8 +175,8 @@ public class OpenEMPIbase {
 		hurl.setRequestProperty("mediaType", "application/xml");
 		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
-		String identifier = parameters.getString("identifier");
-		String identifierDomainName = parameters.getString("identifierDomainName");
+		String identifier = parameters.getString("identifier_value");
+		String identifierDomainName = parameters.getString("identifier_domain");
 		String payload = "	<personIdentifier>" 
 						+ "<identifier>" + identifier + "</identifier>" 
 						+ "<identifierDomain>"
