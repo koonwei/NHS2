@@ -1,10 +1,6 @@
-package fhirconverter.spark;
+package fhirconverter.fhirservlet;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static spark.Spark.stop;
 
 public class PatientControllerTest {
     @Test

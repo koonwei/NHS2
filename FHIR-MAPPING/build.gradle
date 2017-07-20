@@ -1,10 +1,23 @@
 apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'jacoco'
-
 apply plugin: 'application'
 
-mainClassName = 'fhirconverter.spark.SparkFHIR'
-//fhirconverter.spark.SparkFHIR
+//mainClassName = 'fhirconverter.fhirservlet.Application'
+apply plugin: 'war'
+
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+
+gretty {
+    contextPath = '/'
+    // ... many more properties
+}
+
+war {
+    baseName = 'fhirconverter'
+    version =  '0.5.0'
+}
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
@@ -16,17 +29,14 @@ repositories {
 }
 
 dependencies {
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+
     compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
     //compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
     compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-dstu2', version: '2.5'
    
-    //Modules used for Resource Validation
-    compile group: 'com.phloc', name: 'phloc-schematron', version: '2.7.1'
-    compile group: 'com.phloc', name: 'phloc-commons', version: '4.4.6'
 
-    compile "com.sparkjava:spark-core:2.6.0"
     testCompile "junit:junit:4.11"
-    testCompile 'org.mockito:mockito-core:2.7.22'
     compile group: 'com.github.fge', name: 'json-patch', version: '1.9';
     compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
@@ -36,6 +46,12 @@ dependencies {
     compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
     compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
     compile(group: "com.github.java-json-tools", name: "json-schema-validator", version: "2.2.8");
+    compile 'org.thymeleaf:thymeleaf:latest.release'
+
+    compile 'org.springframework:spring-web:latest.release'
+
+    testCompile "junit:junit:4.11"
+    testCompile 'org.mockito:mockito-core:2.7.22'
 }
 
 task wrapper(type: Wrapper) {
