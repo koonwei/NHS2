@@ -1,25 +1,16 @@
 package fhirconverter;
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-
-import org.junit.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jackson.JacksonUtils;
 import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonpatch.JsonPatch;  
-import com.github.fge.jsonpatch.JsonPatchException; 
-
-import ca.uhn.fhir.parser.IParser;
-import fhirconverter.spark.FHIRParser;
-
-import org.json.JSONException; 
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import fhirconverter.exceptions.FhirSchemeNotMetException;
+import fhirconverter.exceptions.ResourceNotFoundException;
 import org.json.JSONObject;
-import org.json.JSONArray;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fhirconverter.exceptions.*;
+import static org.junit.Assert.assertEquals;
 public class PatientTestCases{
     private ObjectMapper mapper;
 
