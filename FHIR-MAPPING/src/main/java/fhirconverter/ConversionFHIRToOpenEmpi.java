@@ -18,7 +18,7 @@ package fhirconverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ConversionFHIR_to_OpenEMPI {
+public class ConversionFHIRToOpenEmpi {
 	
 	
 	protected JSONObject conversionToOpenEMPI(JSONObject patient) {
@@ -40,7 +40,9 @@ public class ConversionFHIR_to_OpenEMPI {
 					
 					/* Define maiden name if it exists */
 					if((details.has("use"))&&details.optString("use").equals("maiden")) {
-						content.put("mothersMaidenName", details.getString("use"));
+						if(details.getJSONArray("family").length() > 0){
+							content.put("mothersMaidenName", details.getJSONArray("family").getString(0));
+						}
 					}
 					
 					if((details.has("use"))&&(details.optString("use").equals("official"))) {
@@ -72,8 +74,35 @@ public class ConversionFHIR_to_OpenEMPI {
 		/* SET THE MARITAL STATUS FROM FHIR TO OPENEMPI */
 		if(patient.has("maritalStatus")) {
 			JSONObject status = patient.getJSONObject("maritalStatus");
-			if(status.has("text")) {
-				content.put("maritalStatusCode", status.getString("text"));
+			if(status.has("coding")) {
+				JSONObject code = status.getJSONArray("coding").getJSONObject(0);
+				System.out.println(code.toString());
+				if(code.has("code")){
+					String codeName = code.optString("code");
+					if(codeName.equals("M")){
+						codeName = "MARRIED";
+					}else if(codeName.equals("D")){
+						codeName = "DIVORCED";
+					}else if(codeName.equals("I")){
+						codeName = "INTERLOCUTORY";
+					}else if(codeName.equals("L")){
+						codeName = "LEGALLY SEPARATED";
+					}else if(codeName.equals("P")){
+						codeName = "POLYGAMOUS";
+					}else if(codeName.equals("S")){
+						codeName = "NEVER MARRIED";
+					}else if(codeName.equals("T")){
+						codeName = "DOMESTIC PARTNER";
+					}else if(codeName.equals("W")){
+						codeName = "WIDOWED";
+					}else if(codeName.equals("A")){
+						codeName = "ANNULLED";
+					}else{
+						codeName = "UNKNOWN";
+					}
+					System.out.println(codeName + "HI THERE");
+					content.put("maritalStatusCode", codeName);
+				}
 			}
 		}
 
@@ -191,9 +220,10 @@ public class ConversionFHIR_to_OpenEMPI {
 			
 			/* - Family Name - */
 			if(details.has("family")) {
-				content.put("familyName", new String(details.optString("family")));
+				if(details.getJSONArray("family").length() > 0){
+					content.put("familyName", new String(details.getJSONArray("family").getString(0)));
+				}
 			}
-			
 			/* Given Name: JSONArray because it contails First & Middle Name */
 			if(details.has("given")) {
 				JSONArray given = details.getJSONArray("given");

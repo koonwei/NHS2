@@ -45,13 +45,8 @@ import org.json.XML;
 
 import ca.uhn.fhir.context.FhirContext;
 
-public class ConversionOpenEMPI_to_FHIR {
+public class ConversionOpenEmpiToFHIR {
 	
-	/**
-	 * This method convert date in string format to date format 
-	 * @param date
-	 * @return
-	 */
 	protected JSONObject conversion(String result){
         JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
         int PRETTY_PRINT_INDENT_FACTOR = 4;
@@ -135,23 +130,23 @@ public class ConversionOpenEMPI_to_FHIR {
 		/* Marital Status */		
 		if(node.has("maritalStatusCode")) {
 			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
-			if(martialStatus == "MARRIED"){
+			if(martialStatus.equals("MARRIED")){
 				p.setMaritalStatus(MaritalStatusCodesEnum.M);
-			}else if(martialStatus == "ANNULLED"){
+			}else if(martialStatus.equals("ANNULLED")){
 				p.setMaritalStatus(MaritalStatusCodesEnum.A);
-			}else if(martialStatus == "DIVORCED"){
+			}else if(martialStatus.equals("DIVORCED")){
 				p.setMaritalStatus(MaritalStatusCodesEnum.D);
-			}else if(martialStatus == "INTERLOCUTORY"){ 
+			}else if(martialStatus.equals("INTERLOCUTORY")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.I);
-			}else if(martialStatus == "LEGALLY SEPARATED"){ 
+			}else if(martialStatus.equals("LEGALLY SEPARATED")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.L);
-			}else if(martialStatus == "POLYGAMOUS"){ 
+			}else if(martialStatus.equals("POLYGAMOUS")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.P);
-			}else if(martialStatus == "NEVER MARRIED"){ 
+			}else if(martialStatus.equals("NEVER MARRIED")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.S);
-			}else if(martialStatus == "DOMESTIC PARTNER"){ 
+			}else if(martialStatus.equals("DOMESTIC PARTNER")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.T);
-			}else if(martialStatus == "WIDOWED"){ 
+			}else if(martialStatus.equals("WIDOWED")){ 
 				p.setMaritalStatus(MaritalStatusCodesEnum.W);
 			}else{
 				p.setMaritalStatus(MaritalStatusCodesEnum.UNK);

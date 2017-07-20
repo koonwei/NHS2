@@ -531,10 +531,4 @@ public class OpenEMPIbase {
 			throw new ResourceNotCreatedException("Resource Not Created");
 		}
 	}
-
-	protected boolean validateJsonScheme() {
-		// File schemaFile = new File("/resource/openempi.json");
-		return true;
-
-	}
 }

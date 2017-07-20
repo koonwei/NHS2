@@ -7,7 +7,8 @@ import org.junit.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jackson.JacksonUtils; 
+import com.github.fge.jackson.JacksonUtils;
+import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonpatch.JsonPatch;  
 import com.github.fge.jsonpatch.JsonPatchException; 
 
@@ -185,55 +186,49 @@ public class PatientTestCases{
     
     
     
-	final private String searchParameters = "{ \"name\": [\r\n" + 
-			"    {\r\n" + 
-			"      \"family\": \"Papantwniou\",\r\n" + 
-			"      \"given\": [\r\n" + 
-			"        \"Georgia\"\r\n" + 
-			"      ]\r\n" + 
-			"    }\r\n" + 
-			"  ]\r\n" + 
-			" }";
+	final private String searchParameters = "{\r\n" + 
+			"  \"name\": \"Kathrin\",\r\n" + 
+			"}";
+	
 	final private String Record = "{\r\n" + 
 			"  \r\n" + 
 			"\"resourceType\": \"Patient\",\r\n" + 
-			"  \"id\": \"176\",\r\n" + 
 			"  \"meta\": {\r\n" + 
 			"    \"lastUpdated\": \"2017-07-14T00:00:00.000+00:00\"\r\n" + 
 			"  },\r\n" + 
 			"  \"identifier\": [\r\n" + 
 			"    {\r\n" + 
 			"      \"system\": \"SSN\",\r\n" + 
-			"      \"value\": \"54645987312\"\r\n" + 
+			"      \"value\": \"54645989875566587312\"\r\n" + 
 			"    }\r\n" + 
 			"  ],\r\n" + 
 			"  \"name\": [\r\n" + 
 			"    {\r\n" + 
-			"      \"family\": \"Papantwniou\",\r\n" + "\"use\":\"official\","+
+			"      \"family\": \"Papantwnopulou\",\r\n" + "\"use\":\"official\","+
 			"      \"given\": [\r\n" + 
-			"        \"Georgia\",\r\n" + 
-			"        \"Elena\"\r\n" + 
+			"        \"Georgiana\",\r\n" + 
+			"        \"Alexandra\"\r\n" + 
 			"      ]\r\n" +  
 			"    }\r\n" + 
 			"  ],\r\n" + 
 			"  \"telecom\": [\r\n" + 
 			"    {\r\n" + 
 			"      \"system\": \"email\",\r\n" + 
-			"      \"value\": \"elenaioannou@gmail.com\"\r\n" + 
+			"      \"value\": \"papantwnopoulougeorgiana@gmail.com\"\r\n" + 
 			"    },\r\n" + 
 			"    {\r\n" + 
 			"      \"system\": \"phone\",\r\n" + 
-			"      \"value\": \"044225216748963\"\r\n" + 
+			"      \"value\": \"044225216553\"\r\n" + 
 			"    }\r\n" + 
 			"  ],\r\n" + 
-			"  \"gender\": \"male\",\r\n" + 
-			"  \"birthDate\": \"2017-07-11\",\r\n" + 
+			"  \"gender\": \"female\",\r\n" + 
+			"  \"birthDate\": \"1991-06-04\",\r\n" + 
 			"  \"address\": [\r\n" + 
 			"    {\r\n" + 
-			"      \"text\": \"Kings Cross Penton Rise London London 589632 UK\",\r\n" + 
+			"      \"text\": \"Kings Cross Pentoville Road London London 589632 UK\",\r\n" + 
 			"      \"line\": [\r\n" + 
 			"        \"Kings Cross\",\r\n" + 
-			"        \"Penton Rise\"\r\n" + 
+			"        \"Pentoville Road\"\r\n" + 
 			"      ],\r\n" + 
 			"      \"city\": \"London\",\r\n" + 
 			"      \"state\": \"London\",\r\n" + 
@@ -242,9 +237,9 @@ public class PatientTestCases{
 			"    }\r\n" + 
 			"  ],\r\n" + 
 			"  \"maritalStatus\": {\r\n" + 
-			"    \"text\": \"married\"\r\n" + 
+			"    \"text\": \"single\"\r\n" + 
 			"  },\r\n" + 
-			"  \"multipleBirthInteger\": 2\r\n" + 
+			"  \"multipleBirthInteger\": 1\r\n" + 
 			"}";
 	
 	
@@ -534,43 +529,43 @@ public class PatientTestCases{
 		Assert.assertTrue(jsonObj.has("resourceType"));		
 	}*/
 
-	/*@Test
-	public void testPatientSearch() throws Exception {
-		PatientFHIR tester = new PatientFHIR();		
-		JSONObject expected = new JSONObject(expectedSearch);
-		JSONObject parameters = new JSONObject(searchParameters);
-		JSONObject obtained_object = tester.search(parameters);		
-		String obtained_string = obtained_object.toString();		
-        Assert.assertEquals("Search operation failed." + "\n Search Result: \n" + obtained_string + "\n" + expected.toString() ,expected.toString(), obtained_object.toString());
-	}
-	*/
 	@Test
-	public void testPatientRead() throws Exception {
-		PatientFHIR tester = new PatientFHIR();
-		JSONObject expected = new JSONObject(Record);
-		JSONObject obtained = tester.read("3");
-		Assert.assertEquals("Read operation failed: \nRead Result: \n" + obtained.toString() + " \n" + expected.toString() , expected.toString(), obtained.toString());		
+	public void testPatientSearch() throws Exception {
+		PatientFHIR tester = new PatientFHIR();	
+		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
+		JSONObject patient = new JSONObject(fhirResource.toString());
+		JSONObject expected = patient;
+		expected.remove("meta");
+		String death = expected.optString("deceasedDateTime");
+		if(expected.has("deceasedDateTime")) {
+			expected.remove("deceasedDateTime");
+			expected.put("deceasedDateTime", death.substring(0,19) + "Z");
+		}
+		String newRecordID = tester.create(patient);
+		JSONObject parameters = new JSONObject(searchParameters);
+		JSONObject obtained_object = tester.search(parameters);
+		JSONObject resultSearch = obtained_object.getJSONArray("entry").getJSONObject(0).getJSONObject("resource");
+		resultSearch.remove("id");
+		resultSearch.remove("meta");					
+        	OpenEMPIbase delete = new OpenEMPIbase();
+		System.out.println(newRecordID+ "FOCUS HERE");
+        	delete.commonRemovePersonById(newRecordID);
+		String obtained_string = resultSearch.toString();		
+        	Assert.assertEquals("Search operation failed \n",expected.toString(), resultSearch.toString());
 	}
-	
 	@Test
 	public void testPatientUpdate() throws ResourceNotFoundException, Exception {
 		PatientFHIR tester = new PatientFHIR();	
-		JSONObject create = new JSONObject(updateExistsCreate);
-		String newRecordID = tester.create(create);
-
-		JSONObject updateCreate = new JSONObject(updateExists);
+        	OpenEMPIbase delete = new OpenEMPIbase();
+		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
+		JSONObject patient = new JSONObject(fhirResource.toString());
+  		String newRecordID = tester.create(patient);
+		JsonNode fhirResourceUpdate = JsonLoader.fromPath("resource/updateResourceFhir.json");		
+		JSONObject updateCreate = new JSONObject(fhirResourceUpdate.toString());
 		String replyExists = tester.update(newRecordID, updateCreate);
-		
+        	delete.commonRemovePersonById(newRecordID);
 		assertEquals("Update Operation if the record exists failed: ", "Updated", replyExists );		
-		
-		
-		JSONObject update = new JSONObject(updateNotExist);
-		String reply = tester.update("1001", update);
-		
-		assertEquals("Update Operation if the record doesn't exist failed: ", "Created" , reply);
 
-		OpenEMPIbase delete = new OpenEMPIbase();
-		delete.commonRemovePersonById("1001");
 	}
 	@Test(expected = FhirSchemeNotMetException.class)
 	public void testPatientPatchPathNotExist() throws Exception{
@@ -579,7 +574,15 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		tester.patch("233",patch);
+		OpenEMPIbase delete = new OpenEMPIbase();
+		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
+		JSONObject patient = new JSONObject(fhirResource.toString());
+  		String newRecordID = tester.create(patient);
+		try{
+			tester.patch(newRecordID,patch);
+		}finally{
+			delete.commonRemovePersonById(newRecordID);
+		}
 	}
 	@Test(expected = JsonPatchException.class)
 	public void testPatientPatchOperatorsNotExist() throws Exception{
@@ -588,7 +591,15 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		tester.patch("233",patch);
+		OpenEMPIbase delete = new OpenEMPIbase();
+		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
+		JSONObject patient = new JSONObject(fhirResource.toString());
+  		String newRecordID = tester.create(patient);
+		try{
+			tester.patch(newRecordID,patch);
+		}finally{
+		       delete.commonRemovePersonById(newRecordID);
+		}
 	}
 	@Test
 	public void testPatientPatchRecord() throws Exception{
@@ -597,25 +608,41 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		assertEquals(tester.patch("10",patch), true);
+		OpenEMPIbase delete = new OpenEMPIbase();
+		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
+		JSONObject patient = new JSONObject(fhirResource.toString());
+  		String newRecordID = tester.create(patient);
+		try{
+			assertEquals(tester.patch(newRecordID,patch), "Updated");
+		}finally{
+		      	delete.commonRemovePersonById(newRecordID);
+		}
 	}
+	/*
 	@Test
-	public void testPatientPatch() {
-		
-		
-		
-		
-	}
+	public void testPatientRead() throws Exception {
+		PatientFHIR tester = new PatientFHIR();
+		JSONObject expected = new JSONObject(Record);
+		JSONObject obtained = tester.read("3");
+		Assert.assertEquals("Read operation failed: \nRead Result: \n" + obtained.toString() + " \n" + expected.toString() , expected.toString(), obtained.toString());		
+	} 
 	@Test
 	public void testPatientCreate() throws Exception {
 		PatientFHIR tester = new PatientFHIR();	
 		JSONObject create = new JSONObject(createPatient);
+		
+		
 		String newRecordID = tester.create(create);
 		JSONObject exists = tester.read(newRecordID);
+		
+        OpenEMPIbase delete = new OpenEMPIbase();
+        delete.commonRemovePersonById(newRecordID);
+		exists.remove("meta");
+		create.remove("meta");
 		exists.remove("id");
-		Assert.assertEquals("Create operation failed: \nCreate Result: \n" + exists.toString() + " \n" + create.toString() , exists.toString(), create.toString());		
 
-	}
+		Assert.assertEquals("Create operation failed: \nCreate Result: \n" + exists.toString() + " \n" + create.toString() , exists.toString(), create.toString());		
+	}*/
 	@Test
 	public void testPatientDelete() {
 	}
