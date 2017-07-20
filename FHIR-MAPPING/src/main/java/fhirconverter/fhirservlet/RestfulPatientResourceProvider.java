@@ -1,6 +1,10 @@
 package fhirconverter.fhirservlet;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.dstu2.resource.OperationOutcome;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.primitive.IdDt;
+import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.rest.annotation.*;
 import ca.uhn.fhir.rest.api.MethodOutcome;
@@ -16,7 +20,6 @@ import fhirconverter.ConverterOpenempi;
 import fhirconverter.exceptions.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.JSONObject;
 
@@ -44,12 +47,12 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
         OperationOutcome outcome = new OperationOutcome();
 
         try {
-            String jsonStringPatient = FhirContext.forDstu3().newJsonParser().encodeResourceToString(patient);
+            String jsonStringPatient = FhirContext.forDstu2().newJsonParser().encodeResourceToString(patient);
             LOGGER.info(jsonStringPatient);
             JSONObject resource = new JSONObject(jsonStringPatient);
 
             String reply = converterOpenempi.patientCreate(resource);
-            retVal.setId(new IdType("Patient", reply, "1"));
+            retVal.setId(new IdDt("Patient", reply, "1"));
             return retVal;
         } catch (DataFormatException | ClassCastException e) {
             LOGGER.info("Invalid Parameter Received", e);
@@ -86,9 +89,9 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     ;
 
     @Search()
-    public List<Patient> searchPatient(@OptionalParam(name = Patient.SP_FAMILY) StringType familyName,
-                                       @OptionalParam(name = Patient.SP_GIVEN) StringType givenName,
-                                       @OptionalParam(name = Patient.SP_GENDER) StringType gender,
+    public List<Patient> searchPatient(@OptionalParam(name = Patient.SP_FAMILY) StringDt familyName,
+                                       @OptionalParam(name = Patient.SP_GIVEN) StringDt givenName,
+                                       @OptionalParam(name = Patient.SP_GENDER) StringDt gender,
                                        @OptionalParam(name = Patient.SP_BIRTHDATE) DateParam birthDate,
                                        @OptionalParam(name = Patient.SP_IDENTIFIER) TokenParam identifierToken) {
 
@@ -133,12 +136,12 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     ;
 
     @Read
-    public Patient getPatientById(@IdParam IdType patientId) {
+    public Patient getPatientById(@IdParam IdDt patientId) {
         try {
 
             patientId.getIdPartAsLong();
             JSONObject reply = converterOpenempi.patientRead(patientId.getIdPart());
-            Patient patient = (Patient) FhirContext.forDstu3().newJsonParser().parseResource(reply.toString());
+            Patient patient = (Patient) FhirContext.forDstu2().newJsonParser().parseResource(reply.toString());
 
             return patient;
         } catch (ResourceNotFoundException e) {
@@ -157,7 +160,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     ;
 
     @Update
-    public MethodOutcome updatePatient(@IdParam IdType patientId, @ResourceParam Patient patient) {
+    public MethodOutcome updatePatient(@IdParam IdDt patientId, @ResourceParam Patient patient) {
         MethodOutcome retVal = new MethodOutcome();
 
         OperationOutcome outcome = new OperationOutcome();
@@ -165,7 +168,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
         try {
             patientId.getIdPartAsLong();
-            String jsonStringPatient = FhirContext.forDstu3().newJsonParser().encodeResourceToString(patient);
+            String jsonStringPatient = FhirContext.forDstu2().newJsonParser().encodeResourceToString(patient);
             JSONObject resource = new JSONObject(jsonStringPatient);
             String reply = converterOpenempi.patientUpdate(patientId.getIdPart(), resource);
 
@@ -193,7 +196,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     ;
 
     @Patch
-    public OperationOutcome patchPatient(@IdParam IdType patientId, PatchTypeEnum patchType,
+    public OperationOutcome patchPatient(@IdParam IdDt patientId, PatchTypeEnum patchType,
                                          @ResourceParam String body) {
 
         OperationOutcome retVal = new OperationOutcome();
@@ -235,7 +238,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     ;
 
     @Delete
-    public void deletePatient(@IdParam IdType patientId) {
+    public void deletePatient(@IdParam IdDt patientId) {
 
         try {
             patientId.getIdPartAsLong();

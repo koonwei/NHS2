@@ -18,40 +18,42 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.text.DateFormat;
+import ca.uhn.fhir.model.dstu2.composite.AddressDt;
+import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
+import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
+import ca.uhn.fhir.model.primitive.DateDt;
+import ca.uhn.fhir.model.dstu2.composite.HumanNameDt; 
+import ca.uhn.fhir.model.primitive.IdDt;
+import ca.uhn.fhir.model.dstu2.resource.Bundle;
+import ca.uhn.fhir.model.dstu2.composite.IdentifierDt; 
+import ca.uhn.fhir.model.dstu2.composite.MetaDt; 
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.primitive.PositiveIntDt;
+import ca.uhn.fhir.model.primitive.InstantDt;
+import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
+import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum; 
+import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
+import ca.uhn.fhir.model.base.resource.ResourceMetadataMap;
+import ca.uhn.fhir.model.api.ResourceMetadataKeyEnum;
+import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 
-import org.hl7.fhir.dstu3.model.Address;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.ContactPoint;
-import org.hl7.fhir.dstu3.model.DateTimeType;
-import org.hl7.fhir.dstu3.model.HumanName;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Bundle; 
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Meta;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.PositiveIntType;
-import org.hl7.fhir.dstu3.model.ContactPoint.ContactPointSystem;
-import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
 import ca.uhn.fhir.context.FhirContext;
 
-public class ConversionOpenEMPI_to_FHIR {
+public class ConversionOpenEmpiToFHIR {
 	
-	/**
-	 * This method convert date in string format to date format 
-	 * @param date
-	 * @return
-	 */
 	protected JSONObject conversion(String result){
         JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
         int PRETTY_PRINT_INDENT_FACTOR = 4;
         //String jsonPrettyPrintString = xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
         //System.out.println(jsonPrettyPrintString);
 	JSONObject resourceBundle = new JSONObject();	
-	FhirContext ctx = FhirContext.forDstu3();
+	FhirContext ctx = FhirContext.forDstu2();
 		if(xmlJSONObj.has("people")){
 			Bundle bundle = new Bundle();
 			if (xmlJSONObj.optJSONObject("people")!=null) {
@@ -80,6 +82,7 @@ public class ConversionOpenEMPI_to_FHIR {
 		}
 		if(xmlJSONObj.has("person")){
 			JSONObject person = xmlJSONObj.getJSONObject("person");
+			
 			JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
 			return fhirPersonStructure;
 		}
@@ -105,9 +108,9 @@ public class ConversionOpenEMPI_to_FHIR {
 		/* Maiden Name */
 		if(node.has("mothersMaidenName"))
 		{
-			HumanName maidenName = new HumanName();
-			maidenName.setFamily(node.optString("mothersMaidenName"));
-		        maidenName.setUse(HumanName.NameUse.MAIDEN);
+			HumanNameDt maidenName = new HumanNameDt();
+			maidenName.addFamily(node.optString("mothersMaidenName"));
+		        maidenName.setUse(NameUseEnum.MAIDEN);
 			p.addName(maidenName);
 		}
 		
@@ -115,23 +118,39 @@ public class ConversionOpenEMPI_to_FHIR {
 	    
 		/* Primary Key */ 
 		if(node.has("personId")){
-	    	IdType id = new IdType(node.optString("personId"));
+	    	IdDt id = new IdDt(node.optString("personId"));
 	    	p.setId(id);
 		}	
 		
 		/* Date Changed */
 		if(node.has("dateChanged")) {
-			Meta v = new Meta();
-			OpenEMPIbase date;
-			v.setLastUpdated(convertStringtoDate(node.getString("dateChanged")));
-			p.setMeta(v);
+			p.getResourceMetadata().put(ResourceMetadataKeyEnum.UPDATED,  new InstantDt(convertStringtoDate(node.optString("dateChanged"))));
 		}
 		
 		/* Marital Status */		
 		if(node.has("maritalStatusCode")) {
-			CodeableConcept value = new CodeableConcept();
-			value.setText(node.getString("maritalStatusCode"));			
-			p.setMaritalStatus(value);
+			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
+			if(martialStatus.equals("MARRIED")){
+				p.setMaritalStatus(MaritalStatusCodesEnum.M);
+			}else if(martialStatus.equals("ANNULLED")){
+				p.setMaritalStatus(MaritalStatusCodesEnum.A);
+			}else if(martialStatus.equals("DIVORCED")){
+				p.setMaritalStatus(MaritalStatusCodesEnum.D);
+			}else if(martialStatus.equals("INTERLOCUTORY")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.I);
+			}else if(martialStatus.equals("LEGALLY SEPARATED")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.L);
+			}else if(martialStatus.equals("POLYGAMOUS")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.P);
+			}else if(martialStatus.equals("NEVER MARRIED")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.S);
+			}else if(martialStatus.equals("DOMESTIC PARTNER")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.T);
+			}else if(martialStatus.equals("WIDOWED")){ 
+				p.setMaritalStatus(MaritalStatusCodesEnum.W);
+			}else{
+				p.setMaritalStatus(MaritalStatusCodesEnum.UNK);
+			}
 		}
 		
 			
@@ -142,17 +161,17 @@ public class ConversionOpenEMPI_to_FHIR {
 		
 		
 		/* -- Contact Details -- */
-		ArrayList<ContactPoint> telecom = new ArrayList<ContactPoint>();
+		ArrayList<ContactPointDt> telecom = new ArrayList<ContactPointDt>();
 
 		/*email*/
 		if(node.has("email")) {
-			ContactPoint email = new ContactPoint();
-			email.setSystem(ContactPointSystem.EMAIL).setValue(node.getString("email"));
+			ContactPointDt email = new ContactPointDt();
+			email.setSystem(ContactPointSystemEnum.EMAIL).setValue(node.getString("email"));
 			telecom.add(email);
 		}
 		
 		/*Phone*/
-		ContactPoint phone = new ContactPoint();
+		ContactPointDt phone = new ContactPointDt();
 		phone = setPhone(node);
 		/* REMEMBER TO CHECK IT */
 		if(phone.getValue()!=null)
@@ -165,18 +184,19 @@ public class ConversionOpenEMPI_to_FHIR {
 		
 		/* -- SET THE BIRTH DETAILS OF THE PATIENT -- */
 		if(node.has("birthOrder")) {
-			PositiveIntType birthOrder = new PositiveIntType(node.optInt("birthOrder"));			
+			PositiveIntDt birthOrder = new PositiveIntDt(node.optInt("birthOrder"));			
 			p.setMultipleBirth(birthOrder);
 		}
 		if(node.has("dateOfBirth")){
-			p.setBirthDate(convertStringtoDate(node.optString("dateOfBirth")));
+			String birthDateString = node.optString("dateOfBirth").substring(0,10);
+			p.setBirthDate(new DateDt(birthDateString));
 		}		
 		if(node.has("gender")){
 			JSONObject genders = node.getJSONObject("gender");
 			if(genders.has("genderDescription")) {
 				String gender = genders.optString("genderDescription");
 				gender = gender.toUpperCase();
-				p.setGender(AdministrativeGender.valueOf(gender));
+				p.setGender(AdministrativeGenderEnum.valueOf(gender));
 			}
 		}
 		
@@ -188,14 +208,14 @@ public class ConversionOpenEMPI_to_FHIR {
 		
 		/* Death Date & Time */ 
 		if(node.has("deathTime")){
-			DateTimeType deceasedDate = new DateTimeType(node.optString("deathTime"));
-			p.setDeceased(deceasedDate);		
+			DateTimeDt deceasedDate = new DateTimeDt(node.optString("deathTime"));
+			p.setDeceased(deceasedDate);	
 		}	
 		return p;
 	}
 
-	/* It is used to construct the text attribute of Address */
-	private String checkText(Address t) {
+	/* It is used to construct the text attribute of AddressDt */
+	private String checkText(AddressDt t) {
 		if(t.getText()==null) {
 			return "";
 		}
@@ -205,7 +225,7 @@ public class ConversionOpenEMPI_to_FHIR {
 	}
 	
 	/* It is used to construct the Phone Number */
-	private String checkPhone(ContactPoint p, boolean exists) {
+	private String checkPhone(ContactPointDt p, boolean exists) {
 		if (exists)
 			return p.getValue();
 		else
@@ -214,9 +234,9 @@ public class ConversionOpenEMPI_to_FHIR {
 	
 	
 	/* Create a FHIR object that contains the Full Name details */ 
-	protected HumanName setHumanName(JSONObject node){
+	protected HumanNameDt setHumanName(JSONObject node){
 		/* Full Name */
-		HumanName n = new HumanName();
+		HumanNameDt n = new HumanNameDt();
 		
 		/*Given Name*/
 		if(node.has("givenName")) {
@@ -225,8 +245,8 @@ public class ConversionOpenEMPI_to_FHIR {
 		
 		/*Family Name*/
 		if(node.has("familyName")) {
-			n.setFamily(node.optString("familyName"));
-			n.setUse(HumanName.NameUse.OFFICIAL);			
+			n.addFamily(node.optString("familyName"));
+			n.setUse(NameUseEnum.OFFICIAL);;			
 		}	
 		
 		/*Middle Name*/
@@ -248,8 +268,8 @@ public class ConversionOpenEMPI_to_FHIR {
 	
 	
 	/* Create a FHIR object that contains the address details */ 	
-	protected Address setAddress(JSONObject node){
-		Address t = new Address();
+	protected AddressDt setAddress(JSONObject node){
+		AddressDt t = new AddressDt();
 		
 		/*Address1*/
 		if(node.has("address1")) {
@@ -293,9 +313,9 @@ public class ConversionOpenEMPI_to_FHIR {
 
 	}
 	
-	protected ContactPoint setPhone(JSONObject node){
-		ContactPoint phone = new ContactPoint();
-		phone.setSystem(ContactPointSystem.PHONE);
+	protected ContactPointDt setPhone(JSONObject node){
+		ContactPointDt phone = new ContactPointDt();
+		phone.setSystem(ContactPointSystemEnum.PHONE);
 		boolean exists = false;
 		
 		//phone country code
@@ -330,7 +350,7 @@ public class ConversionOpenEMPI_to_FHIR {
 		JSONArray personIdentifiers = node.optJSONArray("personIdentifiers");
 		
 		if(personIdentifiers==null) {
-			Identifier identifier = new Identifier();
+			IdentifierDt identifier = new IdentifierDt();
 			System.out.println("person identifiers not an array");
 			JSONObject id = node.getJSONObject("personIdentifiers");
 		    
@@ -350,7 +370,7 @@ public class ConversionOpenEMPI_to_FHIR {
 		else {
 			JSONArray ids = node.getJSONArray("personIdentifiers");
 			for(int i=0; i<ids.length(); i++) {
-				Identifier identifier = new Identifier();					
+				IdentifierDt identifier = new IdentifierDt();					
 				JSONObject id = ids.getJSONObject(i);
 			    
 			       if(id.has("identifier")) {

@@ -21,7 +21,7 @@ public class FHIRParser<V> {
     private static Logger LOGGER = LogManager.getLogger(FHIRParser.class);
 
     public FHIRParser(Class<V> valueClass){
-        FhirContext ctx = FhirContext.forDstu3();
+        FhirContext ctx = FhirContext.forDstu2();
         this.jsonParser = ctx.newJsonParser();
         this.xmlParser = ctx.newXmlParser();
         this.jsonParser.setParserErrorHandler(new StrictErrorHandler());

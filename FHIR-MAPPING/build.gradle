@@ -5,7 +5,6 @@ apply plugin: 'jacoco'
 apply plugin: 'application'
 
 //mainClassName = 'fhirconverter.fhirservlet.Application'
-
 apply plugin: 'war'
 
 apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
@@ -33,9 +32,11 @@ dependencies {
     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
 
     compile 'ca.uhn.hapi.fhir:hapi-fhir-base:2.5'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+    //compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:2.5'
+    compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-dstu2', version: '2.5'
+   
 
-
+    testCompile "junit:junit:4.11"
     compile group: 'com.github.fge', name: 'json-patch', version: '1.9';
     compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
@@ -43,8 +44,8 @@ dependencies {
     compile 'io.sentry:sentry-log4j2:1.2.2'
     compile 'io.sentry:sentry-logback:1.2.2'
     compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
-    compile(group: "com.github.fge", name: "json-patch", version: "1.9");
-
+    compile(group: "com.github.fge", name: "json-patch", version: "1.9");		
+    compile(group: "com.github.java-json-tools", name: "json-schema-validator", version: "2.2.8");
     compile 'org.thymeleaf:thymeleaf:latest.release'
 
     compile 'org.springframework:spring-web:latest.release'

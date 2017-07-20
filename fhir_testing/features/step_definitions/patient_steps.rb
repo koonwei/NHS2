@@ -20,7 +20,7 @@ def CheckPatientParameters (patient, id, family_name, given_name)
   expect(patient).to have_key("name")
   expect(patient["name"][0]).to have_key("family")
   expect(patient["name"][0]).to have_key("given")
-  expect(patient["name"][0]["family"]).to eq(family_name)
+  expect(patient["name"][0]["family"][0]).to eq(family_name)
   expect(patient["name"][0]["given"][0]).to eq(given_name)
 end
 

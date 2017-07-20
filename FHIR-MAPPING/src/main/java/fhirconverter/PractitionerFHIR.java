@@ -1,24 +1,21 @@
 package fhirconverter;
 import org.json.JSONObject;
 
-import fhirconverter.exceptions.*;
 import com.github.fge.jsonpatch.JsonPatch; 
 
-public class PractitionerFHIR extends OpenEMPIbase {
+public class PractitionerFHIR {
 	protected JSONObject read(String id) throws Exception{
 		JSONObject a = new JSONObject();
 		return a;
 	}
 	
 	protected JSONObject search(JSONObject parameters) throws Exception {
-		this.commonSearchPersonByAttributes(parameters);
-		
 		JSONObject a = new JSONObject();
 		
 		return a;
 	}
 	
-	protected String update(String id) {
+	protected String update(String id, JSONObject patient) {
 		
 		return "";
 	}
