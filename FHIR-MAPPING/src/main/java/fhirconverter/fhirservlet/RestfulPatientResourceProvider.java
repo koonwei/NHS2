@@ -93,10 +93,6 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
                                        @OptionalParam(name = Patient.SP_IDENTIFIER) TokenParam identifierToken) {
 
         try {
-            if(identifierToken.getSystem() == null)
-            {
-                throw new DataFormatException("Incomplete identifier");
-            }
             JSONObject searchParams = new JSONObject();
 
             if (familyName != null)
@@ -108,6 +104,10 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             if (birthDate != null)
                 searchParams.put("birthdate", birthDate.getValueAsString());
             if (identifierToken != null) {
+                if(identifierToken.getSystem() == null)
+                {
+                    throw new DataFormatException("Incomplete identifier");
+                }
                 searchParams.put("identifier_domain", identifierToken.getSystem());
                 searchParams.put("identifier_value", identifierToken.getValue());
             }
