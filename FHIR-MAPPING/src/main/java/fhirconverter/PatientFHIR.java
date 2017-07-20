@@ -31,7 +31,12 @@ public class PatientFHIR {
 	}
 	
 	protected JSONObject search(JSONObject parameters) throws Exception {
-		String result = caller.commonSearchPersonByAttributes(parameters);
+		String result = "";
+		if((parameters.has("identifier_value"))&&(parameters.has("identifier_domain"))) {
+			result = caller.commonSearchPersonById(parameters);
+		}else
+			result = caller.commonSearchPersonByAttributes(parameters);
+		
 		ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
 		return converter.conversion(result);
 	}
