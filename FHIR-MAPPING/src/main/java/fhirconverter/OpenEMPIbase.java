@@ -113,7 +113,6 @@ public class OpenEMPIbase {
 					dob = parameters.getString("birthdate");
 					payload = payload + "<dateOfBirth>" + dob + "</dateOfBirth>";
 				}
-				// TODO : to be confirmed
 				if (parameters.has("gender")) {
 					gender = parameters.getString("gender");
 					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
@@ -319,7 +318,7 @@ public class OpenEMPIbase {
 		 * identifier doesn't exist, then a new identifier is created for NHS
 		 * otherwise proceed to add person
 		 */
-		if (parameters.contains("NHS")) {
+		if (parameters.contains("NHS") || parameters.contains("https://fhir.nhs.uk/Id/nhs-number")) {
 			logger.info("*** Identifier Domain is NHS ***");
 			if (!this.checkIfIdendifierExists("NHS")) {
 				logger.info("*** Identifier Domain is NHS does not exist in OpenEMPI database ***");
