@@ -21,6 +21,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.json.JSONObject;
 
 import javax.net.ssl.SSLContext;
 import java.security.cert.CertificateException;
@@ -160,7 +161,7 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
         LOGGER.info("Patient ID: " + patientId);
 
 
-        List<Observation> observations = new ArrayList<Observation>();
+//        List<Observation> observations = new ArrayList<Observation>();
 //        FhirContext ctx = FhirContext.forDstu2();
 //        IParser parser = ctx.newJsonParser();
 //        Observation observation = parser.parseResource(Observation.class, DUMMY_HEIGHT);
@@ -170,9 +171,9 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
 //        observation = parser.parseResource(Observation.class, DUMMY_BMI);
 //        observations.add(observation);
 
-        getDataFromServer();
+        List<Observation> observations = getDataFromServer(patientId);
 
-        observations.add(dummyWeightObservation(patientId, 30.0, "2003-01-11"));
+//        observations.add(dummyWeightObservation(patientId, 30.0, "2003-01-11"));
         return observations;
     }
 
@@ -185,8 +186,8 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
 
     private Observation dummyWeightObservation(String patientId, Double value, String date) {
         Observation observation = dummyObservation(patientId);
-        observation.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
-        observation.getCode().setText("bmi");
+        observation.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
+        observation.getCode().setText("weight");
         QuantityDt quantity = new QuantityDt();
         quantity.setValue(value);
         quantity.setCode("kg");
@@ -199,7 +200,7 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
 
     private Observation dummyBMIObservation(String patientId, Double value, String date) {
         Observation observation = dummyObservation(patientId);
-        observation.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
+        observation.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
         observation.getCode().setText("bmi");
         QuantityDt quantity = new QuantityDt();
         quantity.setValue(value);
@@ -228,16 +229,33 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
         return observation;
     }
 
-    private void getDataFromServer() {
+    private List<Observation> getDataFromServer(String patientId) {
+        List<Observation> observations = new ArrayList<Observation>();
         try {
+
             Unirest.setAsyncHttpClient(createSSLClient());
             HttpResponse<String> response = Unirest.get("https://test.operon.systems/rest/v1/query?aql=select%20%20%20%20%20a_a%2Fdata%5Bat0002%5D%2Fevents%5Bat0003%5D%2Fdata%5Bat0001%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Weight_magnitude%2C%20%20%20%20%20a_b%2Fdata%5Bat0001%5D%2Fevents%5Bat0002%5D%2Fdata%5Bat0003%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Height_Length_magnitude%2C%20%20%20%20%20a_c%2Fdata%5Bat0001%5D%2Fevents%5Bat0010%5D%2Fdata%5Bat0003%5D%2Fitems%5Bat0004%5D%2Fvalue%2Fmagnitude%20as%20Head_circumference_magnitude%20from%20EHR%20e%5Behr_id%2Fvalue%3D'61272d11-b789-4cd6-b388-5a914b9c12b3'%5D%20contains%20COMPOSITION%20a%5BopenEHR-EHR-COMPOSITION.report.v1%5D%20contains%20(%20%20%20%20%20OBSERVATION%20a_a%5BopenEHR-EHR-OBSERVATION.body_weight.v1%5D%20or%20%20%20%20%20OBSERVATION%20a_b%5BopenEHR-EHR-OBSERVATION.height.v1%5D%20or%20%20%20%20%20OBSERVATION%20a_c%5BopenEHR-EHR-OBSERVATION.head_circumference.v0%5D)%20where%20a%2Fname%2Fvalue%3D'Smart%20Growth%20Report'%20offset%200%20limit%20100")
                     .header("authorization", "Basic b3Bybl90cmFpbmluZzpHaXlUQVphRTEyMQ==")
                     .header("ehr-session-disabled", "0ce5ec82-3954-4388-bfd7-e48f6db613e8")
                     .asString();
-            LOGGER.info(response.getBody());
+
+            JSONObject jsonResponse = new JSONObject(response.getBody());
+            JSONObject resultSet = jsonResponse.getJSONArray("resultSet").getJSONObject(0);
+            Double weight = resultSet.optDouble("Weight_magnitude");
+//            Double weight = resultSet.optDouble("Head_circumference_magnitude");
+            Double height = resultSet.optDouble("Height_Length_magnitude");
+
+            LOGGER.info(resultSet);
+            LOGGER.info(weight);
+
+            observations.add(dummyWeightObservation(patientId, weight, "1957-02-24"));
+            LOGGER.info(height);
+            observations.add(createDummyHeightObservation(patientId, height, "1957-02-24"));
+            return  observations;
+
         } catch (UnirestException e) {
             e.printStackTrace();
+            return null;
         }
 
     }
