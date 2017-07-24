@@ -77,7 +77,8 @@ public class OpenEMPIbase {
 	protected String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
 
 		if (parameters.length() == 0)
-			throw new ResourceNotFoundException("Resource Not Found");
+			return loadAllPersons();
+//			throw new ResourceNotFoundException("Resource Not Found");
 
 		getSessionCode();
 		URL url = new URL(
@@ -531,5 +532,39 @@ public class OpenEMPIbase {
 		} catch (Exception ex) {
 			throw new ResourceNotCreatedException("Resource Not Created");
 		}
+	}
+
+	protected String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
+		getSessionCode();
+
+		URL url = new URL(
+				_instance.baseURL +
+						"openempi-admin/openempi-ws-rest/person-query-resource/loadAllPersonsPaged?firstRecord="
+						+ firstRecord + "&maxRecords=" + maxRecords);
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("GET");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("Content-Type", "application/xml");
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+			logger.debug("*** Method: loadAllPerson Response:" + response + "***");
+			if (response == "") {
+				throw new ResourceNotFoundException("Resource Not Found");
+			}
+			return response;
+		} catch (Exception ex) {
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
+	}
+
+	protected String loadAllPersons() throws Exception {
+		return loadAllPersons(0, 1000);
 	}
 }
