@@ -49,6 +49,7 @@ dependencies {
     compile 'org.thymeleaf:thymeleaf:latest.release'
 
     compile 'org.springframework:spring-web:latest.release'
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
 
     testCompile "junit:junit:4.11"
     testCompile 'org.mockito:mockito-core:2.7.22'

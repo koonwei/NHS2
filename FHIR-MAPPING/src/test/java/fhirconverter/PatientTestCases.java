@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import fhirconverter.exceptions.FhirSchemeNotMetException;
 import fhirconverter.exceptions.ResourceNotFoundException;
 import org.json.JSONObject;
@@ -11,6 +14,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 public class PatientTestCases{
     private ObjectMapper mapper;
 
@@ -534,15 +539,23 @@ public class PatientTestCases{
 		}
 		String newRecordID = tester.create(patient);
 		JSONObject parameters = new JSONObject(searchParameters);
-		JSONObject obtained_object = tester.search(parameters);
-		JSONObject resultSearch = obtained_object.getJSONArray("entry").getJSONObject(0).getJSONObject("resource");
-		resultSearch.remove("id");
-		resultSearch.remove("meta");					
+
+		/* patient model to JSONObject */
+		List<Patient> p = tester.search(parameters);
+		FhirContext ctx = FhirContext.forDstu2();
+		String resourceJson = ctx.newJsonParser().encodeResourceToString(p.get(0));	
+		JSONObject obtained_object = new JSONObject(resourceJson);
+		
+		
+		
+		//JSONObject resultSearch = obtained_object.getJSONArray("entry").getJSONObject(0).getJSONObject("resource");
+		obtained_object.remove("id");
+		obtained_object.remove("meta");					
         	OpenEMPIbase delete = new OpenEMPIbase();
 		System.out.println(newRecordID+ "FOCUS HERE");
         	delete.commonRemovePersonById(newRecordID);
-		String obtained_string = resultSearch.toString();		
-        	Assert.assertEquals("Search operation failed \n",expected.toString(), resultSearch.toString());
+		String obtained_string = obtained_object.toString();		
+        	Assert.assertEquals("Search operation failed \n",expected.toString(), obtained_object.toString());
 	}
 	@Test
 	public void testPatientUpdate() throws ResourceNotFoundException, Exception {

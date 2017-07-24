@@ -74,11 +74,9 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
 
         try {
-            JSONObject reply = converterOpenempi.patientSearch(new JSONObject());
+            List<Patient> reply = converterOpenempi.patientSearch(new JSONObject());
 
-            List<Patient> allPatients = new ArrayList<Patient>();
-            JSONObject response_raw = new JSONObject();
-            return allPatients;
+            return reply;
         } catch (Exception e) {
             LOGGER.info("Exception Caught", e);
             throw new InternalErrorException(e.getMessage());
@@ -122,7 +120,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             LOGGER.info("Identifiers: " + identifierToken);
 
 
-            List<Patient> patients = new ArrayList<Patient>();
+            List<Patient> patients = converterOpenempi.patientSearch(searchParams);
             return patients;
         } catch (DataFormatException e) {
             LOGGER.info("Invalid Parameter Received", e);
@@ -140,10 +138,10 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
         try {
 
             patientId.getIdPartAsLong();
-            JSONObject reply = converterOpenempi.patientRead(patientId.getIdPart());
-            Patient patient = (Patient) FhirContext.forDstu2().newJsonParser().parseResource(reply.toString());
+            Patient reply = converterOpenempi.patientRead(patientId.getIdPart());
+//            Patient patient = (Patient) FhirContext.forDstu2().newJsonParser().parseResource(reply.toString());
 
-            return patient;
+            return reply;
         } catch (ResourceNotFoundException e) {
             LOGGER.info("Cannot find patient with id " + patientId);
             throw new ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException(patientId);

@@ -1,11 +1,14 @@
 package fhirconverter;
 
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class ConverterOpenempi{
 
@@ -17,11 +20,11 @@ public class ConverterOpenempi{
 		return mapper.create(params);
 	}
 
-	public JSONObject patientRead(String id) throws Exception {
+	public Patient patientRead(String id) throws Exception {
 		return  mapper.read(id);
 	}
 
-	public JSONObject patientSearch(JSONObject params) throws Exception {
+	public List<Patient> patientSearch(JSONObject params) throws Exception {
         LOGGER.info(params);
 		return mapper.search(params);
 	}
