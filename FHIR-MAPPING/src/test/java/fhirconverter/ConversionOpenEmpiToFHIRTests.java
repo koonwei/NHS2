@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import fhirconverter.exceptions.ResourceNotFoundException;
 
 import org.junit.*;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.JSONArray;
 
@@ -28,8 +31,14 @@ public class ConversionOpenEmpiToFHIRTests {
 	public void conversionTest() throws ResourceNotFoundException, Exception {
 		ConversionOpenEmpiToFHIR tester = new ConversionOpenEmpiToFHIR();
 		String openEmpiResource = new String(Files.readAllBytes(Paths.get("resource/ResourceOpenEMPI.xml")), "UTF-8");
-		JSONObject inputJson = XML.toJSONObject(openEmpiResource);		
-		JSONObject resourceFhir = tester.conversion(openEmpiResource);
+		JSONObject inputJson = XML.toJSONObject(openEmpiResource);
+		
+		List<Patient> p = tester.conversion(openEmpiResource);
+		
+		/* patient model to JSONObject */
+		FhirContext ctx = FhirContext.forDstu2();
+		String resourceJson = ctx.newJsonParser().encodeResourceToString(p.get(0));	
+		JSONObject resourceFhir = new JSONObject(resourceJson);
 		
 		
 		/* -- FHIR format -- */
