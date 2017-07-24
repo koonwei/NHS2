@@ -138,6 +138,7 @@ public class OpenEMPIbase {
 				}
 				if (response.contains("person")) {
 					finalresponse += response;
+					break;
 				}
 			}
 			Utils.removeDuplicateRecords(finalresponse);

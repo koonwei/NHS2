@@ -1,6 +1,7 @@
 package fhirconverter;
 import ca.uhn.fhir.context.FhirContext;
 
+import ca.uhn.fhir.model.dstu2.resource.Patient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,21 +25,25 @@ public class PatientFHIR {
 	Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
 	OpenEMPIbase caller = new OpenEMPIbase();
 
-	protected JSONObject read(String id) throws Exception {
+	protected Patient read(String id) throws Exception {
 		String result = caller.commonReadPerson(id);	
 		ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
-		return converter.conversion(result);
+		return converter.conversion(result).get(0);
 	}
 	
-	protected JSONObject search(JSONObject parameters) throws Exception {
+	protected List<Patient> search(JSONObject parameters) throws Exception {
 		String result = "";
 		if((parameters.has("identifier_value"))&&(parameters.has("identifier_domain"))) {
 			result = caller.commonSearchPersonById(parameters);
 		}else
 			result = caller.commonSearchPersonByAttributes(parameters);
+
+		LOGGER.info("Search Results: " + result);
 		
 		ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
-		return converter.conversion(result);
+		List<Patient> patients = converter.conversion(result);
+		LOGGER.info("Patients Converted: " + patients);
+		return patients;
 	}
 	
 	protected String update(String id, JSONObject patient) throws Exception {	
@@ -106,7 +111,10 @@ public class PatientFHIR {
 	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
 		String result = caller.commonReadPerson(id);
 		ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
-		JSONObject xmlResults = converterOpenEmpi.conversion(result);
+//		JSONObject xmlResults = converterOpenEmpi.conversion(result);
+		Patient patientObj = converterOpenEmpi.conversion(result).get(0);
+		JSONObject xmlResults = new JSONObject(FhirContext.forDstu2().newJsonParser().encodeResourceToString(patientObj));
+
 		xmlResults.remove("identifier");
 		String jsonResults = xmlResults.toString();
 		ObjectMapper mapper = new ObjectMapper();
@@ -165,10 +173,15 @@ public class PatientFHIR {
 		String xmlNewRecord = XML.toString(records);
 		String result = caller.commonAddPerson(xmlNewRecord);
 		ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
-		JSONObject createdObject = converterOpenEmpi.conversion(result);
+//		JSONObject createdObject = converterOpenEmpi.conversion(result);
+		Patient createdPatient = converterOpenEmpi.conversion(result).get(0);
 		String replyCreatedNewRecord = "";
-		if(createdObject.has("id")){
-			replyCreatedNewRecord = createdObject.getString("id");	
+//		if(createdObject.has("id")){
+//			replyCreatedNewRecord = createdObject.getString("id");
+//		}
+		if(createdPatient.getId() != null)
+		{
+			replyCreatedNewRecord = createdPatient.getId().getIdPart();
 		}
 		return replyCreatedNewRecord; // Ask yuan if he wants all the fields or just certain. 
 	}

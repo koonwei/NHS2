@@ -18,10 +18,6 @@ import java.util.List;
 public class RestfulFamilyMemberHistoryResourceProvider implements IResourceProvider {
     private static Logger LOGGER = LogManager.getLogger(RestfulFamilyMemberHistoryResourceProvider.class);
 
-    private static FHIRParser<FamilyMemberHistory> parser = new FHIRParser<>(FamilyMemberHistory.class);
-
-    private ConverterOpenempi converterOpenempi = new ConverterOpenempi();
-
     @Override
     public Class<? extends IBaseResource> getResourceType() {
         return FamilyMemberHistory.class;
