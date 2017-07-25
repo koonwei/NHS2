@@ -1,4 +1,4 @@
-package fhirconverter;
+package fhirconverter.converter;
 import ca.uhn.fhir.context.FhirContext;
 
 import ca.uhn.fhir.model.dstu2.resource.Patient;

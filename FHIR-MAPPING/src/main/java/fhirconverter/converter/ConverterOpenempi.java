@@ -1,4 +1,4 @@
-package fhirconverter;
+package fhirconverter.converter;
 
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import com.github.fge.jsonpatch.JsonPatch;

@@ -4,7 +4,7 @@ apply plugin: 'idea'
 apply plugin: 'jacoco'
 apply plugin: 'application'
 
-mainClassName = 'fhirconverter.ConverterOpenempi'
+mainClassName = 'fhirconverter.converter.ConverterOpenempi'
 apply plugin: 'war'
 
 apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'

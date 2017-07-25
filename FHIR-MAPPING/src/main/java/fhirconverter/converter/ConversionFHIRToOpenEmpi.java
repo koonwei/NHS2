@@ -13,7 +13,7 @@
  * 
  */
 
-package fhirconverter;
+package fhirconverter.converter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
