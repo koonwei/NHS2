@@ -62,30 +62,39 @@ public class PatientFHIR {
 			}
 			
 			JSONObject xmlRead = XML.toJSONObject(readResult);
-			JSONArray personIdentifiers = new JSONArray();
+			JSONArray personIdentifiers;
 			if(xmlRead.has("person")){
 				JSONObject person = xmlRead.getJSONObject("person");
-				if(person.has("personIdentifiers")) {
+                if(person.optJSONObject("personIdentifiers")!=null)
+                {
+                    personIdentifiers = new JSONArray();
+                    JSONObject identifier = createIdentifierOpenEMPI(person.optJSONObject("personIdentifiers"));
+                    personIdentifiers.put(identifier);
+                }
+				else if(person.optJSONArray("personIdentifiers")!=null) {
 					personIdentifiers = person.getJSONArray("personIdentifiers");
 					for(int j=0; j<personIdentifiers.length(); j++) {
-						JSONObject identifierRecord = personIdentifiers.getJSONObject(j);
-						if((identifierRecord.has("identifierDomain"))&&(identifierRecord.optString("identifierDomainName").equals("OpenEMPI"))) {
-							
-							JSONObject identifier = new JSONObject();
-							identifier.put("identifier", identifierRecord.optString("identifier"));
-							JSONObject identifierDomain = new JSONObject();
-							identifierDomain.put("identifierDomainName", identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName"));	
-							identifier.put("identifierDomain", identifierDomain);				
-							personIdentifiers.put(identifier);
-							
-						}
-					}
-							
+                        JSONObject identifierRecord = personIdentifiers.getJSONObject(j);
+                        if ((identifierRecord.has("identifierDomain")) && (identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName").equals("OpenEMPI"))) {
+
+                            JSONObject identifier = createIdentifierOpenEMPI(identifierRecord);
+                            personIdentifiers.put(identifier);
+
+                        }
+                    }
 				}
+				else
+                {
+                    LOGGER.error("Patient has no identifier: " + person);
+                    throw new InternalError("Patient has no identifier");
+                }
+                newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
 			}
-			newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
+
 		}
 		records.put("person", newRecordOpenEMPI);
+
+		LOGGER.info(records);
 
 		/**
 		 * For now we don't handle the update of personIdentifiers, so
@@ -107,8 +116,18 @@ public class PatientFHIR {
 		return result; // Ask yuan if he wants all the fields or just certain. 
 
 	}
-	
-	protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
+
+    private JSONObject createIdentifierOpenEMPI(JSONObject identifierRecord) {
+        JSONObject identifier = new JSONObject();
+        identifier.put("identifier", identifierRecord.optString("identifier"));
+        JSONObject identifierDomain = new JSONObject();
+        identifierDomain.put("identifierDomainName", identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName"));
+        identifierDomain.put("identifierDomainId", identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainId"));
+        identifier.put("identifierDomain", identifierDomain);
+        return identifier;
+    }
+
+    protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
 		String result = caller.commonReadPerson(id);
 		ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 //		JSONObject xmlResults = converterOpenEmpi.conversion(result);
