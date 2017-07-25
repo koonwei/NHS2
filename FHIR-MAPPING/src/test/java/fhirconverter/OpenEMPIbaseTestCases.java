@@ -157,11 +157,12 @@ public class OpenEMPIbaseTestCases {
 		String personIdSSN = null;
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
 		String obtainedResults = openEMPIbase.commonAddPerson(addPersonParameters);
-		if (!obtainedResults.equals("")) {
+		if (!obtainedResults.isEmpty()) {
 			personIdSSN = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
 					obtainedResults.indexOf("</personId>"));
 		}
 		System.out.println("testAddPerson");
+		openEMPIbase.commonRemovePersonById(personIdSSN);
 		assertNotNull(personIdSSN);
 	}
 
@@ -175,11 +176,12 @@ public class OpenEMPIbaseTestCases {
 		String personIdNHS = null;
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
 		String obtainedResults = openEMPIbase.commonAddPerson(addParametersWithNHS);
-		if (!obtainedResults.equals("")) {
+		if (!obtainedResults.isEmpty()) {
 			personIdNHS = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
 					obtainedResults.indexOf("</personId>"));
 		}
 		System.out.println("testAddPersonWithNHS");
+		openEMPIbase.commonRemovePersonById(personIdNHS);
 		assertNotNull(personIdNHS);
 	}
 
@@ -191,12 +193,18 @@ public class OpenEMPIbaseTestCases {
 	 */
 	@Test
 	public void testSearchPersonByAttributes() throws Exception {
+		String personId = "";
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		openEMPIbase.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
 		String test = "{ \"family\" : \"Mill\"}";
+		if (!obtainedResultsAdd.isEmpty()) {
+			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
+					obtainedResultsAdd.indexOf("</personId>"));
+		}
 		JSONObject searchParameters = new JSONObject(test);
 		String obtainedResults = openEMPIbase.commonSearchPersonByAttributes(searchParameters);
 		System.out.println("testSearchPersonByAttributes");
+		openEMPIbase.commonRemovePersonById(personId);
 		assertNotNull(obtainedResults);
 	}
 
@@ -208,12 +216,18 @@ public class OpenEMPIbaseTestCases {
 	 */
 	@Test
 	public void testSearchPersonById() throws Exception {
+		String personId = "";
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		openEMPIbase.commonAddPerson(addParametersWithNHS);
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
+		if (!obtainedResultsAdd.isEmpty()) {
+			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
+					obtainedResultsAdd.indexOf("</personId>"));
+		}
 		String test = "{ \"identifier_value\" : \"555\", \"identifier_domain\" : \"NHS\"}";
 		JSONObject serachWithIdParameters = new JSONObject(test);
 		String obtainedResults = openEMPIbase.commonSearchPersonById(serachWithIdParameters);
 		System.out.println("testSearchPersonById");
+		openEMPIbase.commonRemovePersonById(personId);
 		assertNotNull(obtainedResults);
 
 	}
@@ -228,14 +242,13 @@ public class OpenEMPIbaseTestCases {
 	public void testReadPerson() throws Exception {
 		String personId = null;
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String addParameters = addPersonParameters;
-		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addParameters);
-		if (!obtainedResultsAdd.equals("")) {
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
+		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
-		String readParameters = personId;
-		String obtainedResults = openEMPIbase.commonReadPerson(readParameters);
+		String obtainedResults = openEMPIbase.commonReadPerson(personId);
+		openEMPIbase.commonRemovePersonById(personId);
 		System.out.println("testAddPersonWithNHS");
 		assertNotNull(obtainedResults);
 
@@ -250,12 +263,12 @@ public class OpenEMPIbaseTestCases {
 	@Test
 	public void testUpdatePerson() throws Exception {
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String addParameters = addPersonParameters;
-		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addParameters);
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
 		obtainedResultsAdd = obtainedResultsAdd.replace("Mill", "George");
 		String expectedUpdatePersonResults = "Updated";
 		String obtainedResults = openEMPIbase.commonUpdatePerson(obtainedResultsAdd);
 		System.out.println("testUpdatePerson");
+		
 		assertEquals(expectedUpdatePersonResults, obtainedResults);
 
 	}
@@ -288,9 +301,8 @@ public class OpenEMPIbaseTestCases {
 	public void testRemovePersonById() throws Exception {
 		String personId = null;
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String addParameters = addPersonParameters;
-		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addParameters);
-		if (!obtainedResultsAdd.equals("")) {
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
+		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
