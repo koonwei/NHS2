@@ -16,7 +16,7 @@ import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.MethodNotAllowedException;
 import com.github.fge.jsonpatch.JsonPatch;
-import fhirconverter.ConverterOpenempi;
+import fhirconverter.converter.ConverterOpenempi;
 import fhirconverter.exceptions.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

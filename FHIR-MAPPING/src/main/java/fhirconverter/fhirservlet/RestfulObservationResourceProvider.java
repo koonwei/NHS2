@@ -12,7 +12,7 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import fhirconverter.ConverterOpenempi;
+import fhirconverter.converter.ConverterOpenempi;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;

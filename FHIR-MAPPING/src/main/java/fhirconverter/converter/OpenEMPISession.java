@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fhirconverter;
+package fhirconverter.converter;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

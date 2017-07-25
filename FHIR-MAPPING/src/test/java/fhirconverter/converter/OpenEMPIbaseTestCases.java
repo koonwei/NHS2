@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fhirconverter;
+package fhirconverter.converter;
 
 import static org.junit.Assert.*;
 

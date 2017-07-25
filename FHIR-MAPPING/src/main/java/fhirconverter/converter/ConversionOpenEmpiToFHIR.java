@@ -12,7 +12,7 @@
  * 				Read & Search
  *
  */
-package fhirconverter;
+package fhirconverter.converter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
