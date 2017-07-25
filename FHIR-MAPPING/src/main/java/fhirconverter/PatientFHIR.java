@@ -51,10 +51,8 @@ public class PatientFHIR {
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		newRecordOpenEMPI.put("personId", id);
 		
-		
 		JSONObject records = new JSONObject();
-		
-		
+
 		String readResult = caller.commonReadPerson(id);
 		if(!readResult.equals("")) {
 			if(newRecordOpenEMPI.has("personIdentifiers")) {
@@ -62,24 +60,26 @@ public class PatientFHIR {
 			}
 			
 			JSONObject xmlRead = XML.toJSONObject(readResult);
-			JSONArray personIdentifiers;
+			JSONArray personIdentifiers = new JSONArray();;
 			if(xmlRead.has("person")){
 				JSONObject person = xmlRead.getJSONObject("person");
-                if(person.optJSONObject("personIdentifiers")!=null)
+                JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
+                JSONArray personIdentifierArray = person.optJSONArray("personIdentifiers");
+				if(personIdentifierObj!=null)
                 {
-                    personIdentifiers = new JSONArray();
                     JSONObject identifier = createIdentifierOpenEMPI(person.optJSONObject("personIdentifiers"));
                     personIdentifiers.put(identifier);
                 }
-				else if(person.optJSONArray("personIdentifiers")!=null) {
-					personIdentifiers = person.getJSONArray("personIdentifiers");
-					for(int j=0; j<personIdentifiers.length(); j++) {
-                        JSONObject identifierRecord = personIdentifiers.getJSONObject(j);
-                        if ((identifierRecord.has("identifierDomain")) && (identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName").equals("OpenEMPI"))) {
-
-                            JSONObject identifier = createIdentifierOpenEMPI(identifierRecord);
-                            personIdentifiers.put(identifier);
-
+				else if(personIdentifierArray!=null) {
+                    int length = personIdentifierArray.length();
+                    JSONObject identifier = null;
+					for(Object identifierObj : personIdentifierArray) {
+					    if ( identifierObj instanceof JSONObject) {
+                            JSONObject identifierRecord = (JSONObject) identifierObj;
+                            if ((identifierRecord.has("identifierDomain")) && (identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName").equals("OpenEMPI"))) {
+                                identifier = createIdentifierOpenEMPI(identifierRecord);
+                                personIdentifiers.put(identifier);
+                            }
                         }
                     }
 				}
