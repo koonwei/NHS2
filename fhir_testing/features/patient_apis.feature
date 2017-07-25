@@ -21,20 +21,21 @@ Scenario: Read a patient
     Then The server response has status code 200
     And The server response has a body with the same id, family name "Smith", and given name "Richard"
 
-# Scenario: Search a patient by GET
-#    When I search a patient with family name "Smith" and given name "Richard"
-#    Then the server response has json key "entry" 
-#    And has status code 200
+Scenario: Search patients without parameters
+   When I search patients
+   Then The server response has status code 200
+   And the response has json key "entry" 
 
-#Scenario: Search a patient by POST
-#    When I search a patient with family name "Foo" and given name "Bar"
-#    Then the server response has json key "entry" 
-#    And has status code 200
+Scenario: Search patients by family name and given name
+   When I search patients with family name "Smith" and given name "Richard"
+   Then The server response has status code 200
+   And the response has json key "entry"
 
-#Scenario: Update a patient
-#    When I update a patient with id 1 and family name "Foo", given name "Bar"
-#    Then the server response has json key "message"
-#    And has status code 200
+# Scenario: Update a patient
+#    When I update the patient created
+#    Then The server response has status code 200
+#    And The server response has the patient id in the location header
+#    And The server has a patient stored with this id, family name "Foo", and given name "Bar" 
 
 #Scenario: Patch a patient
 #    When I patch a patient with id 1 and family name "Foo", given name "Bar"
@@ -44,5 +45,5 @@ Scenario: Read a patient
 Scenario: Delete a patient
     When I delete the patient created
     Then The server response has status code 204
-#    And The server has no patient stored with this id 
+    And The server has no patient stored with this id 
 

@@ -69,10 +69,15 @@ When(/^I delete the patient created$/) do
   @response = RestClient.delete url, :content_type => :json, :accept => :json
 end
 
-# When(/^I search a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
-#   url = server_base + "/Patient?family=#{family_name}&given=#{given_name}"
-#   @response = RestClient.get url, :content_type => :json, :accept => :json
-# end
+When(/^I search patients$/) do
+  url = server_base + "/Patient"
+  @response = RestClient.get url, :content_type => :json, :accept => :json
+end
+
+When(/^I search patients with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
+  url = server_base + "/Patient?family=#{family_name}&given=#{given_name}"
+  @response = RestClient.get url, :content_type => :json, :accept => :json
+end
 
 # When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
 #   if _format.nil?
@@ -118,15 +123,14 @@ And(/^The server response has a body with the same id, family name "([^"]*)", an
   check_patient_values(json_patient, @id, family_name, given_name)
 end
 
-
-
-
-
-# And(/^The server has no patient stored with this id$/) do 
-#   url = "http://localhost:8080/fhir/Patient/#{@id}"
-#   response = RestClient.get url, :content_type => :json, :accept => :json
-#   expect(response.code).to eq(204)
-# end
+And(/^The server has no patient stored with this id$/) do 
+  url = "http://localhost:8080/fhir/Patient/#{@id}"
+  begin
+    response = RestClient.get url, :content_type => :json, :accept => :json
+  rescue StandError => e
+    expect(e.response.code).to eq(404)
+  end
+end
 
 # And(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
 #   json_response = JSON.parse(@response.body)
@@ -134,10 +138,10 @@ end
 #   expect(json_response[key]).to match(content)
 # end
 
-# And(/^the server response has json key "([^"]*)"$/) do |key|
-#   json_response = JSON.parse(@response.body)
-#   expect(json_response).to have_key(key)
-# end
+And(/^the response has json key "([^"]*)"$/) do |key|
+  json_response = JSON.parse(@response.body)
+  expect(json_response).to have_key(key)
+end
 
 # And(/^the server response has XML tag "([^"]*)"$/) do |content|
 #   xml_json = Crack::XML.parse(@response.body)
