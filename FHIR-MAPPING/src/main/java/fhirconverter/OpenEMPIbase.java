@@ -20,15 +20,7 @@ import fhirconverter.exceptions.ResourceNotCreatedException;
 public class OpenEMPIbase {
 
 	private static String sessionCode;
-	/*
-	 * protected abstract JSONObject search(JSONObject parameters) throws
-	 * Exception; protected abstract JSONObject read(String id) throws
-	 * Exception; protected abstract String patch(String id, JsonPatch
-	 * parameters) throws Exception; protected abstract String create(JSONObject
-	 * patient) throws Exception; protected abstract String delete(String id)
-	 * throws Exception; protected abstract String update(String id, JSONObject
-	 * patient) throws Exception;
-	 */
+
 	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 
 	static final Logger logger = LogManager.getLogger(OpenEMPIbase.class.getName());
@@ -141,9 +133,8 @@ public class OpenEMPIbase {
 					break;
 				}
 			}
-			Utils.removeDuplicateRecords(finalresponse);
-			logger.info("*** Method: CommonSerachByAttributes Response:" + finalresponse + " ***");
-			logger.info("*** Method: CommonSerachByAttributes Response:" + finalresponse + " ***");
+			finalresponse = Utils.removeDuplicateRecords(finalresponse);
+			logger.info("*** Method: CommonSerachByAttributes Response: " + finalresponse + " ***");
 			return finalresponse;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -193,8 +184,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: commonSearchPersonById Response:" + response + " ***");
-			logger.debug("*** Method: commonSearchPersonById Response:" + response + " ***");
+			logger.info("*** Method: commonSearchPersonById Response: " + response + " ***");
 			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -231,9 +221,8 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: commonReadPerson Response:" + response + "***");
-			logger.debug("*** Method: commonReadPerson Response:" + response + "***");
-			if (response == "") {
+			logger.info("*** Method: commonReadPerson Response: " + response + " ***");
+			if (response.equals("")) {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			return response;
@@ -280,12 +269,10 @@ public class OpenEMPIbase {
 			}
 			if (response.equals("")) {
 				this.commonAddPerson(parameters);
-				logger.info("*** Method: commonUpdateById Response: ** Created ** " + response + " ***");
-				logger.debug("*** Method: commonUpdateById Response: ** Created ** " + response + " ***");
+				logger.info("*** Method: commonUpdate Response: ** Created ** " + response + " ***");
 				return "Created";
 			} else {
-				logger.info("*** Method: commonUpdateById Response: ** Updated ** " + response + " ***");
-				logger.debug("*** Method: commonUpdateById Response: ** Updated ** " + response + " ***");
+				logger.info("*** Method: commonUpdate Response: ** Updated ** " + response + " ***");
 				return "Updated";
 			}
 		} catch (Exception ex) {
@@ -323,7 +310,6 @@ public class OpenEMPIbase {
 			if (!this.checkIfIdendifierExists("NHS")) {
 				logger.info("*** Identifier Domain is NHS does not exist in OpenEMPI database ***");
 				this.addIdentifier("NHS");
-				logger.info("*** Identifier Domain is NHS added to OpenEMPI database ***");
 			}
 		}
 
@@ -340,8 +326,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: commonAddPerson Response:" + response + "***");
-			logger.info("*** Method: commonAddPerson Response:" + response + "***");
+			logger.info("*** Method: commonAddPerson Response: " + response + " ***");
 			return response;
 		} catch (Exception e) {
 			throw new ResourceNotCreatedException("Resource Not Created");
@@ -388,7 +373,6 @@ public class OpenEMPIbase {
 			}
 			if (response == "") {
 				logger.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
-				logger.debug("*** Method: commonDeletePersonById Response: Delete Successful ***");
 				return "Delete Successful";
 			} else
 				throw new ResourceNotFoundException("Resource Not Found");
@@ -430,7 +414,6 @@ public class OpenEMPIbase {
 			}
 			if (response == "") {
 				logger.info("*** Method: commonRemovePersonById Response: Remove Successful ***");
-				logger.debug("*** Method: commonRemovePersonById Response: Remove Successful ***");
 				return "Remove Successful";
 			} else
 				throw new ResourceNotFoundException("Resource Not Found");
@@ -470,12 +453,10 @@ public class OpenEMPIbase {
 			}
 			if (response.contains(identifierName)){
 				logger.info("*** Method: checkIfIdendifierExists Response: true ***");
-				logger.debug("*** Method: checkIfIdendifierExists Response: true ***");
 				return true;
 			}
 			else{
 				logger.info("*** Method: checkIfIdendifierExists Response: false ***");
-				logger.debug("*** Method: checkIfIdendifierExists Response: false ***");
 				return false;
 			}
 		} catch (Exception ex) {
@@ -525,8 +506,8 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: addIdentifier Response:" + response + " ***");
-			logger.debug("*** Method: addIdentifier Response:" + response + " ***");
+			logger.info("*** Method: addIdentifier Response: " + response + " ***");
+			logger.info("*** Identifier Domain is NHS added to OpenEMPI database ***");
 			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotCreatedException("Resource Not Created");
