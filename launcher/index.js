@@ -1,26 +1,26 @@
 const express = require('express')
 const app = express()
 
-app.set('view engine', 'pug')
+app.set('view engine', 'pug');
 
 // var server_address = 'http://51.140.57.74'
-var fhir_port = 8090
+var fhirPort = 8090;
 
-var server_address = '127.0.0.1'
-var growth_chart_port = 9000
+var serverAddress = '127.0.0.1';
+var growthChartPort = 9000;
 
 var rest = require('restler');
 
 app.get('/growth-chart/id/:patientId', function (req, res) {
-  var patient_id = req.params['patientId'];
-  console.log(patient_id);
-  var url = `http://${server_address}:${growth_chart_port}/launch.html?fhirServiceUrl=http://${server_address}:${fhir_port}/fhir&patientId=${patient_id}`
+  var patientId = req.params['patientId'];
+  console.log(patientId);
+  var url = `http://${serverAddress}:${growthChartPort}/launch.html?fhirServiceUrl=http://${serverAddress}:${fhirPort}/fhir&patientId=${patientId}`;
   console.log(url);
   res.redirect(url);
-})
+});
 
 app.get('/patients', function (req, res) {
-  var url = `http://${server_address}:${fhir_port}/fhir/Patient?_format=json`;
+  var url = `http://${serverAddress}:${fhirPort}/fhir/Patient?_format=json`;
   console.log(url);
   rest.get(url).on('complete', function(result) {
     if (result instanceof Error) {

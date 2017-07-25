@@ -60,7 +60,7 @@ public class PatientFHIR {
 			}
 			
 			JSONObject xmlRead = XML.toJSONObject(readResult);
-			JSONArray personIdentifiers = new JSONArray();;
+			JSONArray personIdentifiers = new JSONArray();
 			if(xmlRead.has("person")){
 				JSONObject person = xmlRead.getJSONObject("person");
                 JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
@@ -71,7 +71,6 @@ public class PatientFHIR {
                     personIdentifiers.put(identifier);
                 }
 				else if(personIdentifierArray!=null) {
-                    int length = personIdentifierArray.length();
                     JSONObject identifier = null;
 					for(Object identifierObj : personIdentifierArray) {
 					    if ( identifierObj instanceof JSONObject) {
