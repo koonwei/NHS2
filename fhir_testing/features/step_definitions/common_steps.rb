@@ -1,4 +1,4 @@
-server_base = 'http://localhost:8080/fhir'
+server_base = 'http://localhost:8090/fhir'
 
 Given(/^fixture "([^"]*)" has loaded as "([^"]*)"$/) do |file_name, variable_name|
   json_file = File.read(file_name)
@@ -15,6 +15,6 @@ Given(/^a patient was created with "([^"]*)"$/) do |variable_name|
     location = response.headers[:location]
     @patient_id = location.scan(/Patient\/(\d+)/).first.first
   rescue StandardError => e
-    puts "Error #{e.response}"
+    puts e.response
   end
 end

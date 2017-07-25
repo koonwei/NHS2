@@ -6,7 +6,7 @@ require 'crack/xml'
 require "rspec"
 include RSpec::Matchers
 
-server_base = 'http://localhost:8080/fhir'
+server_base = 'http://localhost:8090/fhir'
 
 def new_patient(family_name, given_name)
   patient = @patient.clone
@@ -65,7 +65,7 @@ When(/^I read the patient created$/) do
 end
 
 When(/^I delete the patient created$/) do
-  url = "http://localhost:8080/fhir/Patient/#{@patient_id}"
+  url = server_base + "/Patient/#{@patient_id}"
   @response = RestClient.delete url, :content_type => :json, :accept => :json
 end
 
