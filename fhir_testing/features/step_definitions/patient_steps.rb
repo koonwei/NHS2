@@ -21,18 +21,18 @@ def new_patch(family_name, given_name)
 end
 
 def check_patient_values (patient, id, family_name, given_name)
-  if not id.nil?
+  unless id.nil?
     expect(patient).to have_key("id")
     expect(patient["id"]).to eq(id)
   end
-  if not family_name.nil? or not family_name.nil?
+  unless family_name.nil? and family_name.nil?
     expect(patient).to have_key("name")
   end
-  if not family_name.nil?
+  unless family_name.nil?
     expect(patient["name"][0]).to have_key("family")
   expect(patient["name"][0]["family"][0]).to eq(family_name)
   end
-  if not given_name.nil?
+  unless given_name.nil?
     expect(patient["name"][0]).to have_key("given")
     expect(patient["name"][0]["given"][0]).to eq(given_name)
   end
@@ -124,9 +124,9 @@ And(/^The server response has a body with the same id, family name "([^"]*)", an
 end
 
 And(/^The server has no patient stored with this id$/) do 
-  url = "http://localhost:8080/fhir/Patient/#{@id}"
+  url = server_base + "/Patient/#{@id}"
   begin
-    response = RestClient.get url, :content_type => :json, :accept => :json
+    RestClient.get url, :content_type => :json, :accept => :json
   rescue StandError => e
     expect(e.response.code).to eq(404)
   end
