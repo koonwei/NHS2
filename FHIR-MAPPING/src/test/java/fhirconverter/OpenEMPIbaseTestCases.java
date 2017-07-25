@@ -195,7 +195,6 @@ public class OpenEMPIbaseTestCases {
 		openEMPIbase.commonAddPerson(addPersonParameters);
 		String test = "{ \"family\" : \"Mill\"}";
 		JSONObject searchParameters = new JSONObject(test);
-		;
 		String obtainedResults = openEMPIbase.commonSearchPersonByAttributes(searchParameters);
 		System.out.println("testSearchPersonByAttributes");
 		assertNotNull(obtainedResults);
