@@ -25,6 +25,7 @@ public final class Utils{
 		}
 		return null;
    	}
+	
 	public static boolean validateScheme(final JsonNode newJson, final String filePath) throws Exception{
 		
 		try{
@@ -47,6 +48,9 @@ public final class Utils{
 	 */
 	public static String removeDuplicateRecords(String response) {
 		
+		response = response.replaceAll("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "\t");
+		response = response.replaceAll("<people>", "\n");
+		response = response.replaceAll("</people>", "\n");
 		response = response.replaceAll("</person>", "</person>\n");
 		String[] people = response.split("\n");
 
@@ -59,7 +63,7 @@ public final class Utils{
 		finalresponse = finalresponse.replaceAll("]", "");
 		finalresponse = finalresponse.replace("[", "");
 		
-		return finalresponse;
+		return "<people>" +finalresponse + "</people>";
 		
 	}	
 }
