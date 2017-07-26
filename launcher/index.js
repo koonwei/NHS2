@@ -6,12 +6,14 @@ app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.use(express.static('css'))
 
 // var server_address = 'http://51.140.57.74'
-var fhirPort = 8090;
-
-var serverAddress = '127.0.0.1';
-var growthChartPort = 9000;
 
 var rest = require('restler');
+
+var config = require('./config.json');
+
+var fhirPort = config.fhirPort;
+var serverAddress = config.serverAddress;
+var growthChartPort = config.growthChartPort;
 
 app.get('/growth-chart/id/:patientId', function (req, res) {
   var patientId = req.params['patientId'];

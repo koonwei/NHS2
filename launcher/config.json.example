@@ -1,0 +1,5 @@
+{
+  "fhirPort": 8090,
+  "serverAddress": "127.0.0.1",
+  "growthChartPort": 9000
+}
