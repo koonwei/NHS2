@@ -14,8 +14,8 @@ public class OpenEHRConnector{
 	private String password;
 	private String sessionCode;
 
-	OpenEHRConnector() throws Exception{
-		HashMap<String,String> connectionCreds = Utils.getProperties("openEhrApi");
+	OpenEHRConnector(String domainName) throws Exception{
+		HashMap<String,String> connectionCreds = Utils.getProperties(domainName);
 		baseURL = connectionCreds.get("baseURL");
 		username = connectionCreds.get("username");
 		password =  connectionCreds.get("password");
