@@ -39,14 +39,14 @@ app.get('/patients', function (req, res) {
       patients = patients.map(function(item, index) {
         var patient = new Object();
         patient.id = item.id
-        if(item.birthDate == undefined) {
+        if(item.birthDate === undefined) {
           patient.birthDate = '';
         }
         else {
           patient.birthDate = item.birthDate;
         }
 
-        if(item.name == undefined) {
+        if(item.name === undefined) {
           patient.given = '';
           patient.family = '';
         }
