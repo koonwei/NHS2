@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 
 app.set('view engine', 'pug');
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+app.use(express.static('css'))
 
 // var server_address = 'http://51.140.57.74'
 var fhirPort = 8090;

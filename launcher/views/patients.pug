@@ -1,31 +1,36 @@
 html
   head
     title="All Patients"
+    link(href='/bower_components/dynatable/jquery.dynatable.css', rel='stylesheet')
     link(href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', rel='stylesheet')
+    link(href='/custom.css', rel='stylesheet')
+    script(src='/bower_components/jquery/dist/jquery.min.js')
+    script(src='/bower_components/dynatable/jquery.dynatable.js')
   body
-    div(class='page-header')
-      h1 Patients
-    div(class='container-fluid')
-      div(class='row')
-        div(class='col-xs-12 col-md-8')
-          div(class='panel panel-default')
-            div(class='panel-heading') 
-              h3(class='panel-title') Patients
-            div(class='table-responsive')
-              table(class='table table-striped')
-                thead
-                  tr
-                    th ID
-                    th Given Name 
-                    th Family Name
-                    th Birth Date
-                    th GrowthChart
-                tbody
-                  each patient, index in patients
-                    tr
-                      td #{patient.id}
-                      td #{patient.given}
-                      td #{patient.family}
-                      td #{patient.birthDate}
-                      td 
-                        a(href='/growth-chart/id/' + patient.id) GrowthChart
+    #page-content
+      .container-fluid
+        .row
+            .col-lg-9
+              h1 Patients
+              .panel.panel-default
+                .panel-body
+                  .table-responsive
+                    table#patients-table.table.table-striped.table-bordered
+                      thead
+                        tr
+                          th ID
+                          th Given Name 
+                          th Family Name
+                          th Birth Date
+                          th GrowthChart
+                      tbody
+                        each patient, index in patients
+                          tr
+                            td #{patient.id}
+                            td #{patient.given}
+                            td #{patient.family}
+                            td #{patient.birthDate}
+                            td 
+                              a(href='/growth-chart/id/' + patient.id) GrowthChart
+    script.
+      $('#patients-table').dynatable();

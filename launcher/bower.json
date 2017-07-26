@@ -1,0 +1,21 @@
+{
+  "name": "launcher",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Yuan <yw.johnny@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/koonwei/NHS2",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "dynatable": "^0.3.1"
+  }
+}
