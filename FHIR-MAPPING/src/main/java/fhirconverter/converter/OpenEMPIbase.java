@@ -200,7 +200,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	protected String commonReadPerson(String parameter) throws Exception {
+	public String commonReadPerson(String parameter) throws Exception {
 
 		getSessionCode();
 
@@ -391,7 +391,7 @@ public class OpenEMPIbase {
 	 *         ResourceNotFoundException
 	 * @throws Exception
 	 */
-	protected String commonRemovePersonById(String parameter) throws Exception {
+	public String commonRemovePersonById(String parameter) throws Exception {
 
 		getSessionCode();
 

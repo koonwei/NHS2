@@ -2,7 +2,7 @@
  * 
  */
 package fhirconverter.converter;
-
+import java.util.HashMap;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,7 +25,12 @@ public class OpenEMPISession {
 	 */
 	public static OpenEMPISession initialize(){
 		OpenEMPISession newInstance = new OpenEMPISession();
+		HashMap<String,String> connectionCreds = Utils.getProperties("OpenEMPI");
+		newInstance.baseURL = connectionCreds.get("baseURL");
+	 	newInstance.username = connectionCreds.get("username");
+		newInstance.password =  connectionCreds.get("password");
 		
+		/* Shruti, can we remove this?
 		try {
 			Properties properties = new Properties();		
 			FileReader reader = new FileReader("config.properties");
@@ -39,7 +44,7 @@ public class OpenEMPISession {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}	*/	
 		return newInstance;
 	}
 	
