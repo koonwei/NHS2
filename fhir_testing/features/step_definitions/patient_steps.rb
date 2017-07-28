@@ -2,6 +2,7 @@
 
 require 'rest-client'
 require 'json'
+require 'json-diff'
 require 'crack/xml'
 require "rspec"
 include RSpec::Matchers
@@ -11,8 +12,10 @@ server_base = 'http://localhost:8090/fhir'
 def new_patient(family_name, given_name)
   patient = @patient.clone
 
-  patient['name'].first['family'] = family_name
-  patient['name'].first['given'] = given_name
+  patient['name'].first['family'] = []
+  patient['name'].first['family'] << family_name
+  patient['name'].first['given'] = []
+  patient['name'].first['given'] << given_name
   patient
 end
 
@@ -115,7 +118,13 @@ And(/^The server has a patient stored with this id, family name "([^"]*)", and g
   url = server_base + "/Patient/#{@id}"
   response = RestClient.get url, :content_type => :json, :accept => :json
   json_patient = JSON.parse(response.body)  
-  check_patient_values(json_patient, @id, family_name, given_name)
+  expected_patient = new_patient(family_name, given_name)
+  expected_patient['id'] = @id
+  json_patient.delete("text")
+  json_patient.delete("meta")
+  diff = (JsonDiff.diff(json_patient,expected_patient))
+  expect(diff).to eq([])
+ # check_patient_values(json_patient, @id, family_name, given_name)
 end
 
 And(/^The server response has a body with the same id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
