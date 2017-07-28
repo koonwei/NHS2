@@ -2,6 +2,7 @@ package fhirconverter.converter;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
 import fhirconverter.exceptions.IdNotObtainedException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -20,11 +21,15 @@ public class OpenEHRConnectorTests{
 	@Test
 	public void getObservationsTests() throws Exception{
 		OpenEHRConnector tester = new OpenEHRConnector("openEhrApi");	
-		JSONObject responseObj = tester.getGrowthChartObservations("9999999332");
+		JSONObject responseObj = tester.getGrowthChartObservations("9999999332","1");
 		if(responseObj.has("resultSet"))
 		{
 			assertNotNull(responseObj.getJSONArray("resultSet"));
+			assertEquals(responseObj.getString("patientId"),"1");
+		}else{
+			assertEquals("Test Case Failed! No Response","1","2");
 		}
+		
 	}
 }
 
