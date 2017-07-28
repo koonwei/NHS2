@@ -2,6 +2,8 @@
 
 require 'rest-client'
 
+server_base = 'http://localhost:8090/fhir'
+
 def server_up_and_running?
     begin
         RestClient.get 'http://localhost:8090/fhir/metadata'
@@ -46,5 +48,9 @@ Before do |scenario|
 end
 
 After do |scenario|
-    # stop_server
+  if scenario.name != "Delete a patient"
+	url = server_base + "/Patient/#{@patient_id}"
+  	@response = RestClient.delete url, :content_type => :json, :accept => :json
+  end
+  # stop_server
 end
