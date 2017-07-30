@@ -8,18 +8,19 @@ Feature: Patient API
 
 Background:
     Given fixture "patient.json" has loaded as "patient"
-    Given a patient was created with "patient"
+    Given a patient was created using "patient" fixture, with family name "Foo" and given name "Bar"
+    Given a patient was created using "patient" fixture, with family name "Wei" and given name "Yuan"
 
 Scenario: Create a new patient
-    When I create a patient with family name "Foo" and given name "Bar"
+    When I create a patient using "patient" fixture, with family name "Sinha" and given name "Evanthia"
     Then The server response has status code 201
     And The server response has the patient id in the location header
-    And The server has a patient stored with this id, family name "Foo", and given name "Bar" 
+    And The server has a patient stored with this id, family name "Sinha", and given name "Evanthia" 
 
 Scenario: Read a patient
-    When I read the patient created
+    When I read the first patient created
     Then The server response has status code 200
-    And The server response has a body with the same id, family name "Smith", and given name "Richard"
+    And The server response has a body with the same id, family name "Foo", and given name "Bar"
 
 Scenario: Search patients without parameters
    When I search patients

@@ -56,19 +56,22 @@ end
 # When
 #
 
-When(/^I create a patient with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
+When(/^I create a patient using "([^"]*)" fixture, with family name "([^"]*)" and given name "([^"]*)"$/) do |variable_name, family_name, given_name|
   payload = new_patient(family_name, given_name).to_json
   url = server_base + '/Patient'
   @response = RestClient.post url, payload, :content_type => 'application/json', :accept => :json
+  location = @response.headers[:location]
+  @created_patients_id << location.scan(/Patient\/(\d+)/).first.first
+
 end
 
-When(/^I read the patient created$/) do
-  url = server_base + "/Patient/#{@patient_id}"
+When(/^I read the first patient created$/) do
+  url = server_base + "/Patient/#{@created_patients_id.first}"
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
 When(/^I delete the patient created$/) do
-  url = server_base + "/Patient/#{@patient_id}"
+	url = server_base + "/Patient/#{@created_patients_id.first}"
   @response = RestClient.delete url, :content_type => :json, :accept => :json
 end
 
@@ -111,29 +114,29 @@ end
 
 And(/^The server response has the patient id in the location header$/) do 
   location = @response.headers[:location]
-  @id = location.scan(/Patient\/(\d+)/).first.first
+  @response_id = location.scan(/Patient\/(\d+)/).first.first
 end
 
 And(/^The server has a patient stored with this id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
-  url = server_base + "/Patient/#{@id}"
+  url = server_base + "/Patient/#{@response_id}"
   response = RestClient.get url, :content_type => :json, :accept => :json
-  json_patient = JSON.parse(response.body)  
+  obtained_patient = JSON.parse(response.body)  
   expected_patient = new_patient(family_name, given_name)
-  expected_patient['id'] = @id
-  json_patient.delete("text")
-  json_patient.delete("meta")
-  diff = (JsonDiff.diff(json_patient,expected_patient))
+  expected_patient['id'] = @response_id
+  obtained_patient.delete("text")
+  obtained_patient.delete("meta")
+  diff = (JsonDiff.diff(obtained_patient,expected_patient))
   expect(diff).to eq([])
  # check_patient_values(json_patient, @id, family_name, given_name)
 end
 
 And(/^The server response has a body with the same id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
   json_patient = JSON.parse(@response.body)	
-  check_patient_values(json_patient, @id, family_name, given_name)
+  check_patient_values(json_patient, @response_id, family_name, given_name)
 end
 
 And(/^The server has no patient stored with this id$/) do 
-  url = server_base + "/Patient/#{@id}"
+  url = server_base + "/Patient/#{@response_id}"
   begin
     RestClient.get url, :content_type => :json, :accept => :json
   rescue StandError => e
