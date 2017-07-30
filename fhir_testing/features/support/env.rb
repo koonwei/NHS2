@@ -49,9 +49,9 @@ end
 
 After do |scenario|
   if scenario.name != "Delete a patient"
-    @created_patients_id.each{
-      |patient_id|
-      url = server_base + "/Patient/#{patient_id}"
+    @created_patients.each{
+      |patient|
+      url = server_base + "/Patient/#{patient['id']}"
       @response = RestClient.delete url, :content_type => :json, :accept => :json
     }
   end

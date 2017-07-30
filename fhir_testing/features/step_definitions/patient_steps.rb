@@ -41,37 +41,37 @@ def check_patient_values (patient, id, family_name, given_name)
   end
 end
 
+def compare_patients (expected_patient, obtained_patient)
+  obtained_patient.delete("text")
+  obtained_patient.delete("meta")
+  return (JsonDiff.diff(obtained_patient,expected_patient))
+end
+
 #
 # Given
 #
-
-# Given(/^The server has a patient stored with family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
-#   payload = new_patient(family_name, given_name).to_json
-#   response = RestClient.post 'http://localhost:8080/fhir/Patient', payload, :content_type => 'application/json', :accept => :json
-#   location = response.headers[:location]
-#   @id = location.scan(/Patient\/(\d+)/).first.first
-# end
 
 #
 # When
 #
 
 When(/^I create a patient using "([^"]*)" fixture, with family name "([^"]*)" and given name "([^"]*)"$/) do |variable_name, family_name, given_name|
-  payload = new_patient(family_name, given_name).to_json
+  patient = new_patient(family_name, given_name)
+  payload = patient.to_json
   url = server_base + '/Patient'
   @response = RestClient.post url, payload, :content_type => 'application/json', :accept => :json
   location = @response.headers[:location]
-  @created_patients_id << location.scan(/Patient\/(\d+)/).first.first
-
+  patient['id'] = location.scan(/Patient\/(\d+)/).first.first
+  @created_patients << patient
 end
 
 When(/^I read the first patient created$/) do
-  url = server_base + "/Patient/#{@created_patients_id.first}"
+  url = server_base + "/Patient/#{@created_patients.first['id']}"
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
-When(/^I delete the patient created$/) do
-	url = server_base + "/Patient/#{@created_patients_id.first}"
+When(/^I delete the first patient created$/) do
+  url = server_base + "/Patient/#{@created_patients.first['id']}"
   @response = RestClient.delete url, :content_type => :json, :accept => :json
 end
 
@@ -123,46 +123,44 @@ And(/^The server has a patient stored with this id, family name "([^"]*)", and g
   obtained_patient = JSON.parse(response.body)  
   expected_patient = new_patient(family_name, given_name)
   expected_patient['id'] = @response_id
-  obtained_patient.delete("text")
-  obtained_patient.delete("meta")
-  diff = (JsonDiff.diff(obtained_patient,expected_patient))
+  diff = compare_patients(expected_patient, obtained_patient)
   expect(diff).to eq([])
- # check_patient_values(json_patient, @id, family_name, given_name)
 end
 
-And(/^The server response has a body with the same id, family name "([^"]*)", and given name "([^"]*)"$/) do |family_name, given_name|
-  json_patient = JSON.parse(@response.body)	
-  check_patient_values(json_patient, @response_id, family_name, given_name)
+And(/^The server response has a body with the first patient created$/) do
+  obtained_patient = JSON.parse(@response.body)	
+  expected_patient = @created_patients.first
+  diff = compare_patients(expected_patient, obtained_patient)
+  expect(diff).to eq([])
 end
 
-And(/^The server has no patient stored with this id$/) do 
-  url = server_base + "/Patient/#{@response_id}"
+And(/^the response is a bundle that contains the patients created$/) do
+  bundle = JSON.parse(@response.body)	
+  @created_patients.each do |expected_patient|
+     expected_patient_found = FALSE
+     bundle['entry'].each do |entry|
+       obtained_patient = entry['resource']
+       if obtained_patient['id'] == expected_patient['id']
+         diff = compare_patients(expected_patient, obtained_patient)
+         expect(diff).to eq([])
+         expected_patient_found = TRUE
+	 break
+       end
+     end
+  end
+ expect(expected_patient_found.to eq(true))
+end
+
+And(/^The server has not stored the first patient created$/) do 
+  url = server_base + "/Patient/#{@created_patients.first["id"]}"
   begin
     RestClient.get url, :content_type => :json, :accept => :json
-  rescue StandError => e
+  rescue StandardError => e
     expect(e.response.code).to eq(404)
   end
 end
-
-# And(/^the server has response with key "([^"]*)" and content "([^"]*)"$/) do |key, content|
-#   json_response = JSON.parse(@response.body)
-#   expect(json_response).to have_key(key)
-#   expect(json_response[key]).to match(content)
-# end
 
 And(/^the response has json key "([^"]*)"$/) do |key|
   json_response = JSON.parse(@response.body)
   expect(json_response).to have_key(key)
 end
-
-# And(/^the server response has XML tag "([^"]*)"$/) do |content|
-#   xml_json = Crack::XML.parse(@response.body)
-#   expect(xml_json).to have_key(content)
-# end
-
-# And(/^A patient is stored with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
-#   payload = new_patient(family_name, given_name).to_json
-#   @response = RestClient.put "http://localhost:8080/fhir/patient/#{id}", payload, :content_type => :json, :accept => :json
-# end
-
-

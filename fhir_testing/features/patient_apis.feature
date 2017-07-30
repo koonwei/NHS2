@@ -20,12 +20,12 @@ Scenario: Create a new patient
 Scenario: Read a patient
     When I read the first patient created
     Then The server response has status code 200
-    And The server response has a body with the same id, family name "Foo", and given name "Bar"
+    And The server response has a body with the first patient created
 
 Scenario: Search patients without parameters
    When I search patients
    Then The server response has status code 200
-   And the response has json key "entry" 
+   And the response is a bundle that contains the patients created
 
 Scenario: Search patients by family name and given name
    When I search patients with family name "Smith" and given name "Richard"
@@ -44,7 +44,7 @@ Scenario: Search patients by family name and given name
 #    And has status code 200
 
 Scenario: Delete a patient
-    When I delete the patient created
+    When I delete the first patient created
     Then The server response has status code 204
-    And The server has no patient stored with this id 
+    And The server has not stored the first patient created
 
