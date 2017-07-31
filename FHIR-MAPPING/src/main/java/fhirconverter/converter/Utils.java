@@ -66,9 +66,10 @@ public final class Utils{
 			 set.add(people[i]);
 		}
 		String finalresponse = set.toString();
-		finalresponse = finalresponse.replaceAll(", ", "");
+		finalresponse = finalresponse.replaceAll("</person>,", "</person>");
 		finalresponse = finalresponse.replaceAll("]", "");
 		finalresponse = finalresponse.replace("[", "");
+		finalresponse = finalresponse.replace(">,", ">");
 		
 		return "<people>" +finalresponse + "</people>";
 	
