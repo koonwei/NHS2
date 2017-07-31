@@ -114,7 +114,7 @@ public class OpenEHRConvertor {
 			observationWeight.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
 			observationWeight.getCode().setText("weight");
 			String value = resultSet.optString("Weight_magnitude");
-			if (!value.equals(null) && !value.equals(""))
+			if (value != null && !value.equals(""))
 				quantityWeight.setValue(Double.parseDouble(value));
 		}
 		if (resultSet.has("Weight_units")) {
@@ -149,7 +149,7 @@ public class OpenEHRConvertor {
 			observationHeight.getCode().addCoding(new CodingDt("http://loinc.org", "8302-2"));
 			observationHeight.getCode().setText("height");
 			String value = resultSet.optString("Height_Length_magnitude");
-			if (!value.equals(null) && !value.equals(""))
+			if (value != null && !value.equals(""))
 				quantityHeight.setValue(Double.parseDouble(value));
 		}
 
@@ -186,7 +186,7 @@ public class OpenEHRConvertor {
 			observationBMI.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
 			observationBMI.getCode().setText("bmi");
 			String value = resultSet.optString("Body_Mass_Index_magnitude");
-			if (!value.equals(null) && !value.equals(""))
+			if (value != null && !value.equals(""))
 				quantityBMI.setValue(Double.parseDouble(value));
 		}
 
