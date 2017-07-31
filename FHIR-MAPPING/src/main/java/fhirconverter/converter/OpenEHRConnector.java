@@ -14,11 +14,10 @@ public class OpenEHRConnector{
 	private String username;
 	private String password;
 	private String sessionCode;
-	private String domainDatabase;
+
 
 	OpenEHRConnector(String domainName) throws Exception{
 		HashMap<String,String> connectionCreds = Utils.getProperties(domainName);
-	  	domainDatabase = domainName;
 		baseURL = connectionCreds.get("baseURL");
 		username = connectionCreds.get("username");
 		password =  connectionCreds.get("password");
