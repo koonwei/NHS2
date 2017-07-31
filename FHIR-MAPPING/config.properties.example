@@ -9,3 +9,7 @@ openEhrApi-baseURL=https\://test.operon.systems
 openEhrApi-username=oprn_jarrod
 openEhrApi-password=ZayFYCiO644
 
+#ethercis-config
+ethercis-baseURL=http\://51.140.57.74\:8888/
+ethercis-username=guest
+ethercis-password=guest
