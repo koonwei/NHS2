@@ -33,7 +33,7 @@ public class OpenEHRConvertor {
 	 * 
 	 * @throws Exception
 	 */
-	public List<Observation> JSONToObservation(JSONObject jsonResult) throws Exception {
+	public List<Observation> jSONToObservation(JSONObject jsonResult) throws Exception {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
