@@ -9,7 +9,7 @@ import ca.uhn.fhir.model.dstu2.resource.Patient;
 import fhirconverter.exceptions.ResourceNotFoundException;
 
 import org.junit.*;
-
+import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONObject;
