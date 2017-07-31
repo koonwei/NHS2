@@ -52,8 +52,8 @@ public class OpenEHRConnectorTests{
 		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
 		tester.getEHRIdByNhsNumber("9999999000");
 		tester.deleteSessionKey();
-		}
 	}
 }
+
 
 
