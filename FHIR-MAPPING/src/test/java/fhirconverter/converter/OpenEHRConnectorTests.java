@@ -2,7 +2,6 @@ package fhirconverter.converter;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 import fhirconverter.exceptions.IdNotObtainedException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -13,6 +12,7 @@ public class OpenEHRConnectorTests{
 		OpenEHRConnector tester = new OpenEHRConnector("openEhrApi");		
 		assertEquals("Get EHRid operation","c831fe4d-0ce9-4a63-8bfa-2c51007f97e5",tester.getEHRIdByNhsNumber("9999999332"));
 		tester.deleteSessionKey();
+
 	}
 	@Test(expected = IdNotObtainedException.class)
 	public void getEHRidNumberNotExistTest() throws Exception{	
@@ -52,7 +52,7 @@ public class OpenEHRConnectorTests{
 		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
 		tester.getEHRIdByNhsNumber("9999999000");
 		tester.deleteSessionKey();
-			
+		}
 	}
 }
 

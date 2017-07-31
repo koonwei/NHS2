@@ -8,13 +8,11 @@ import java.util.HashMap;
 import org.json.JSONObject;
 import fhirconverter.exceptions.IdNotObtainedException;
 
-
 public class OpenEHRConnector{
 	private String baseURL;
 	private String username;
 	private String password;
 	private String sessionCode;
-
 
 	OpenEHRConnector(String domainName) throws Exception{
 		HashMap<String,String> connectionCreds = Utils.getProperties(domainName);
@@ -91,4 +89,5 @@ public class OpenEHRConnector{
 		}
 
 	}
+
 }
