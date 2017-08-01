@@ -10,8 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ObservationFHIR{
-	PatientHelper patientHelper = new PatientHelper();
-	Logger LOGGER = LogManager.getLogger(ObservationFHIR.class);
+	private PatientHelper patientHelper = new PatientHelper();
+	private Logger LOGGER = LogManager.getLogger(ObservationFHIR.class);
 
 	protected List<Observation> search(String patientId, String domainName) throws Exception{ 
 		String nhsNumber = patientHelper.retrieveNHSbyId(patientId);

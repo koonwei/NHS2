@@ -1,11 +1,8 @@
 package fhirconverter.converter;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.json.JSONObject;
 import org.junit.Test;
-
-import fhirconverter.exceptions.IdNotObtainedException;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
@@ -15,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ObservationFHIRTests{
-	Logger LOGGER = LogManager.getLogger(ObservationFHIRTests.class);
+ 	private	Logger LOGGER = LogManager.getLogger(ObservationFHIRTests.class);
 	@Test
 	public void getObservationIntegrationTest() throws Exception{
 		ObservationFHIR observationFHIR = new ObservationFHIR();
