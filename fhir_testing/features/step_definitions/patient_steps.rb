@@ -19,32 +19,19 @@ def new_patient(family_name, given_name)
   patient
 end
 
-def new_patch(family_name, given_name)
-  patch= [ {op: "add", path: "/given", value: given_name}]
-end
-
-def check_patient_values (patient, id, family_name, given_name)
-  unless id.nil?
-    expect(patient).to have_key("id")
-    expect(patient["id"]).to eq(id)
-  end
-  unless family_name.nil? and family_name.nil?
-    expect(patient).to have_key("name")
-  end
-  unless family_name.nil?
-    expect(patient["name"][0]).to have_key("family")
-  expect(patient["name"][0]["family"][0]).to eq(family_name)
-  end
-  unless given_name.nil?
-    expect(patient["name"][0]).to have_key("given")
-    expect(patient["name"][0]["given"][0]).to eq(given_name)
-  end
-end
-
 def compare_patients (expected_patient, obtained_patient)
   obtained_patient.delete("text")
   obtained_patient.delete("meta")
   return (JsonDiff.diff(obtained_patient,expected_patient))
+end
+
+def find_patient (bundle, patient_id)
+  bundle['entry'].each do |entry|
+    patient = entry['resource']
+    if patient['id'] == patient_id
+      return patient
+    end
+  end
 end
 
 #
@@ -85,24 +72,27 @@ When(/^I search patients with family name "([^"]*)" and given name "([^"]*)"$/) 
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
-# When(/^I read a patient with id (\d+)(?: and format ([a-zA-Z\/\+]+))?$/) do |id, _format|
-#   if _format.nil?
-#     url = "http://localhost:8080/fhir/Patient/#{id}"
-#   else
-#     url = "http://localhost:8080/fhir/Patient/#{id}?_format=#{_format}"
-#   end
-#   @response = RestClient.get url, :content_type => :json, :accept => :json
-# end
+When(/^I update the first patient using "([^"]*)" fixture, with family name "([^"]*)" and given name "([^"]*)"$/) do |variable_name, family_name, given_name|
+  patient_id = @created_patients.first['id']
+  patient = new_patient(family_name, given_name)
+  patient['id'] = patient_id
+  payload = patient.to_json
+  url = server_base + "/Patient/" + patient_id
+  @response = RestClient.put url, payload, :content_type => :json, :accept => :json
+end
 
-# When(/^I update a patient with id (\d+) and family name "([^"]*)", given name "([^"]*)"$/) do |id, family_name, given_name|
-#   payload = new_patient(family_name, given_name).to_json
-#   @response = RestClient.put "http://localhost:8080/fhir/Patient/#{id}", payload, :content_type => :json, :accept => :json
-# end
-
-# When(/^I patch a patient with id (\d+) and family name "([^"]*)", given name "([^"]*)"$/) do |id, family_name, given_name|
-#   payload = new_patch(family_name, given_name).to_json
-#   @response = RestClient.patch "http://localhost:8080/fhir/Patient/#{id}", payload, :content_type => :json, :accept => :json
-# end
+When(/^I patch the first patient stored to delete marital status, replace given name for "([^"]*)" and add country "([^"]*)" to address$/) do |given_name, country|
+  patient = @created_patients.first
+  patient_id = patient['id']
+  url = server_base + "/Patient/" + patient_id
+  payload = [{"op": "remove", "path": "/maritalStatus"}, {"op": "replace", "path": "/name/0/given/0", "value": given_name}, {"op": "add", "path": "/address/0/country", "value": country}].to_json
+  @response = RestClient.patch url, payload, :content_type => "application/json-patch+json"
+  patient.delete('maritalStatus')
+  patient['name'][0]['given'][0] = given_name
+  address = patient['address'][0]
+  address['country'] = country
+  address['text'] = address['line'][0] + " " + address['city'] + " " + address['postalCode'] + " " + address['country']
+end
 
 #
 # Then
@@ -137,18 +127,42 @@ end
 And(/^the response is a bundle that contains the patients created$/) do
   bundle = JSON.parse(@response.body)	
   @created_patients.each do |expected_patient|
-     expected_patient_found = FALSE
-     bundle['entry'].each do |entry|
-       obtained_patient = entry['resource']
-       if obtained_patient['id'] == expected_patient['id']
-         diff = compare_patients(expected_patient, obtained_patient)
-         expect(diff).to eq([])
-         expected_patient_found = TRUE
-	 break
-       end
-     end
+    obtained_patient = find_patient(bundle, expected_patient['id'])
+    expect(obtained_patient).not_to be_nil 
+    diff = compare_patients(expected_patient, obtained_patient)
+    expect(diff).to eq([])
   end
- expect(expected_patient_found.to eq(true))
+end
+
+And(/^the response is a bundle that contains the first patient created$/) do
+  bundle = JSON.parse(@response.body)	
+  expected_patient = @created_patients.first
+  obtained_patient = find_patient(bundle, expected_patient['id'])
+  expect(obtained_patient).not_to be_nil 
+  diff = compare_patients(expected_patient, obtained_patient)
+  expect(diff).to eq([])
+end
+
+And(/^the response is a bundle with patients that have family name "([^"]*)" and give name "([^"]*)"$/) do |expected_family_name, expected_given_name|
+  bundle = JSON.parse(@response.body)	
+  bundle['entry'].each do |entry|
+    obtained_patient = entry['resource']
+    obtained_family_name = obtained_patient['name'].first['family'].first
+    expect(obtained_family_name).to eq(expected_family_name)
+    obtained_given_name = obtained_patient['name'].first['given'].first
+    expect(obtained_given_name).to eq(expected_given_name)
+  end
+end
+
+
+And(/^The first patient stored in the server has been modified$/) do
+  expected_patient = @created_patients.first
+  patient_id = expected_patient['id']
+  url = server_base + "/Patient/#{patient_id}"
+  response = RestClient.get url, :content_type => :json, :accept => :json
+  obtained_patient = JSON.parse(response.body)  
+  diff = compare_patients(expected_patient, obtained_patient)
+  expect(diff).to eq([])
 end
 
 And(/^The server has not stored the first patient created$/) do 
@@ -158,9 +172,4 @@ And(/^The server has not stored the first patient created$/) do
   rescue StandardError => e
     expect(e.response.code).to eq(404)
   end
-end
-
-And(/^the response has json key "([^"]*)"$/) do |key|
-  json_response = JSON.parse(@response.body)
-  expect(json_response).to have_key(key)
 end
