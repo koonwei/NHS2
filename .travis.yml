@@ -11,7 +11,7 @@ before_script:
 
 script: 
   # - gradle -p FHIR-MAPPING build 
-  - gradle -p FHIR-MAPPING test --stacktrace --debug
+  - gradle -p FHIR-MAPPING check -i
 
 jobs:
   include:      
