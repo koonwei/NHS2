@@ -1,27 +1,24 @@
 package fhirconverter.converter;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.dstu2.resource.Patient;
-import fhirconverter.exceptions.ResourceNotFoundException;
-
-import org.junit.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.json.JSONObject;
-import org.json.XML;
-
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.XML;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.dstu2.resource.Patient;
+import fhirconverter.exceptions.ResourceNotFoundException;
 
 
 

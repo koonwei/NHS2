@@ -1,10 +1,11 @@
 package fhirconverter.converter;
-import org.junit.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import fhirconverter.exceptions.IdNotObtainedException;
+
 import org.json.JSONObject;
-import org.json.JSONArray;
+import org.junit.Test;
+
+import fhirconverter.exceptions.IdNotObtainedException;
 
 public class OpenEHRConnectorTests{
 	@Test
