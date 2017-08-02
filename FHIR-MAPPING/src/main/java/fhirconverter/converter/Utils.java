@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.Iterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 
@@ -15,6 +16,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 
 public final class Utils{
@@ -90,5 +96,20 @@ public final class Utils{
 			e.printStackTrace();
 		}		
 		return connectionCreds;
+	}
+	public static JSONObject readJsonFile(){
+		JSONParser parser = new JSONParser();
+		try {
+			Object obj = parser.parse(new FileReader("aql_path.json"));
+			JSONObject jsonObj = (JSONObject) obj;	
+			return jsonObj;
+ 		}catch (FileNotFoundException e) {
+            		e.printStackTrace();
+        	} catch (IOException e) {
+            		e.printStackTrace();
+        	} catch (ParseException e) {
+            		e.printStackTrace();
+        	}
+		return null;
 	}
 }

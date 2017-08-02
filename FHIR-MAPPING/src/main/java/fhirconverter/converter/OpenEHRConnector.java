@@ -7,6 +7,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import java.util.HashMap;
 import org.json.JSONObject;
 import fhirconverter.exceptions.IdNotObtainedException;
+import java.util.ArrayList;
 
 public class OpenEHRConnector{
 	private String baseURL;
@@ -78,6 +79,23 @@ public class OpenEHRConnector{
 			}		
 		return null;
 	}
+	public JSONObject getObservations(String aqlString) throws Exception{
+		try{
+				HttpResponse<String> response = Unirest.post(baseURL+"/rest/v1/query")
+ 		    				    		.header("content-type", "application/json")
+                    				    		.header("Ehr-Session", sessionCode)
+								.body("{\"aql\": \""+aqlString+ "\"}")
+                    				    		.asString();
+				if(response.getStatus() == 200){
+					JSONObject responseObj = new JSONObject(response.getBody());
+					return responseObj;
+				}	
+			}catch(UnirestException e){
+				e.printStackTrace();
+				return null;
+			}		
+		return null;
+	}
 	public void deleteSessionKey() throws Exception{
 		try{
 			HttpResponse<String> response = Unirest.delete(baseURL+"/rest/v1/session")
@@ -89,5 +107,6 @@ public class OpenEHRConnector{
 		}
 
 	}
+
 
 }
