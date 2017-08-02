@@ -21,7 +21,7 @@ import ca.uhn.fhir.model.primitive.DateTimeDt;
  */
 public class OpenEHRConvertorTests {
 
-	static String ex = "{" 
+	public static String ex = "{" 
 			+ "		\"patientId\": \"123456\", "
 			+ "		\"meta\": 	{" 
 			+ "	    \"href\": \"http://test.operon.systems/rest/v1/query/\""
@@ -65,7 +65,7 @@ public class OpenEHRConvertorTests {
 			+ "	}";
 	
 	@Test
-	public void testJsonToObservation() throws Exception {
+	public void testConversion() throws Exception {
 		
 		OpenEHRConvertor convertor = new OpenEHRConvertor();
 		JSONObject json = new JSONObject(ex);
@@ -73,7 +73,8 @@ public class OpenEHRConvertorTests {
 		List<Observation> obtainedObsList = convertor.jsonToObservation(json);
 		List<Observation> expectedObsList = new ArrayList<>();
 		
-		String expectedString = "" , obtainedString = "";
+		String expectedString = "" ;
+		String obtainedString = "";
 		
 		Observation obs1 = new Observation();
 		Observation obs2 = new Observation();
