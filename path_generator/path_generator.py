@@ -3,7 +3,6 @@
 
 import json
 import requests
-from pprint import pprint
 
 date_format = 'data[%s]/origin/value'
 magnitude_format = 'data[%s]/events[%s]/data[%s]/items[%s]/value/magnitude'
