@@ -117,6 +117,7 @@ public class OpenEMPIbase {
 		String familyName = null;
 		String dob = null;
 		String gender = null;
+		String givenName = null;
 		String finalresponse = "";
 		String value = "";
 
@@ -128,7 +129,7 @@ public class OpenEMPIbase {
 		 */
 		String[] name = new String[] { "givenName", "suffix", "prefix" };
 		try {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < name.length; i++) {
 
 				String payload = "<person>";
 				if (parameters.has("family")) {
@@ -146,6 +147,10 @@ public class OpenEMPIbase {
 				if (parameters.has("gender")) {
 					gender = parameters.getString("gender");
 					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
+				}
+				if (parameters.has("given")){
+					givenName = parameters.getString("given");
+					payload = payload + "<givenName>" + givenName + "</givenName>";
 				}
 				payload = payload + "</person>";
 
