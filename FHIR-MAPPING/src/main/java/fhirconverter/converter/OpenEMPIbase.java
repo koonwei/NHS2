@@ -166,9 +166,9 @@ public class OpenEMPIbase {
 				while ((line = in.readLine()) != null) {
 					response += line;
 				}
-				if (response.contains("person")) {
+				if (response.contains("<person>")) {
 					finalresponse += response;
-					break;
+					//break;
 				}
 			}
 			finalresponse = Utils.removeDuplicateRecords(finalresponse);
