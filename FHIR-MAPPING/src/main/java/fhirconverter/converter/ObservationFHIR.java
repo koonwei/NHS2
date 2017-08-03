@@ -4,7 +4,6 @@ import fhirconverter.utilities.PatientHelper;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 
 import org.json.JSONObject;
-import org.json.JSONArray;
 import org.json.simple.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -30,9 +29,8 @@ public class ObservationFHIR{
 		String aqlQuery = constructDynamicAQLquery(ehrNumber,aqlFilteredObj, searchParams);
 		JSONObject observationObj = openEHRconnector.getObservations(aqlQuery);
 		LOGGER.info(observationObj.toString(3));
-	//	observationObj.put("patientId", patientId);
 	//	LOGGER.info("observationObj " + observationObj.toString(3));
-		OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
+	//	OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
 	//	return openEHRconvertor.jSONToObservation(observationObj);
 		return null;
 	}
@@ -58,8 +56,7 @@ public class ObservationFHIR{
 		containmentString += ")";
 		String constructedAQLString = selectString + fromString + containmentString;
 		LOGGER.info("Select statement "+ constructedAQLString); 
-		return constructedAQLString;
-			
+		return constructedAQLString;	
 	}
 	protected JSONObject filterPathsByParams(JSONObject aqlPaths, ArrayList<String> searchParams){
 		JSONObject filteredPath = new JSONObject();
@@ -75,13 +72,11 @@ public class ObservationFHIR{
 		Set keys = pathObj.keySet();
 		String selectString = "";
    		Iterator a = keys.iterator();
+		String aqlReplacedKey = aqlFilteredKey.replaceAll("-","_");
     		while(a.hasNext()) {
 			String key = (String)a.next();
         		String value = (String)pathObj.get(key);
-        		System.out.print("key : "+key);
-        		System.out.println(" value :"+value);
-			selectString += " "+archetypeIdentifier+"/"+value+ " as " + "LONIC_"+archetypeIdentifier+"_"+key+",";		
-		//	selectString += " "+archetypeIdentifier+"/"+value+ " as " + "LONIC_"+aqlFilteredKey+"_"+key+","; Ask Shruti tml :d
+			selectString += " "+archetypeIdentifier+"/"+value+ " as " + "LONIC_"+aqlReplacedKey+"_"+key+",";
 		}
 		return selectString;		
 	}

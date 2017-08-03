@@ -15,7 +15,7 @@ def start_server
     system 'sh start_server.sh'
     $stdout.puts 'wait 15 seconds fo server to start...'
     sleep(15)
-    attempts_left = 30
+    attempts_left = 60
     while attempts_left > 0
         up_and_running = server_up_and_running?
         return if up_and_running

@@ -33,7 +33,7 @@ public class OpenEHRConvertor {
 	 * 
 	 * @throws Exception
 	 */
-	public List<Observation> jSONToObservation(JSONObject jsonResult) throws Exception {
+	public List<Observation> jsonToObservation(JSONObject jsonResult) throws Exception {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
@@ -50,7 +50,7 @@ public class OpenEHRConvertor {
 			 */
 			logger.info("resultSet exists in JSON");
 			JSONArray resultSetJSONArray = jsonResult.optJSONArray("resultSet");
-			logger.info("Array size" + resultSetJSONArray.length());
+			logger.info("resultSet array size" + resultSetJSONArray.length());
 			for (int i = 0; i < resultSetJSONArray.length(); i++) {
 				JSONObject resultSet = resultSetJSONArray.getJSONObject(i);
 				observationList.addAll(observationMapping(resultSet, patientId));
@@ -85,13 +85,13 @@ public class OpenEHRConvertor {
 		 * 
 		 * } if (resultSet.has("Head_circumference_magnitude")) {
 		 * 
+		 * } if (resultSet.has("Head_circumference_date")) {
+		 * 
 		 * } if (resultSet.has("Skeletal_age_date")) {
 		 * 
 		 * } if (resultSet.has("Skeletal_age")) {
 		 * 
-		 * } if (resultSet.has("Head_circumference_date")) {
 		 * 
-		 * }
 		 */
 
 		return observationList;
@@ -105,6 +105,7 @@ public class OpenEHRConvertor {
 	 * @throws Exception
 	 */
 	protected List<Observation> createWeight(JSONObject resultSet, String patientId) throws Exception {
+		
 		/****** Weight *******/
 		List<Observation> observationList = new ArrayList<>();
 		Observation observationWeight = new Observation();
@@ -177,10 +178,10 @@ public class OpenEHRConvertor {
 	 */
 	protected List<Observation> createBMI(JSONObject resultSet, String patientId) throws Exception {
 
+		/****** BMI *******/
 		List<Observation> observationList = new ArrayList<>();
 		Observation observationBMI = new Observation();
 		QuantityDt quantityBMI = new QuantityDt();
-		/****** BMI *******/
 
 		if (resultSet.has("Body_Mass_Index_magnitude")) {
 			observationBMI.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
