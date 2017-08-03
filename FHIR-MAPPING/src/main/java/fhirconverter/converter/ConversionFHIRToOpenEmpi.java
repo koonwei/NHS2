@@ -211,9 +211,9 @@ public class ConversionFHIRToOpenEmpi {
 	}
 	
 	protected JSONObject createName(JSONObject content,JSONObject details) {		
-			
+			JSONObject temp = content;
 			/* - Family Name - */
-			content = checkExistLengthAndPut("family", details, content, "familyName", 0);
+			temp = checkExistLengthAndPut("family", details, temp, "familyName", 0);
 
 			/*if(details.has("family")) {
 				if(details.getJSONArray("family").length() > 0){
@@ -221,8 +221,8 @@ public class ConversionFHIRToOpenEmpi {
 				}
 			}*/
 			/* Given Name: JSONArray because it contails First & Middle Name */
-			content = checkExistLengthAndPut("given", details, content, "givenName", 0);
-			content = checkExistLengthAndPut("given", details, content, "middleName", 1);
+			temp = checkExistLengthAndPut("given", details, temp, "givenName", 0);
+			temp = checkExistLengthAndPut("given", details, temp, "middleName", 1);
 
 			/*if(details.has("given")) {
 				JSONArray given = details.getJSONArray("given");
@@ -240,7 +240,7 @@ public class ConversionFHIRToOpenEmpi {
 			 * It is a JSONArray - but OpenEMPI accepts only one
 			 * We get the first one
 			 */
-			content = checkExistLengthAndPut("prefix", details, content, "prefix", 0);
+			temp = checkExistLengthAndPut("prefix", details, temp, "prefix", 0);
 
 			/*if(details.has("prefix")) {
 				JSONArray prefix = details.getJSONArray("prefix");
@@ -248,7 +248,7 @@ public class ConversionFHIRToOpenEmpi {
 					content.put("prefix", prefix.getString(0));
 	
 			}*/
-			content = checkExistLengthAndPut("suffix", details, content, "suffix", 0);
+			temp = checkExistLengthAndPut("suffix", details, temp, "suffix", 0);
 
 			/*if(details.has("suffix")) {
 				JSONArray suffix = details.getJSONArray("suffix");
@@ -256,14 +256,14 @@ public class ConversionFHIRToOpenEmpi {
 					content.put("suffix", suffix.getString(0));
 			}*/
 			
-			return content;
+			return temp;
 		}
 		
 		protected JSONObject createAddress(JSONObject content,JSONObject address) {
-			
+			JSONObject temp = content;
 			/* line[0]=Address 1 & Line[1] = Address 2 (if they exist) */
-			content = checkExistLengthAndPut("line", address, content, "address1", 0);
-			content = checkExistLengthAndPut("line", address, content, "address2", 1);
+			temp = checkExistLengthAndPut("line", address, temp, "address1", 0);
+			temp = checkExistLengthAndPut("line", address, temp, "address2", 1);
 
 			/*if(address.has("line")) {
 				JSONArray lines = address.getJSONArray("line");
@@ -276,25 +276,25 @@ public class ConversionFHIRToOpenEmpi {
 			}*/
 			
 			/* City */
-			content = checkExistsAndPut(address.has("city"),"city", address, content, "city", address.optString("city"));
+			temp = checkExistsAndPut(address.has("city"),"city", address, temp, "city", address.optString("city"));
 			/*if(address.has("city")) {
 				content.put("city", address.getString("city"));
 			}*/
 			
 			/* Country */ 
-			content = checkExistsAndPut(address.has("country"),"country", address,content, "country", address.optString("country"));
+			temp = checkExistsAndPut(address.has("country"),"country", address,temp, "country", address.optString("country"));
 			/*if(address.has("country")) {
 				content.put("country", address.getString("country"));
 			}*/
 			
 			/* State */
-			content = checkExistsAndPut(address.has("state"),"state", address, content,"state", address.optString("state"));
+			temp = checkExistsAndPut(address.has("state"),"state", address, temp,"state", address.optString("state"));
 			/*if(address.has("state")) {
 				content.put("state", address.getString("state"));
 			}*/
 			
 			/* Postal Code */
-			content = checkExistsAndPut(address.has("postalCode"),"postalCode", address, content,"postalCode", address.optString("postalCode"));
+			temp = checkExistsAndPut(address.has("postalCode"),"postalCode", address, temp,"postalCode", address.optString("postalCode"));
 			/*if(address.has("postalCode")) {
 				content.put("postalCode", address.get("postalCode"));
 			}*/
@@ -352,10 +352,10 @@ public class ConversionFHIRToOpenEmpi {
 	protected JSONObject checkExistLengthAndPut(String searchField,JSONObject ConditionObject, JSONObject receiver, String key, int threshold) {
 		JSONObject temp = receiver;
 
-		if(ConditionObject.has(searchField)) {
-			if(ConditionObject.getJSONArray(searchField).length() > threshold){
+		if(ConditionObject.has(searchField)&&((ConditionObject.getJSONArray(searchField).length() > threshold))) {
+			//if(ConditionObject.getJSONArray(searchField).length() > threshold){
 				temp.put(key, new String(ConditionObject.getJSONArray(searchField).getString(threshold)));
-			}
+			//}
 		}				
 		return temp;
 	}

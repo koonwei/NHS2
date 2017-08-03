@@ -148,15 +148,16 @@ public class ConversionOpenEmpiToFHIR {
 		/* Full Name */
 		p.addName(setHumanName(node));
 		
-		
 		/* Maiden Name */
-		if(node.has("mothersMaidenName"))
+		p = setMaidenName(p, node);
+
+		/*if(node.has("mothersMaidenName"))
 		{
 			HumanNameDt maidenName = new HumanNameDt();
 			maidenName.addFamily(node.optString("mothersMaidenName"));
 			maidenName.setUse(NameUseEnum.MAIDEN);
 			p.addName(maidenName);
-		}
+		}*/
 
 		System.out.println("Current patient's name: " + p.getName().get(0).getNameAsSingleString());
 	    
@@ -172,7 +173,8 @@ public class ConversionOpenEmpiToFHIR {
 		}
 		
 		/* Marital Status */
-		if(node.has("maritalStatusCode")) {
+		p = setMaritalStatus(p, node);
+		/*if(node.has("maritalStatusCode")) {
 			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
 			if(martialStatus.equals("MARRIED")){
 				p.setMaritalStatus(MaritalStatusCodesEnum.M);
@@ -195,7 +197,7 @@ public class ConversionOpenEmpiToFHIR {
 			}else{
 				p.setMaritalStatus(MaritalStatusCodesEnum.UNK);
 			}
-		}
+		}*/
 		
 			
 		/* Address */
@@ -205,6 +207,105 @@ public class ConversionOpenEmpiToFHIR {
 		
 		
 		/* -- Contact Details -- */
+		p = setContactDatails(p,node);
+		/*ArrayList<ContactPointDt> telecom = new ArrayList<ContactPointDt>();
+
+		if(node.has("email")) {
+			ContactPointDt email = new ContactPointDt();
+			email.setSystem(ContactPointSystemEnum.EMAIL).setValue(node.getString("email"));
+			telecom.add(email);
+		}
+		
+		ContactPointDt phone = new ContactPointDt();
+		phone = setPhone(node);
+		 REMEMBER TO CHECK IT 
+		if(phone.getValue()!=null)
+			telecom.add(phone);
+		if(telecom.size()>0) {
+			p.setTelecom(telecom);
+			for(int z=0; z<telecom.size(); z++)
+				System.out.println("Contact: " + p.getTelecom().get(z).getValue());
+		}*/
+		
+		/* -- SET THE BIRTH DETAILS OF THE PATIENT -- */
+		p = setBirthDetails(p, node);
+		/*if(node.has("birthOrder")) {
+			PositiveIntDt birthOrder = new PositiveIntDt(node.optInt("birthOrder"));
+			p.setMultipleBirth(birthOrder);
+		}
+		if(node.has("dateOfBirth")){
+			String birthDateString = node.optString("dateOfBirth").substring(0,10);
+			p.setBirthDate(new DateDt(birthDateString));
+		}
+		if(node.has("gender")){
+			JSONObject genders = node.getJSONObject("gender");
+			if(genders.has("genderDescription")) {
+				String gender = genders.optString("genderDescription");
+				gender = gender.toUpperCase();
+				p.setGender(AdministrativeGenderEnum.valueOf(gender));
+			}
+		}*/
+		
+		
+		/* Person Identifiers */
+		if(node.has("personIdentifiers")){
+			p = setPersonIdentifiers(node,p);
+		}
+		
+		/* Death Date & Time */
+		if(node.has("deathTime")){
+			DateTimeDt deceasedDate = new DateTimeDt(node.optString("deathTime"));
+			p.setDeceased(deceasedDate);
+		}
+		return p;
+	}
+
+	private Patient setMaidenName(Patient p, JSONObject node) {
+		Patient temp = p;
+		if(node.has("mothersMaidenName"))
+		{
+			HumanNameDt maidenName = new HumanNameDt();
+			maidenName.addFamily(node.optString("mothersMaidenName"));
+			maidenName.setUse(NameUseEnum.MAIDEN);
+			temp.addName(maidenName);
+		}
+		
+		return temp;
+	}
+	
+	private Patient setMaritalStatus(Patient p, JSONObject node) {
+		Patient temp = p;
+		
+		if(node.has("maritalStatusCode")) {
+			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
+			if(martialStatus.equals("MARRIED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.M);
+			}else if(martialStatus.equals("ANNULLED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.A);
+			}else if(martialStatus.equals("DIVORCED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.D);
+			}else if(martialStatus.equals("INTERLOCUTORY")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.I);
+			}else if(martialStatus.equals("LEGALLY SEPARATED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.L);
+			}else if(martialStatus.equals("POLYGAMOUS")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.P);
+			}else if(martialStatus.equals("NEVER MARRIED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.S);
+			}else if(martialStatus.equals("DOMESTIC PARTNER")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.T);
+			}else if(martialStatus.equals("WIDOWED")){
+				temp.setMaritalStatus(MaritalStatusCodesEnum.W);
+			}else{
+				temp.setMaritalStatus(MaritalStatusCodesEnum.UNK);
+			}
+		}
+		
+		return temp;
+	}
+	
+	private Patient setContactDatails(Patient p, JSONObject node) {
+		Patient temp = p;
 		ArrayList<ContactPointDt> telecom = new ArrayList<ContactPointDt>();
 
 		/*email*/
@@ -221,43 +322,34 @@ public class ConversionOpenEmpiToFHIR {
 		if(phone.getValue()!=null)
 			telecom.add(phone);
 		if(telecom.size()>0) {
-			p.setTelecom(telecom);
+			temp.setTelecom(telecom);
 			for(int z=0; z<telecom.size(); z++)
-				System.out.println("Contact: " + p.getTelecom().get(z).getValue());
+				System.out.println("Contact: " + temp.getTelecom().get(z).getValue());
 		}
-		
-		/* -- SET THE BIRTH DETAILS OF THE PATIENT -- */
+		return temp;
+	}
+	
+	private Patient setBirthDetails(Patient p, JSONObject node) {
+		Patient temp = p;
 		if(node.has("birthOrder")) {
 			PositiveIntDt birthOrder = new PositiveIntDt(node.optInt("birthOrder"));
-			p.setMultipleBirth(birthOrder);
+			temp.setMultipleBirth(birthOrder);
 		}
 		if(node.has("dateOfBirth")){
 			String birthDateString = node.optString("dateOfBirth").substring(0,10);
-			p.setBirthDate(new DateDt(birthDateString));
+			temp.setBirthDate(new DateDt(birthDateString));
 		}
 		if(node.has("gender")){
 			JSONObject genders = node.getJSONObject("gender");
 			if(genders.has("genderDescription")) {
 				String gender = genders.optString("genderDescription");
 				gender = gender.toUpperCase();
-				p.setGender(AdministrativeGenderEnum.valueOf(gender));
+				temp.setGender(AdministrativeGenderEnum.valueOf(gender));
 			}
 		}
-		
-		
-		/* Person Identifiers */
-		if(node.has("personIdentifiers")){
-			p = setPersonIdentifiers(node,p);
-		}
-		
-		/* Death Date & Time */
-		if(node.has("deathTime")){
-			DateTimeDt deceasedDate = new DateTimeDt(node.optString("deathTime"));
-			p.setDeceased(deceasedDate);
-		}
-		return p;
+		return temp;
 	}
-
+	
 	/* It is used to construct the text attribute of AddressDt */
 	private String checkText(AddressDt t) {
 		if(t.getText()==null) {
