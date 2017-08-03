@@ -1,0 +1,29 @@
+{
+  "mapping": [
+    {
+      "archetype": "openEHR-EHR-OBSERVATION.body_weight.v1",
+      "code": "3141-9",
+      "text": "weight"
+    },
+    {
+      "archetype": "openEHR-EHR-OBSERVATION.height.v1",
+      "code": "8302-2",
+      "text": "height"
+    },
+    {
+      "archetype": "openEHR-EHR-OBSERVATION.body_mass_index.v1",
+      "code": "39156-5",
+      "text": "bmi"
+    },
+    {
+      "archetype": "openEHR-EHR-OBSERVATION.head_circumference.v0",
+      "code": "8287-5",
+      "text": "head_circumference"
+    },
+    {
+      "archetype": "openEHR-EHR-OBSERVATION.skeletal_age.v0",
+      "code": "37362-1",
+      "text": "bone_age"
+    }
+  ]
+}

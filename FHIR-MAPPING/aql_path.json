@@ -1,0 +1,47 @@
+{
+  "3141-9": {
+    "archetype": "openEHR-EHR-OBSERVATION.body_weight.v1",
+    "path": {
+      "date": "data[at0002]/origin/value",
+      "magnitude": "data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude",
+      "units": "data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/units"
+    },
+    "text": "weight"
+  },
+  "37362-1": {
+    "archetype": "openEHR-EHR-OBSERVATION.skeletal_age.v0",
+    "path": {
+      "date": "data[at0001]/origin/value",
+      "magnitude": "data[at0001]/events[at0002]/data[at0003]/items[at0005]/value/magnitude",
+      "units": "data[at0001]/events[at0002]/data[at0003]/items[at0005]/value/units"
+    },
+    "text": "bone_age"
+  },
+  "39156-5": {
+    "archetype": "openEHR-EHR-OBSERVATION.body_mass_index.v1",
+    "path": {
+      "date": "data[at0001]/origin/value",
+      "magnitude": "data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/magnitude",
+      "units": "data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/units"
+    },
+    "text": "bmi"
+  },
+  "8287-5": {
+    "archetype": "openEHR-EHR-OBSERVATION.head_circumference.v0",
+    "path": {
+      "date": "data[at0001]/origin/value",
+      "magnitude": "data[at0001]/events[at0010]/data[at0003]/items[at0004]/value/magnitude",
+      "units": "data[at0001]/events[at0010]/data[at0003]/items[at0004]/value/units"
+    },
+    "text": "head_circumference"
+  },
+  "8302-2": {
+    "archetype": "openEHR-EHR-OBSERVATION.height.v1",
+    "path": {
+      "date": "data[at0001]/origin/value",
+      "magnitude": "data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/magnitude",
+      "units": "data[at0001]/events[at0002]/data[at0003]/items[at0004]/value/units"
+    },
+    "text": "height"
+  }
+}

@@ -1,15 +1,24 @@
 package fhirconverter.converter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+
+
+
 public final class Utils{
 	private Utils(){
 	//No Constructing 
@@ -44,6 +53,7 @@ public final class Utils{
 	}
 
 	/**
+	 * This method removes duplicate person records and makes the response readable by XML parser
 	 * @param finalresponse
 	 */
 	public static String removeDuplicateRecords(String response) {
@@ -59,11 +69,44 @@ public final class Utils{
 			 set.add(people[i]);
 		}
 		String finalresponse = set.toString();
-		finalresponse = finalresponse.replaceAll(", ", "");
+		finalresponse = finalresponse.replaceAll("</person>,", "</person>");
 		finalresponse = finalresponse.replaceAll("]", "");
 		finalresponse = finalresponse.replace("[", "");
+		finalresponse = finalresponse.replace(">,", ">");
 		
 		return "<people>" +finalresponse + "</people>";
-		
+	
 	}	
+	public static HashMap<String,String> getProperties(String domainDatabase){
+		HashMap<String,String> connectionCreds = new HashMap<String,String>();	
+		try {
+			Properties properties = new Properties();		
+			FileReader reader = new FileReader("config.properties");
+			properties.load(reader);
+			connectionCreds.put("baseURL", properties.getProperty(domainDatabase+"-baseURL"));
+			connectionCreds.put("username", properties.getProperty(domainDatabase+"-username"));
+			connectionCreds.put("password", properties.getProperty(domainDatabase+"-password"));
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		return connectionCreds;
+	}
+	public static JSONObject readJsonFile(){
+		JSONParser parser = new JSONParser();
+		try {
+			Object obj = parser.parse(new FileReader("aql_path.json"));
+			JSONObject jsonObj = (JSONObject) obj;	
+			return jsonObj;
+ 		}catch (FileNotFoundException e) {
+            		e.printStackTrace();
+        	} catch (IOException e) {
+            		e.printStackTrace();
+        	} catch (ParseException e) {
+            		e.printStackTrace();
+        	}
+		return null;
+	}
 }

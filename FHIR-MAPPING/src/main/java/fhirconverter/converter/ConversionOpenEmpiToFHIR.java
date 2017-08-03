@@ -405,7 +405,7 @@ public class ConversionOpenEmpiToFHIR {
 				JSONObject domain = id.getJSONObject("identifierDomain");
 
 				if(domain.has("namespaceIdentifier")) {
-					identifier.setSystem(domain.optString("namespaceIdentifier"));
+					identifier.setSystem(domain.optString("identifierDomainName"));
 				}
 
 			}

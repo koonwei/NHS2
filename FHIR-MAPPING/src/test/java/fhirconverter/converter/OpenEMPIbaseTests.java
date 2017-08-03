@@ -14,7 +14,7 @@ import org.junit.Test;
  * @author Shruti Sinha
  *
  */
-public class OpenEMPIbaseTestCases {
+public class OpenEMPIbaseTests {
 
 	public static String addPersonParameters = "<person><address1>8 Winterhouse</address1>"
 			+ "<address2>Main Road</address2>"
@@ -44,6 +44,7 @@ public class OpenEMPIbaseTestCases {
 			+ "<personIdentifiers>"
 			+ "<identifier>555</identifier>"
 			+ "<identifierDomain>"
+			+ "<identifierDomainId>10</identifierDomainId>"
 			+ "<identifierDomainName>SSN</identifierDomainName>"
 			+ "</identifierDomain>"
 			+ "</personIdentifiers>"
@@ -131,6 +132,7 @@ public class OpenEMPIbaseTestCases {
 			+ "<personIdentifiers>"
 			+ "<identifier>111</identifier>"
 			+ "<identifierDomain>"
+			+ "<identifierDomainId>11</identifierDomainId>"
 			+ "<identifierDomainName>TIN</identifierDomainName>"
 			+ "</identifierDomain>"
 			+ "</personIdentifiers>"
@@ -313,3 +315,4 @@ public class OpenEMPIbaseTestCases {
 		assertEquals(expectedRemovePersonByIdResults, obtainedResults);
 	}
 }
+

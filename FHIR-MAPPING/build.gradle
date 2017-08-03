@@ -22,7 +22,7 @@ war {
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs << '-Xlint:unchecked'
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 }
 
 repositories {
@@ -43,6 +43,8 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
     compile 'io.sentry:sentry-log4j2:1.2.2'
     compile 'io.sentry:sentry-logback:1.2.2'
     compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'

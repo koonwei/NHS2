@@ -160,12 +160,12 @@ public class PatientFHIR {
 					System.out.println(xmlPeopleObj.toString());
 					JSONArray personIdentifiers = xmlPeopleObj.optJSONArray("personIdentifiers"); 
 					if(personIdentifiers == null){
-						JSONObject multiplePersons = xmlPeopleObj.getJSONObject("personIdentifiers");
-						convertedXML.put("personIdentifiers", multiplePersons);
+						JSONObject personIdentifier = xmlPeopleObj.getJSONObject("personIdentifiers");
+						convertedXML.put("personIdentifiers", personIdentifier);
 				       
 					}else{
-						JSONArray multiplePersons = xmlPeopleObj.getJSONArray("personIdentifiers");
-						convertedXML.put("personIdentifiers", multiplePersons);
+						JSONArray multipleIdentifiers = xmlPeopleObj.getJSONArray("personIdentifiers");
+						convertedXML.put("personIdentifiers", multipleIdentifiers);
 					}
 									
 					convertedXML.put("personId", id);
@@ -183,7 +183,7 @@ public class PatientFHIR {
 		return "";
 	}
 			
-	protected String create(JSONObject patient) throws ResourceNotFoundException, Exception{
+	public String create(JSONObject patient) throws ResourceNotFoundException, Exception{
 		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
 		JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
 		JSONObject records = new JSONObject();

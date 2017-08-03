@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.*;
 import org.json.JSONObject;
@@ -19,11 +20,45 @@ import fhirconverter.exceptions.ResourceNotCreatedException;
  */
 public class OpenEMPIbase {
 
-	private static String sessionCode;
+	private static String sessionCode; 
+	private static final OpenEMPIbase _instance = initialize();
+	private String baseURL;
+	private String username;
+	private String password;
 
-	private static final OpenEMPISession _instance = OpenEMPISession.initialize();
 
 	static final Logger logger = LogManager.getLogger(OpenEMPIbase.class.getName());
+	
+	/**
+	 * The static method reads config.properties file and initialises the common properties for invoking OpenEMPI 
+	 * like base URL, user name and password 
+	 * @return
+	 */
+	public static OpenEMPIbase initialize(){
+		
+		OpenEMPIbase newInstance = new OpenEMPIbase();
+		HashMap<String,String> connectionCreds = Utils.getProperties("OpenEMPI");
+		newInstance.baseURL = connectionCreds.get("baseURL");
+	 	newInstance.username = connectionCreds.get("username");
+		newInstance.password =  connectionCreds.get("password");
+		
+		/* Shruti, can we remove this?
+		try {
+			Properties properties = new Properties();		
+			FileReader reader = new FileReader("config.properties");
+			properties.load(reader);
+			newInstance.baseURL = properties.getProperty("OpenEMPI-baseURL");
+			newInstance.username = properties.getProperty("OpenEMPI-username");
+			newInstance.password = properties.getProperty("OpenEMPI-password");
+			
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	*/	
+		return newInstance;
+	}
 
 	/**
 	 * This methods call the OpenEMPI API to get the session code
@@ -31,6 +66,9 @@ public class OpenEMPIbase {
 	 * @throws Exception
 	 */
 	private static void getSessionCode() throws Exception {
+		
+		if(sessionCode != null)
+			return;
 
 		URL url = new URL(_instance.baseURL + "/openempi-admin/openempi-ws-rest/security-resource/authenticate");
 
@@ -66,7 +104,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	protected String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
+	public String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
 
 		if (parameters.length() == 0)
 			return loadAllPersons();
@@ -79,6 +117,7 @@ public class OpenEMPIbase {
 		String familyName = null;
 		String dob = null;
 		String gender = null;
+		String givenName = null;
 		String finalresponse = "";
 		String value = "";
 
@@ -90,7 +129,7 @@ public class OpenEMPIbase {
 		 */
 		String[] name = new String[] { "givenName", "suffix", "prefix" };
 		try {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < name.length; i++) {
 
 				String payload = "<person>";
 				if (parameters.has("family")) {
@@ -108,6 +147,10 @@ public class OpenEMPIbase {
 				if (parameters.has("gender")) {
 					gender = parameters.getString("gender");
 					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
+				}
+				if (parameters.has("given")){
+					givenName = parameters.getString("given");
+					payload = payload + "<givenName>" + givenName + "</givenName>";
 				}
 				payload = payload + "</person>";
 
@@ -128,9 +171,9 @@ public class OpenEMPIbase {
 				while ((line = in.readLine()) != null) {
 					response += line;
 				}
-				if (response.contains("person")) {
+				if (response.contains("<person>")) {
 					finalresponse += response;
-					break;
+					//break;
 				}
 			}
 			finalresponse = Utils.removeDuplicateRecords(finalresponse);
@@ -150,7 +193,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	protected String commonSearchPersonById(JSONObject parameters) throws Exception {
+	public String commonSearchPersonById(JSONObject parameters) throws Exception {
 
 		if (parameters.length() == 0)
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -200,7 +243,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	protected String commonReadPerson(String parameter) throws Exception {
+	public String commonReadPerson(String parameter) throws Exception {
 
 		getSessionCode();
 
@@ -232,7 +275,7 @@ public class OpenEMPIbase {
 	}
 
 	/**
-	 * This methods invokes loadPerson API of OpenEMPI and updates person
+	 * This methods invokes updatePersonById API of OpenEMPI and updates person
 	 * details
 	 * 
 	 * @param parameters:
@@ -240,7 +283,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	protected String commonUpdatePerson(String parameters) throws Exception {
+	public String commonUpdatePerson(String parameters) throws Exception {
 
 		getSessionCode();
 
@@ -289,7 +332,7 @@ public class OpenEMPIbase {
 	 * @return newly created person element in XML string format
 	 * @throws Exception
 	 */
-	protected String commonAddPerson(String parameters) throws Exception {
+	public String commonAddPerson(String parameters) throws Exception {
 
 		getSessionCode();
 
@@ -343,7 +386,7 @@ public class OpenEMPIbase {
 	 *         ResourceNotFoundException
 	 * @throws Exception
 	 */
-	protected String commonDeletePersonById(String parameters) throws Exception {
+	public String commonDeletePersonById(String parameters) throws Exception {
 
 		String payload = commonReadPerson(parameters);
 		if (payload == null)
@@ -391,7 +434,7 @@ public class OpenEMPIbase {
 	 *         ResourceNotFoundException
 	 * @throws Exception
 	 */
-	protected String commonRemovePersonById(String parameter) throws Exception {
+	public String commonRemovePersonById(String parameter) throws Exception {
 
 		getSessionCode();
 
@@ -514,7 +557,14 @@ public class OpenEMPIbase {
 		}
 	}
 
-	protected String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
+	/**
+	 * 
+	 * @param firstRecord
+	 * @param maxRecords
+	 * @return String
+	 * @throws Exception
+	 */
+	public String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
 		getSessionCode();
 
 		URL url = new URL(
@@ -544,7 +594,12 @@ public class OpenEMPIbase {
 		}
 	}
 
-	protected String loadAllPersons() throws Exception {
+	/**
+	 * 
+	 * @return String
+	 * @throws Exception
+	 */
+	public String loadAllPersons() throws Exception {
 		return loadAllPersons(0, 1000);
 	}
 }
