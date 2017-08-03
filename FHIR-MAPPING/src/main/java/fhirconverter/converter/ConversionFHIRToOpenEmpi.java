@@ -128,7 +128,7 @@ public class ConversionFHIRToOpenEmpi {
 		}*/
 		
 		/* SET DEATH TIME FROM FHIR TO OPENEMPI */
-		content=checkExistsAndPut(patient.has("deceasedDateTime"), "deceasedDateTime", patient,content, "deathTime", patient.optString("deceasedDateTime").substring(0, 19));
+		content=setDeathTime(patient, content);
 
 		/*if(patient.has("deceasedDateTime")) {
 			String date = patient.optString("deceasedDateTime");
@@ -302,6 +302,8 @@ public class ConversionFHIRToOpenEmpi {
 		}
 
 	protected JSONObject setFullNames(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("name")) {
 			
 			/* FHIR has multiple names */
@@ -318,13 +320,13 @@ public class ConversionFHIRToOpenEmpi {
 					/* Define maiden name if it exists */
 					if((details.has("use"))&&details.optString("use").equals("maiden")) {
 						if(details.getJSONArray("family").length() > 0){
-							content.put("mothersMaidenName", details.getJSONArray("family").getString(0));
+							temp.put("mothersMaidenName", details.getJSONArray("family").getString(0));
 						}
 					}
 					
 					if((details.has("use"))&&(details.optString("use").equals("official"))) {
 						officialFound = true;
-						content = createName(content,details);
+						temp = createName(temp,details);
 						continue;
 					}				
 				}
@@ -332,29 +334,33 @@ public class ConversionFHIRToOpenEmpi {
 				//didn't find official - gets the first one
 				if(!officialFound) {
 					JSONObject details = Namesarray.getJSONObject(0);
-					content = createName(content,details);
+					temp = createName(temp,details);
 				}
 			}			
 		}
-		return content;
+		return temp;
 	}
 	protected JSONObject checkExistsAndPut(boolean condition,  String searchField,JSONObject ConditionObject,JSONObject receiver, String key, Object value) {
+		JSONObject temp = receiver;
+
 		if(condition) {
-			receiver.put(key, value);
+			temp.put(key, value);
 		}
-		return receiver;
+		return temp;
 	}
 	
 	protected JSONObject checkExistLengthAndPut(String searchField,JSONObject ConditionObject, JSONObject receiver, String key, int threshold) {
-		
+		JSONObject temp = receiver;
+
 		if(ConditionObject.has(searchField)) {
 			if(ConditionObject.getJSONArray(searchField).length() > threshold){
-				receiver.put(key, new String(ConditionObject.getJSONArray(searchField).getString(threshold)));
+				temp.put(key, new String(ConditionObject.getJSONArray(searchField).getString(threshold)));
 			}
 		}				
-		return receiver;
+		return temp;
 	}
 	protected JSONObject setMaritalStatus(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
 
 		if(patient.has("maritalStatus")) {
 			JSONObject status = patient.getJSONObject("maritalStatus");
@@ -385,25 +391,40 @@ public class ConversionFHIRToOpenEmpi {
 						codeName = "UNKNOWN";
 					}
 					System.out.println(codeName + "HI THERE");
-					content.put("maritalStatusCode", codeName);
+					temp.put("maritalStatusCode", codeName);
 				}
 			}
 		}
-		return content;
+		return temp;
 	}
+	
+	protected JSONObject setDeathTime(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+		if(patient.has("deceasedDateTime")) {
+			String date = patient.optString("deceasedDateTime");
+			date = date.substring(0, 19);
+			temp.put("deathTime", date);
+		}		
+		return temp;
+	}
+	
 	protected JSONObject setAddresses(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("address")) {
 			
 			/* Multiple addresses in FHIR but OpenEMPI takes only one */
 			JSONArray addresses = patient.getJSONArray("address");
 			if(addresses.length()>0) {
 				JSONObject address = addresses.getJSONObject(0);
-				content = createAddress(content, address);			
+				temp = createAddress(temp, address);			
 			}									
 		}
-		return content;
+		return temp;
 	}
 	protected JSONObject setTelecom(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("telecom")) {
 			
 			/* Telecom is an array of all the contact details of the patient*/
@@ -412,8 +433,8 @@ public class ConversionFHIRToOpenEmpi {
 				JSONObject system = telecom.getJSONObject(i);
 				
 				/* Phone */
-				content = checkExistsAndPut(((system.has("system"))&&(system.getString("system").equals("phone"))),
-						"system", system,content, "phoneNumber", system.optString("value"));
+				temp = checkExistsAndPut(((system.has("system"))&&(system.getString("system").equals("phone"))),
+						"system", system,temp, "phoneNumber", system.optString("value"));
 
 				/*if((system.has("system"))&&(system.getString("system").equals("phone"))) {
 					content.put("phoneNumber", system.getString("value"));
@@ -423,26 +444,28 @@ public class ConversionFHIRToOpenEmpi {
 				/*if((system.has("system"))&&(system.getString("system").equals("email"))) {
 					content.put("email", system.getString("value"));
 				}*/
-				content = checkExistsAndPut(((system.has("system"))&&(system.getString("system").equals("email"))),
-						"system", system,content, "email", system.optString("value"));
+				temp = checkExistsAndPut(((system.has("system"))&&(system.getString("system").equals("email"))),
+						"system", system,temp, "email", system.optString("value"));
 
 			}			
 		}
 		
 		
 		
-		return content;
+		return temp;
 	}
 	
 	protected JSONObject setMetaData(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
 		if(patient.has("meta")) {
 			if(patient.getJSONObject("meta").has("lastUpdated"))
-			content.put("dateChanged", patient.getJSONObject("meta").optString("lastUpdated"));
+				temp.put("dateChanged", patient.getJSONObject("meta").optString("lastUpdated"));
 		}
-		return content;
+		return temp;
 	}
 	
 	protected JSONObject setPersonIdentifier( JSONObject patient,JSONObject content) {
+		JSONObject temp = content;
 		if(patient.has("identifier")) {
 			JSONArray personIdentifier = new JSONArray();
 	
@@ -465,9 +488,9 @@ public class ConversionFHIRToOpenEmpi {
 				}
 				
 			}	
-			content.put("personIdentifiers", personIdentifier);
+			temp.put("personIdentifiers", personIdentifier);
 		}
-		return content;
+		return temp;
 	}
 	
 }
