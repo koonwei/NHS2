@@ -180,8 +180,11 @@ public class PatientFHIR {
 			}
 
 		}
-		return "";
-	}
+		else 
+		{
+			throw new Exception("Patch operators are empty!");
+		}
+    }
 			
 	public String create(JSONObject patient) throws ResourceNotFoundException, Exception{
 		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
