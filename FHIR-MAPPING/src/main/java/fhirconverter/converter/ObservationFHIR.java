@@ -1,16 +1,14 @@
 package fhirconverter.converter; 
-import fhirconverter.utilities.PatientHelper; 
-
 import ca.uhn.fhir.model.dstu2.resource.Observation;
-
-import org.json.JSONObject;
-import org.json.simple.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
+import fhirconverter.utilities.PatientHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class ObservationFHIR{
 	private PatientHelper patientHelper = new PatientHelper();

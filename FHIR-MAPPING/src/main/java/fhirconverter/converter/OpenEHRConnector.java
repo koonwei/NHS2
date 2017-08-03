@@ -1,12 +1,11 @@
 package fhirconverter.converter;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import java.util.HashMap;
-import org.json.JSONObject;
 import fhirconverter.exceptions.IdNotObtainedException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class OpenEHRConnector{
 	private String baseURL;
