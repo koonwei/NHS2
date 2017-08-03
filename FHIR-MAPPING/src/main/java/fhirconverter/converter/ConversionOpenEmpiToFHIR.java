@@ -382,7 +382,7 @@ public class ConversionOpenEmpiToFHIR {
 		/*Family Name*/
 		if(node.has("familyName")) {
 			n.addFamily(node.optString("familyName"));
-			n.setUse(NameUseEnum.OFFICIAL);;
+			n.setUse(NameUseEnum.USUAL);
 		}	
 		
 		/*Middle Name*/

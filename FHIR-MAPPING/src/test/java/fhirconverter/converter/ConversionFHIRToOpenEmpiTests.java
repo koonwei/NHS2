@@ -66,7 +66,7 @@ public class ConversionFHIRToOpenEmpiTests {
 		
 		JSONArray names = patient.getJSONArray("name");
 		for(int i=0; i<names.length(); i++) {
-			if(names.getJSONObject(i).optString("use").equals("official")) {
+			if(names.getJSONObject(i).optString("use").equals("usual")) {
 				expectedFamilyName = names.getJSONObject(i).getJSONArray("family").getString(0);
 				if(names.getJSONObject(i).getJSONArray("given").length()>1) {
 					expectedMiddle = names.getJSONObject(i).getJSONArray("given").getString(1);							

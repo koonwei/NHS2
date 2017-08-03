@@ -324,7 +324,7 @@ public class ConversionFHIRToOpenEmpi {
 						}
 					}
 					
-					if((details.has("use"))&&(details.optString("use").equals("official"))) {
+					if((details.has("use"))&&(details.optString("use").equals("usual"))) {
 						officialFound = true;
 						temp = createName(temp,details);
 						continue;

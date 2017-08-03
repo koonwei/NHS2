@@ -34,7 +34,7 @@ public class OpenEHRConnectorTests{
 		tester.deleteSessionKey();
 		
 	}
-	@Test
+	/*@Test
 	public void getObservationsTestsEthercis() throws Exception{
 		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
 		JSONObject responseObj = tester.getGrowthChartObservations("9999999000");
@@ -47,13 +47,13 @@ public class OpenEHRConnectorTests{
 		tester.deleteSessionKey();
 	
 
-	}
-	@Test
+	}*/
+	/*@Test
 	public void getEHRidNumberByEthercis() throws Exception{
 		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
 		tester.getEHRIdByNhsNumber("9999999000");
 		tester.deleteSessionKey();
-	}
+	}*/
 }
 
 
