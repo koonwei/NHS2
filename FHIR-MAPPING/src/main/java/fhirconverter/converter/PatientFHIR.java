@@ -140,13 +140,13 @@ public class PatientFHIR {
 		JsonNode patched = null;
 		try{
 			patched = patient.apply(jsonNodeResults);
-			System.out.println(patched.toString());
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new JsonPatchException("Resource does not contain the paths for remove or replace");
 		}
 		if(patched != null)
 		{
+			System.out.println(patched.toString());
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
 			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());
