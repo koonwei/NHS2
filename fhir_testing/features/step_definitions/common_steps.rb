@@ -8,13 +8,15 @@ Given(/^fixture "([^"]*)" has loaded as "([^"]*)"$/) do |file_name, variable_nam
   @created_patients = Array.new(0)
 end
 
-Given(/^a patient was created using "([^"]*)" fixture, with family name "([^"]*)" and given name "([^"]*)"$/) do |variable_name, family_name, given_name|
+Given(/^a patient was created using "([^"]*)" fixture, with family name "([^"]*)", given name "([^"]*)", gender "([^"]*)", and birthDate "([^"]*)"$/) do |variable_name, family_name, given_name, gender, birthdate|
   #clone method doesn't deep copy json arrays (like name)
   patient = JSON.parse(instance_variable_get("@#{variable_name}").to_json)
   patient['name'].first['family'] = []
   patient['name'].first['family'] << family_name
   patient['name'].first['given'] = []
   patient['name'].first['given'] << given_name
+  patient['gender'] = gender
+  patient['birthDate'] = birthdate
 
   payload = patient.to_json
   begin

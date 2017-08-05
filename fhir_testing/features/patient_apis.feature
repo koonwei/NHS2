@@ -8,8 +8,8 @@ Feature: Patient API
 
 Background:
    Given fixture "patient.json" has loaded as "patient"
-   Given a patient was created using "patient" fixture, with family name "Foo" and given name "Bar"
-   Given a patient was created using "patient" fixture, with family name "Foo" and given name "Yuan"
+   Given a patient was created using "patient" fixture, with family name "Foo", given name "Bar", gender "female", and birthDate "1987-12-01"
+   Given a patient was created using "patient" fixture, with family name "Foo", given name "Yuan", gender "male", and birthDate "2010-06-30"
 
 Scenario: Create a new patient
    When I create a patient using "patient" fixture, with family name "Sinha" and given name "Evanthia"
@@ -26,6 +26,18 @@ Scenario: Search patients without parameters
    When I search patients
    Then The server response has status code 200
    And the response is a bundle that contains the patients created
+
+Scenario: Search patients by gender
+   When I search patients with gender "female"
+   Then The server response has status code 200
+   And the response is a bundle with patients that have gender "female"
+   And the response is a bundle that contains the first patient created
+
+Scenario: Search patients by birthDate
+   When I search patients with birthdate "1987-12-01"
+   Then The server response has status code 200
+   And the response is a bundle with patients that have birthDate "1987-12-01"
+   And the response is a bundle that contains the first patient created
 
 Scenario: Search patients by family name and given name
    When I search patients with family name "Foo" and given name "Bar"

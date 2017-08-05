@@ -67,6 +67,12 @@ When(/^I search patients$/) do
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
+When(/^I search patients with ([^\s]*) "([^"]*)"$/) do |parameter, value|
+  url = server_base + "/Patient?#{parameter}=#{value}"
+  @response = RestClient.get url, :content_type => :json, :accept => :json
+end
+
+
 When(/^I search patients with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   url = server_base + "/Patient?family=#{family_name}&given=#{given_name}"
   @response = RestClient.get url, :content_type => :json, :accept => :json
@@ -79,6 +85,7 @@ When(/^I update the first patient using "([^"]*)" fixture, with family name "([^
   payload = patient.to_json
   url = server_base + "/Patient/" + patient_id
   @response = RestClient.put url, payload, :content_type => :json, :accept => :json
+  @created_patients[0] = patient
 end
 
 When(/^I patch the first patient stored to delete marital status, replace given name for "([^"]*)" and add country "([^"]*)" to address$/) do |given_name, country|
@@ -141,6 +148,15 @@ And(/^the response is a bundle that contains the first patient created$/) do
   expect(obtained_patient).not_to be_nil 
   diff = compare_patients(expected_patient, obtained_patient)
   expect(diff).to eq([])
+end
+
+And(/^the response is a bundle with patients that have ([^\s]*) "([^"]*)"$/) do |parameter, expected_value|
+  bundle = JSON.parse(@response.body)	
+  bundle['entry'].each do |entry|
+    obtained_patient = entry['resource']
+    obtained_value = obtained_patient[parameter]
+    expect(obtained_value).to eq(expected_value)
+  end
 end
 
 And(/^the response is a bundle with patients that have family name "([^"]*)" and give name "([^"]*)"$/) do |expected_family_name, expected_given_name|
