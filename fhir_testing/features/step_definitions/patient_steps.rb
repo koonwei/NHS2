@@ -34,6 +34,14 @@ def find_patient (bundle, patient_id)
   end
 end
 
+def find_identifier (patient, identifier_system, identifier_value)
+    patient['identifier'].each do |identifier|
+      if (identifier['system'] == identifier_system && identifier['value'] == identifier_value)
+	return identifier
+      end
+    end 
+end
+
 #
 # Given
 #
@@ -72,6 +80,10 @@ When(/^I search patients with ([^\s]*) "([^"]*)"$/) do |parameter, value|
   @response = RestClient.get url, :content_type => :json, :accept => :json
 end
 
+When(/^I search patients with NHS identifier "([^"]*)"$/) do |nhs_identifier_value|
+  url = server_base + "/Patient?identifier=http://fhir.nhs.net/Id/nhs-number|#{nhs_identifier_value}"
+  @response = RestClient.get url, :content_type => :json, :accept => :json
+end
 
 When(/^I search patients with family name "([^"]*)" and given name "([^"]*)"$/) do |family_name, given_name|
   url = server_base + "/Patient?family=#{family_name}&given=#{given_name}"
@@ -159,6 +171,15 @@ And(/^the response is a bundle with patients that have ([^\s]*) "([^"]*)"$/) do 
   end
 end
 
+And(/^the response is a bundle with patients that have NHS identifier "([^"]*)"$/) do |expected_identifier_value|
+  bundle = JSON.parse(@response.body)	
+  bundle['entry'].each do |entry|
+    obtained_patient = entry['resource']
+    obtained_identifier = find_identifier(obtained_patient, 'http://fhir.nhs.net/Id/nhs-number', expected_identifier_value)
+    expect(obtained_identifier).not_to be_nil
+  end
+end
+
 And(/^the response is a bundle with patients that have family name "([^"]*)" and give name "([^"]*)"$/) do |expected_family_name, expected_given_name|
   bundle = JSON.parse(@response.body)	
   bundle['entry'].each do |entry|
@@ -169,7 +190,6 @@ And(/^the response is a bundle with patients that have family name "([^"]*)" and
     expect(obtained_given_name).to eq(expected_given_name)
   end
 end
-
 
 And(/^The first patient stored in the server has been modified$/) do
   expected_patient = @created_patients.first
