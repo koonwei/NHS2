@@ -12,17 +12,16 @@
  * 				Read & Search
  *
  */
+
 package fhirconverter.converter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.text.DateFormat;
 import java.util.List;
 
 import ca.uhn.fhir.model.dstu2.composite.AddressDt;
-import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.ContactPointDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.DateDt;
@@ -30,14 +29,12 @@ import ca.uhn.fhir.model.dstu2.composite.HumanNameDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.dstu2.resource.Bundle;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
-import ca.uhn.fhir.model.dstu2.composite.MetaDt;
 import ca.uhn.fhir.model.dstu2.resource.Patient;
 import ca.uhn.fhir.model.primitive.PositiveIntDt;
 import ca.uhn.fhir.model.primitive.InstantDt;
 import ca.uhn.fhir.model.dstu2.valueset.ContactPointSystemEnum;
 import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
 import ca.uhn.fhir.model.dstu2.valueset.NameUseEnum;
-import ca.uhn.fhir.model.base.resource.ResourceMetadataMap;
 import ca.uhn.fhir.model.api.ResourceMetadataKeyEnum;
 import ca.uhn.fhir.model.dstu2.valueset.MaritalStatusCodesEnum;
 
@@ -47,25 +44,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-import ca.uhn.fhir.context.FhirContext;
-
 public class ConversionOpenEmpiToFHIR {
-	Logger LOGGER = LogManager.getLogger(ConversionOpenEmpiToFHIR.class);
+	private Logger LOGGER = LogManager.getLogger(ConversionOpenEmpiToFHIR.class);
 
 	protected List<Patient> conversion(String result){
 		JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
-		int PRETTY_PRINT_INDENT_FACTOR = 4;
-		//String jsonPrettyPrintString = xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
-		//System.out.println(jsonPrettyPrintString);
-		JSONObject resourceBundle = new JSONObject();
-		FhirContext ctx = FhirContext.forDstu2();
 		List<Patient> patients = new ArrayList<Patient>();
 		if(xmlJSONObj.has("people")) {
 
             LOGGER.info("optJSONArray: " + xmlJSONObj.optJSONArray("people"));
             LOGGER.info("optJSONObj: " + xmlJSONObj.optJSONObject("people"));
 
-//            JSONArray peopleArray = xmlJSONObj.optJSONArray("people");
             JSONObject people = xmlJSONObj.optJSONObject("people");
 
             if (people != null) {
@@ -85,57 +74,19 @@ public class ConversionOpenEmpiToFHIR {
                     }
                 }
             }
-//            else if (peopleArray != null) {
-//                for (int i = 0; i < personArray.length(); i++) {
-//                    //JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString((personMapping(persons.getJSONObject(i)))));
-//                    //searchResults.add(fhirPersonStructure);
-////						bundle = setBundle(bundle, personMapping(persons.getJSONObject(i)));
-//                    JSONObject personData = personArray.getJSONObject(i).optJSONObject("person");
-//                    LOGGER.info(i + "th Person: " + personData);
-//                    patients.add(personMapping(personData));
-//                }
-//            }
         }
 
-//			if (persons != null) {
-//
-//				LOGGER.info("Persons: " + persons);
-//
-//				/* "Persons" might be an array with multiple elements
-//				 * or an object with one record.
-//				 */
-//				if(persons.length()==1) {
-//					JSONObject person = persons.getJSONObject(0);
-//					//JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
-//					//searchResults.add(fhirPersonStructure);
-////					bundle = setBundle(bundle, personMapping(person));
-//					LOGGER.info("Only One Person: " + person);
-//					patients.add(personMapping(person));
-//				}
-//				else {
-//
-//				}
-//			}
-//			resourceBundle = new JSONObject(ctx.newJsonParser().encodeResourceToString(bundle));
-//			String jsonPrettyPrintString = resourceBundle.toString(PRETTY_PRINT_INDENT_FACTOR);// converts to human readable, add this if needed to system print to test
-//			System.out.println(jsonPrettyPrintString);
-
-		///////////////////
         //  Read
-        //////////////////
 		if(xmlJSONObj.has("person")){
 			JSONObject person = xmlJSONObj.getJSONObject("person");
 
-//			JSONObject fhirPersonStructure = new JSONObject(ctx.newJsonParser().encodeResourceToString(personMapping(person)));
-//			return fhirPersonStructure;
 			patients.add(personMapping(person));
 		}
 		return patients;
 	}
 
 	protected Bundle setBundle(Bundle bundle, Patient patient){
-		bundle.addEntry()
-				.setResource(patient);
+		bundle.addEntry().setResource(patient);
 		/* Extend if needed Koon
 			.getRequest()
       				.setUrl("Patient")
@@ -150,14 +101,6 @@ public class ConversionOpenEmpiToFHIR {
 		
 		/* Maiden Name */
 		p = setMaidenName(p, node);
-
-		/*if(node.has("mothersMaidenName"))
-		{
-			HumanNameDt maidenName = new HumanNameDt();
-			maidenName.addFamily(node.optString("mothersMaidenName"));
-			maidenName.setUse(NameUseEnum.MAIDEN);
-			p.addName(maidenName);
-		}*/
 
 		System.out.println("Current patient's name: " + p.getName().get(0).getNameAsSingleString());
 	    
@@ -174,79 +117,20 @@ public class ConversionOpenEmpiToFHIR {
 		
 		/* Marital Status */
 		p = setMaritalStatus(p, node);
-		/*if(node.has("maritalStatusCode")) {
-			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
-			if(martialStatus.equals("MARRIED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.M);
-			}else if(martialStatus.equals("ANNULLED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.A);
-			}else if(martialStatus.equals("DIVORCED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.D);
-			}else if(martialStatus.equals("INTERLOCUTORY")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.I);
-			}else if(martialStatus.equals("LEGALLY SEPARATED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.L);
-			}else if(martialStatus.equals("POLYGAMOUS")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.P);
-			}else if(martialStatus.equals("NEVER MARRIED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.S);
-			}else if(martialStatus.equals("DOMESTIC PARTNER")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.T);
-			}else if(martialStatus.equals("WIDOWED")){
-				p.setMaritalStatus(MaritalStatusCodesEnum.W);
-			}else{
-				p.setMaritalStatus(MaritalStatusCodesEnum.UNK);
-			}
-		}*/
 		
 			
 		/* Address */
-		if(setAddress(node) !=null)
+		if(setAddress(node) !=null) {
 			p.addAddress(setAddress(node));
-		System.out.println("Patient's address: " + p.getAddress().get(0).getText());
-		
+			System.out.println("Patient's address: " + p.getAddress().get(0).getText());
+		}
 		
 		/* -- Contact Details -- */
 		p = setContactDatails(p,node);
-		/*ArrayList<ContactPointDt> telecom = new ArrayList<ContactPointDt>();
-
-		if(node.has("email")) {
-			ContactPointDt email = new ContactPointDt();
-			email.setSystem(ContactPointSystemEnum.EMAIL).setValue(node.getString("email"));
-			telecom.add(email);
-		}
-		
-		ContactPointDt phone = new ContactPointDt();
-		phone = setPhone(node);
-		 REMEMBER TO CHECK IT 
-		if(phone.getValue()!=null)
-			telecom.add(phone);
-		if(telecom.size()>0) {
-			p.setTelecom(telecom);
-			for(int z=0; z<telecom.size(); z++)
-				System.out.println("Contact: " + p.getTelecom().get(z).getValue());
-		}*/
 		
 		/* -- SET THE BIRTH DETAILS OF THE PATIENT -- */
 		p = setBirthDetails(p, node);
-		/*if(node.has("birthOrder")) {
-			PositiveIntDt birthOrder = new PositiveIntDt(node.optInt("birthOrder"));
-			p.setMultipleBirth(birthOrder);
-		}
-		if(node.has("dateOfBirth")){
-			String birthDateString = node.optString("dateOfBirth").substring(0,10);
-			p.setBirthDate(new DateDt(birthDateString));
-		}
-		if(node.has("gender")){
-			JSONObject genders = node.getJSONObject("gender");
-			if(genders.has("genderDescription")) {
-				String gender = genders.optString("genderDescription");
-				gender = gender.toUpperCase();
-				p.setGender(AdministrativeGenderEnum.valueOf(gender));
-			}
-		}*/
-		
-		
+
 		/* Person Identifiers */
 		if(node.has("personIdentifiers")){
 			p = setPersonIdentifiers(node,p);
@@ -278,23 +162,23 @@ public class ConversionOpenEmpiToFHIR {
 		
 		if(node.has("maritalStatusCode")) {
 			String martialStatus = node.getString("maritalStatusCode").toUpperCase();
-			if(martialStatus.equals("MARRIED")){
+			if("MARRIED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.M);
-			}else if(martialStatus.equals("ANNULLED")){
+			}else if("ANNULLED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.A);
-			}else if(martialStatus.equals("DIVORCED")){
+			}else if("DIVORCED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.D);
-			}else if(martialStatus.equals("INTERLOCUTORY")){
+			}else if("INTERLOCUTORY".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.I);
-			}else if(martialStatus.equals("LEGALLY SEPARATED")){
+			}else if("LEGALLY SEPARATED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.L);
-			}else if(martialStatus.equals("POLYGAMOUS")){
+			}else if("POLYGAMOUS".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.P);
-			}else if(martialStatus.equals("NEVER MARRIED")){
+			}else if("NEVER MARRIED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.S);
-			}else if(martialStatus.equals("DOMESTIC PARTNER")){
+			}else if("DOMESTIC PARTNER".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.T);
-			}else if(martialStatus.equals("WIDOWED")){
+			}else if("WIDOWED".equals(martialStatus)){
 				temp.setMaritalStatus(MaritalStatusCodesEnum.W);
 			}else{
 				temp.setMaritalStatus(MaritalStatusCodesEnum.UNK);
@@ -515,7 +399,7 @@ public class ConversionOpenEmpiToFHIR {
 
 				if(id.has("identifierDomain")) {
 					JSONObject domain = id.getJSONObject("identifierDomain");
-					if((domain.has("identifierDomainName"))&&(!domain.optString("identifierDomainName").equals("OpenEMPI"))) {
+					if((domain.has("identifierDomainName"))&&(!"OpenEMPI".equals(domain.optString("identifierDomainName")))) {
 						identifier.setSystem(domain.optString("identifierDomainName"));
 					}
 					else
