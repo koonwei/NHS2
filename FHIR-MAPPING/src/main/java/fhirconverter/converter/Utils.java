@@ -1,4 +1,13 @@
 package fhirconverter.converter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jackson.JsonLoader;
+import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,12 +21,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 
 public final class Utils{
@@ -123,5 +126,21 @@ public final class Utils{
 			}
 		}
 		return identifierList;
+	}
+	
+	public static JSONObject readJsonFile(){
+		JSONParser parser = new JSONParser();
+		try {
+			Object obj = parser.parse(new FileReader("aql_path.json"));
+			JSONObject jsonObj = (JSONObject) obj;	
+			return jsonObj;
+ 		}catch (FileNotFoundException e) {
+            		e.printStackTrace();
+        	} catch (IOException e) {
+            		e.printStackTrace();
+        	} catch (ParseException e) {
+            		e.printStackTrace();
+        	}
+		return null;
 	}
 }
