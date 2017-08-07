@@ -146,7 +146,7 @@ public class PatientFHIR {
 		}
 		if(patched != null)
 		{
-			System.out.println(patched.toString());
+			LOGGER.info(patched.toString());
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
 			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());

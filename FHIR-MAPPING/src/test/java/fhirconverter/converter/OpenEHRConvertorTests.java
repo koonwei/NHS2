@@ -22,44 +22,44 @@ import ca.uhn.fhir.model.primitive.DateTimeDt;
 public class OpenEHRConvertorTests {
 
 	public static String ex = "{" 
-			+ "		\"patientId\": \"123456\", "
-			+ "		\"meta\": 	{" 
-			+ "	    \"href\": \"http://test.operon.systems/rest/v1/query/\""
-			+ "	  				}," 
+			+ "		\"patientId\": \"123456\", " 
+			+ "		\"meta\": 	{"
+			+ "	    \"href\": \"http://test.operon.systems/rest/v1/query/\"" 
+			+ "	  				},"
 			+ "	  \"aql\": \"select\"," 
 			+ "	  \"executedAql\": \"select\"," 
-			+ "	  \"resultSet\": ["
-			+ "	    {" 
-			+ "	      \"Weight_magnitude\": 10.9," 
-			+ "	      \"Body_Mass_Index_units\": null,"
-			+ "	      \"Weight_units\": \"kg\"," 
-			+ "	      \"Head_circumference_units\": \"cm\","
-			+ "	      \"Skeletal_age_date\": null," 
-			+ "	      \"Skeletal_age\": null,"
-			+ "	      \"Height_Length_date\": \"2011-04-11T00:00:00+02:00\","
-			+ "	      \"Height_Length_magnitude\": 82.3,"
-			+ "	      \"Head_circumference_date\": \"2011-04-11T00:00:00+02:00\","
-			+ "	      \"Weight_date\": \"2011-04-11T00:00:00+02:00\"," 
-			+ "	      \"Height_Length_units\": \"cm\","
-			+ "	      \"Body_Mass_Index_magnitude\": null," 
-			+ "	      \"Body_Mass_index_date\": null,"
-			+ "	      \"Head_circumference_magnitude\": 52" 
-			+ "	    }," 
+			+ "	  \"resultSet\": [" 
 			+ "	    {"
-			+ "	      \"Weight_magnitude\": 9.8," 
-			+ "	      \"Body_Mass_Index_units\": \"kg/m2\","
-			+ "	      \"Weight_units\": \"kg\"," 
-			+ "	      \"Head_circumference_units\": \"cm\","
-			+ "	      \"Skeletal_age_date\": \"2010-04-10T00:00:00+02:00\"," 
-			+ "	      \"Skeletal_age\": \"P6Y\","
-			+ "	      \"Height_Length_date\": \"2010-04-10T00:00:00+02:00\","
-			+ "	      \"Height_Length_magnitude\": 177,"
-			+ "	      \"Head_circumference_date\": \"2010-04-10T00:00:00+02:00\","
-			+ "	      \"Weight_date\": \"2010-04-10T00:00:00+02:00\"," 
-			+ "	      \"Height_Length_units\": \"cm\","
-			+ "	      \"Body_Mass_Index_magnitude\": 17.2,"
-			+ "	      \"Body_Mass_index_date\": \"2010-04-10T00:00:00+02:00\","
-			+ "	      \"Head_circumference_magnitude\": 50" 
+			+ "	      \"3141_9_magnitude\": 10.9," 
+			+ "	      \"39156_5_units\": null,"
+			+ "	      \"3141_9_units\": \"kg\","
+			// + " \"Head_circumference_units\": \"cm\","
+			// + " \"Skeletal_age_date\": null,"
+			// + " \"Skeletal_age\": null,"
+			+ "	      \"8302_2_date\": \"2011-04-11T00:00:00+02:00\"," 
+			+ "	      \"8302_2_magnitude\": 82.3,"
+			// + " \"Head_circumference_date\": \"2011-04-11T00:00:00+02:00\","
+			+ "	      \"3141_9_date\": \"2011-04-11T00:00:00+02:00\"," 
+			+ "	      \"8302_2_units\": \"cm\","
+			+ "	      \"39156_5_magnitude\": null," 
+			+ "	      \"39156_5_date\": null,"
+			// + " \"Head_circumference_magnitude\": 52"
+			+ "	    }," 
+			+ "	    {" 
+			+ "	      \"3141_9_magnitude\": 9.8," 
+			+ "	      \"39156_5_units\": \"kg/m2\","
+			+ "	      \"3141_9_units\": \"kg\","
+			// + " \"Head_circumference_units\": \"cm\","
+			// + " \"Skeletal_age_date\": \"2010-04-10T00:00:00+02:00\","
+			// + " \"Skeletal_age\": \"P6Y\","
+			+ "	      \"8302_2_date\": \"2010-04-10T00:00:00+02:00\"," 
+			+ "	      \"8302_2_magnitude\": 177,"
+			// + " \"Head_circumference_date\": \"2010-04-10T00:00:00+02:00\","
+			+ "	      \"3141_9_date\": \"2010-04-10T00:00:00+02:00\"," 
+			+ "	      \"8302_2_units\": \"cm\","
+			+ "	      \"39156_5_magnitude\": 17.2," 
+			+ "	      \"39156_5_date\": \"2010-04-10T00:00:00+02:00\","
+			// + " \"Head_circumference_magnitude\": 50"
 			+ "	    }" 
 			+ "	  ]" 
 			+ "	}";
@@ -90,7 +90,7 @@ public class OpenEHRConvertorTests {
 		QuantityDt qd6 = new QuantityDt();
 		
 		obs1.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
-		obs1.getCode().setText("weight");
+		obs1.getCode().setText("Weight");
 		qd1.setValue(10.9);
 		qd1.setCode("kg");
 		qd1.setUnit("kg");
@@ -100,7 +100,7 @@ public class OpenEHRConvertorTests {
 		obs1.getSubject().setReference("123456");
 		
 		obs2.getCode().addCoding(new CodingDt("http://loinc.org", "8302-2"));
-		obs2.getCode().setText("height");
+		obs2.getCode().setText("Height");
 		qd2.setValue(82.3);
 		qd2.setCode("cm");
 		qd2.setUnit("cm");
@@ -110,8 +110,8 @@ public class OpenEHRConvertorTests {
 		obs2.getSubject().setReference("123456");
 		
 		obs3.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
-		obs3.getCode().setText("bmi");
-		//qd3.setValue("");
+		obs3.getCode().setText("BMI");
+		qd3.setValue(0.0);
 		qd3.setCode("");
 		qd3.setUnit("");
 		qd3.setSystem("http://unitsofmeasure.org");
@@ -120,7 +120,7 @@ public class OpenEHRConvertorTests {
 		obs3.getSubject().setReference("123456");
 		
 		obs4.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
-		obs4.getCode().setText("weight");
+		obs4.getCode().setText("Weight");
 		qd4.setValue(9.8);
 		qd4.setCode("kg");
 		qd4.setUnit("kg");
@@ -130,7 +130,7 @@ public class OpenEHRConvertorTests {
 		obs4.getSubject().setReference("123456");
 		
 		obs5.getCode().addCoding(new CodingDt("http://loinc.org", "8302-2"));
-		obs5.getCode().setText("height");
+		obs5.getCode().setText("Height");
 		qd5.setValue(177.0);
 		qd5.setCode("cm");
 		qd5.setUnit("cm");
@@ -140,7 +140,7 @@ public class OpenEHRConvertorTests {
 		obs5.getSubject().setReference("123456");
 		
 		obs6.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
-		obs6.getCode().setText("bmi");
+		obs6.getCode().setText("BMI");
 		qd6.setValue(17.2);
 		qd6.setCode("kg/m2");
 		qd6.setUnit("kg/m2");
@@ -149,12 +149,12 @@ public class OpenEHRConvertorTests {
 		obs6.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs6.getSubject().setReference("123456");
 			
-		expectedObsList.add(obs2);
 		expectedObsList.add(obs1);
-		expectedObsList.add(obs3);
-		expectedObsList.add(obs5);
-		expectedObsList.add(obs4);
+		expectedObsList.add(obs2);
 		expectedObsList.add(obs6);
+		expectedObsList.add(obs4);
+		expectedObsList.add(obs5);
+		expectedObsList.add(obs3);
 
 		FhirContext ctx = FhirContext.forDstu2();
 		
@@ -171,7 +171,10 @@ public class OpenEHRConvertorTests {
             JSONObject expected_object = new JSONObject(resourceJson);    
             expectedString = expected_object.toString();
     }
+	    System.out.println("Obtained size : " + obtainedObsList.size() + " Expected size : "+ expectedObsList.size());
 	    Assert.assertEquals(obtainedObsList.size(), expectedObsList.size());
+	    System.out.println("expected : " + expectedString);
+	    System.out.println("obtained : " + obtainedString);
 	    Assert.assertEquals(expectedString, obtainedString);
 	}
 }
