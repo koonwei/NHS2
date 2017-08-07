@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 
-import org.junit.*;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,8 +43,10 @@ public class ConversionFHIRToOpenEmpiTests {
 		String expectedAddress2 = "";
 		if(address.getJSONArray("line").length()>1)
 			expectedAddress2=address.getJSONArray("line").optString(1);
-		String expectedCity=address.optString("city"), expectedCountry=address.optString("country");
-		String expectedState=address.optString("state"), expectedPostalCode = address.optString("postalCode");
+		String expectedCity=address.optString("city");
+		String expectedCountry=address.optString("country");
+		String expectedState=address.optString("state");
+		String expectedPostalCode = address.optString("postalCode");
 		
 		assertEquals("Address1 is not correct " , expectedAddress1, resourceOpenEmpiFormat.optString("address1"));
 		assertEquals("Address2 is not correct " , expectedAddress2, resourceOpenEmpiFormat.optString("address2"));
@@ -62,18 +63,20 @@ public class ConversionFHIRToOpenEmpiTests {
 	
 	public String getName(JSONObject patient, int code) {
 		String expectedFamilyName = "";
-		String expectedGivenName = "", expectedMaidenName = "", expectedMiddle = "";
+		String expectedGivenName = "";
+		String expectedMaidenName = "";
+		String expectedMiddle = "";
 		
 		JSONArray names = patient.getJSONArray("name");
 		for(int i=0; i<names.length(); i++) {
-			if(names.getJSONObject(i).optString("use").equals("official")) {
+			if("usual".equals(names.getJSONObject(i).optString("use"))) {
 				expectedFamilyName = names.getJSONObject(i).getJSONArray("family").getString(0);
 				if(names.getJSONObject(i).getJSONArray("given").length()>1) {
 					expectedMiddle = names.getJSONObject(i).getJSONArray("given").getString(1);							
 				} 
 				expectedGivenName = names.getJSONObject(i).getJSONArray("given").getString(0);
 			}
-			if(names.getJSONObject(i).optString("use").equals("maiden")) {
+			if("maiden".equals(names.getJSONObject(i).optString("use"))) {
 				expectedMaidenName = names.getJSONObject(i).getJSONArray("family").getString(0);
 			}
 			

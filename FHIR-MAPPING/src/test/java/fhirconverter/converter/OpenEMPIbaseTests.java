@@ -5,6 +5,8 @@ package fhirconverter.converter;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -30,10 +32,10 @@ public class OpenEMPIbaseTests {
 			+ "<familyName>Mill</familyName>"
 			+ "<fatherName>Pret</fatherName>"
 			+ "<gender>"
-			+ "	<genderCd>1</genderCd>"
-			+ "	<genderCode>F</genderCode>"
-			+ "	<genderDescription>Female</genderDescription>"
-			+ "	<genderName>Female</genderName>"
+			+ "<genderCd>1</genderCd>"
+			+ "<genderCode>F</genderCode>"
+			+ "<genderDescription>Female</genderDescription>"
+			+ "<genderName>Female</genderName>"
 			+ "</gender>"
 			+ "<givenName>Anna</givenName>"
 			+ "<maritalStatusCode>Married</maritalStatusCode>"
@@ -104,7 +106,39 @@ public class OpenEMPIbaseTests {
 			+ "<email>gen@gmail.com</email>"
 			+ "</person>";
 	
-	
+	public static String updatePersonParameters = "<person>"
+			+ "<birthPlace>Brighton</birthPlace>"
+			+ "<city>London</city>"
+			+ "<country>United Kingdom</country>"
+			+ "<countryCode>UK</countryCode>"
+			+ "<deathInd>23</deathInd>"
+			+ "<familyName>Mill</familyName>"
+			+ "<fatherName>Pret</fatherName>"
+			+ "<gender>"
+			+ "<genderCd>1</genderCd>"
+			+ "<genderCode>F</genderCode>"
+			+ "<genderDescription>Female</genderDescription>"
+			+ "<genderName>Female</genderName>"
+			+ "</gender>"
+			+ "<givenName>Anna</givenName>"
+			+ "<middleName>Penny</middleName>"
+			+ "<motherName>Min</motherName>"
+//			+ "<personIdentifiers>"
+//			+ "<identifier>5000</identifier>"
+//			+ "<identifierDomain>"
+//			+ "<identifierDomainId>10</identifierDomainId>"
+//			+ "<identifierDomainName>SSN</identifierDomainName>"
+//			+ "</identifierDomain>"
+//			+ "</personIdentifiers>"
+			+ "<phoneAreaCode>44</phoneAreaCode>"
+			+ "<phoneCountryCode>44</phoneCountryCode>"
+			+ "<phoneExt>888</phoneExt>"
+			+ "<phoneNumber>90909090</phoneNumber>"
+			+ "<postalCode>SE1234L</postalCode>"
+			+ "<prefix>Ms</prefix>"
+			+ "<state>London</state>"
+			+ "<language>English</language>"
+			+ "</person>";
 	
 	public static String updateCreateParameters = "<person><address1>55 LincolnHouse</address1>"
 			+ "<address2>Main Road</address2>"
@@ -173,19 +207,19 @@ public class OpenEMPIbaseTests {
 	 * 
 	 * @throws Exception
 	 */
-	@Test
-	public void testAddPersonWithNHS() throws Exception {
-		String personIdNHS = null;
-		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String obtainedResults = openEMPIbase.commonAddPerson(addParametersWithNHS);
-		if (!obtainedResults.isEmpty()) {
-			personIdNHS = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
-					obtainedResults.indexOf("</personId>"));
-		}
-		System.out.println("testAddPersonWithNHS");
-		openEMPIbase.commonRemovePersonById(personIdNHS);
-		assertNotNull(personIdNHS);
-	}
+//	@Test
+//	public void testAddPersonWithNHS() throws Exception {
+//		String personIdNHS = null;
+//		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
+//		String obtainedResults = openEMPIbase.commonAddPerson(addParametersWithNHS);
+//		if (!obtainedResults.isEmpty()) {
+//			personIdNHS = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
+//					obtainedResults.indexOf("</personId>"));
+//		}
+//		System.out.println("testAddPersonWithNHS");
+//		openEMPIbase.commonRemovePersonById(personIdNHS);
+//		assertNotNull(personIdNHS);
+//	}
 
 	/**
 	 * Test for SearchPersonByAttributes()
@@ -264,11 +298,17 @@ public class OpenEMPIbaseTests {
 	 */
 	@Test
 	public void testUpdatePerson() throws Exception {
+		String personId = "";
 		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String obtainedResultsAdd = openEMPIbase.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIbase.commonAddPerson(updatePersonParameters);
+		if (!obtainedResultsAdd.isEmpty()) {
+			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
+					obtainedResultsAdd.indexOf("</personId>"));
+		}
 		obtainedResultsAdd = obtainedResultsAdd.replace("Mill", "George");
-		String expectedUpdatePersonResults = "Updated";
 		String obtainedResults = openEMPIbase.commonUpdatePerson(obtainedResultsAdd);
+		String expectedUpdatePersonResults = "Updated";
+		openEMPIbase.commonRemovePersonById(personId);
 		System.out.println("testUpdatePerson");
 		
 		assertEquals(expectedUpdatePersonResults, obtainedResults);
@@ -313,6 +353,12 @@ public class OpenEMPIbaseTests {
 		String obtainedResults = openEMPIbase.commonRemovePersonById(removeParameters);
 		System.out.println("testRemovePersonById");
 		assertEquals(expectedRemovePersonByIdResults, obtainedResults);
+	}
+	
+	@Test
+	public void testGetIdentifierDomains() throws Exception {
+		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
+		List<String> domainList = openEMPIbase.getIdentifierDomains();
 	}
 }
 

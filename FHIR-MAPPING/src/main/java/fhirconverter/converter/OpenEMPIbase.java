@@ -5,14 +5,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.XML;
 
-import fhirconverter.exceptions.ResourceNotFoundException;
 import fhirconverter.exceptions.OpenEMPIAuthenticationException;
 import fhirconverter.exceptions.ResourceNotCreatedException;
+import fhirconverter.exceptions.ResourceNotFoundException;
 
 /**
  * @author Koon, Shruti Sinha
@@ -20,43 +25,39 @@ import fhirconverter.exceptions.ResourceNotCreatedException;
  */
 public class OpenEMPIbase {
 
-	private static String sessionCode; 
+	private static String sessionCode;
 	private static final OpenEMPIbase _instance = initialize();
 	private String baseURL;
 	private String username;
 	private String password;
 
-
 	static final Logger logger = LogManager.getLogger(OpenEMPIbase.class.getName());
-	
+
 	/**
-	 * The static method reads config.properties file and initialises the common properties for invoking OpenEMPI 
-	 * like base URL, user name and password 
+	 * The static method reads config.properties file and initialises the common
+	 * properties for invoking OpenEMPI like base URL, user name and password
+	 * 
 	 * @return
 	 */
-	public static OpenEMPIbase initialize(){
-		
+	public static OpenEMPIbase initialize() {
+
 		OpenEMPIbase newInstance = new OpenEMPIbase();
-		HashMap<String,String> connectionCreds = Utils.getProperties("OpenEMPI");
+		HashMap<String, String> connectionCreds = Utils.getProperties("OpenEMPI");
 		newInstance.baseURL = connectionCreds.get("baseURL");
-	 	newInstance.username = connectionCreds.get("username");
-		newInstance.password =  connectionCreds.get("password");
-		
-		/* Shruti, can we remove this?
-		try {
-			Properties properties = new Properties();		
-			FileReader reader = new FileReader("config.properties");
-			properties.load(reader);
-			newInstance.baseURL = properties.getProperty("OpenEMPI-baseURL");
-			newInstance.username = properties.getProperty("OpenEMPI-username");
-			newInstance.password = properties.getProperty("OpenEMPI-password");
-			
-			reader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}	*/	
+		newInstance.username = connectionCreds.get("username");
+		newInstance.password = connectionCreds.get("password");
+
+		/*
+		 * Shruti, can we remove this? try { Properties properties = new
+		 * Properties(); FileReader reader = new
+		 * FileReader("config.properties"); properties.load(reader);
+		 * newInstance.baseURL = properties.getProperty("OpenEMPI-baseURL");
+		 * newInstance.username = properties.getProperty("OpenEMPI-username");
+		 * newInstance.password = properties.getProperty("OpenEMPI-password");
+		 * 
+		 * reader.close(); } catch (FileNotFoundException e) {
+		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
+		 */
 		return newInstance;
 	}
 
@@ -66,8 +67,8 @@ public class OpenEMPIbase {
 	 * @throws Exception
 	 */
 	private static void getSessionCode() throws Exception {
-		
-		if(sessionCode != null)
+
+		if (sessionCode != null)
 			return;
 
 		URL url = new URL(_instance.baseURL + "/openempi-admin/openempi-ws-rest/security-resource/authenticate");
@@ -108,7 +109,7 @@ public class OpenEMPIbase {
 
 		if (parameters.length() == 0)
 			return loadAllPersons();
-//			throw new ResourceNotFoundException("Resource Not Found");
+		// throw new ResourceNotFoundException("Resource Not Found");
 
 		getSessionCode();
 		URL url = new URL(
@@ -148,7 +149,7 @@ public class OpenEMPIbase {
 					gender = parameters.getString("gender");
 					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
 				}
-				if (parameters.has("given")){
+				if (parameters.has("given")) {
 					givenName = parameters.getString("given");
 					payload = payload + "<givenName>" + givenName + "</givenName>";
 				}
@@ -173,7 +174,7 @@ public class OpenEMPIbase {
 				}
 				if (response.contains("<person>")) {
 					finalresponse += response;
-					//break;
+					// break;
 				}
 			}
 			finalresponse = Utils.removeDuplicateRecords(finalresponse);
@@ -210,11 +211,9 @@ public class OpenEMPIbase {
 
 		String identifier = parameters.getString("identifier_value");
 		String identifierDomainName = parameters.getString("identifier_domain");
-		String payload = "	<personIdentifier>" 
-						+ "<identifier>" + identifier + "</identifier>" 
-						+ "<identifierDomain>"
-						+ "<identifierDomainName>" + identifierDomainName + "</identifierDomainName>" 
-						+ "</identifierDomain> </personIdentifier>";
+		String payload = "	<personIdentifier>" + "<identifier>" + identifier + "</identifier>" + "<identifierDomain>"
+				+ "<identifierDomainName>" + identifierDomainName + "</identifierDomainName>"
+				+ "</identifierDomain> </personIdentifier>";
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
 		osw.write(payload);
@@ -286,41 +285,27 @@ public class OpenEMPIbase {
 	public String commonUpdatePerson(String parameters) throws Exception {
 
 		getSessionCode();
-
-		URL url = new URL(
-				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/updatePersonById");
-		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
-		hurl.setRequestMethod("PUT");
-		hurl.setDoOutput(true);
-		hurl.setRequestProperty("Content-Type", "application/xml");
-		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
-
-		if (parameters.isEmpty())
-			return null;
-
-		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(parameters);
-		osw.flush();
-		osw.close();
-
+		String returnString = "Update";
+		String personId = "";
+		if (!parameters.isEmpty() && parameters.contains("<personId>")) {
+			personId = parameters.substring(parameters.indexOf("<personId>") + 10, parameters.indexOf("</personId>"));
+		}
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			String line;
-			String response = "";
-			while ((line = in.readLine()) != null) {
-				response += line;
-			}
-			if (response.equals("")) {
-				this.commonAddPerson(parameters);
-				logger.info("*** Method: commonUpdate Response: ** Created ** " + response + " ***");
-				return "Created";
+			if (personId == null || personId.equals("") ) {
+				returnString = "Created";
+				if (parameters.contains("OpenEMPI") || parameters.contains("openEMPI")
+						|| parameters.contains("openempi"))
+					this.removeOpenEMPIIdentifier(parameters);
 			} else {
-				logger.info("*** Method: commonUpdate Response: ** Updated ** " + response + " ***");
-				return "Updated";
+				this.commonRemovePersonById(personId);
+				returnString = "Updated";
 			}
+			this.commonAddPerson(parameters);
+			return returnString;
 		} catch (Exception ex) {
 			throw new ResourceNotCreatedException("Resource Not Created/Updated");
 		}
+
 	}
 
 	/**
@@ -335,7 +320,6 @@ public class OpenEMPIbase {
 	public String commonAddPerson(String parameters) throws Exception {
 
 		getSessionCode();
-
 		URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addPerson");
 		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
 		hurl.setRequestMethod("PUT");
@@ -343,18 +327,17 @@ public class OpenEMPIbase {
 		hurl.setRequestProperty("Content-Type", "application/xml");
 		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
 
-		/*
-		 * Checks if NHS identifier exist in OpenEMPI database. If NHS
-		 * identifier doesn't exist, then a new identifier is created for NHS
-		 * otherwise proceed to add person
-		 */
-		if (parameters.contains("NHS") || parameters.contains("https://fhir.nhs.uk/Id/nhs-number")) {
-			logger.info("*** Identifier Domain is NHS ***");
-			if (!this.checkIfIdendifierExists("NHS")) {
-				logger.info("*** Identifier Domain is NHS does not exist in OpenEMPI database ***");
-				this.addIdentifier("NHS");
-			}
+		List<String> newIdentifierDomainList = getDomainsNotInOpenEMPI(parameters);
+		if (!newIdentifierDomainList.isEmpty()) {
+			this.addIdentifier(newIdentifierDomainList);
 		}
+		if (parameters.contains("OpenEMPI")) {
+			parameters = this.removeOpenEMPIIdentifier(parameters);
+		}
+		/*
+		 * if (parameters.contains("NHS") ||
+		 * parameters.contains("https://fhir.nhs.uk/Id/nhs-number")) {}
+		 */
 
 		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
 		osw.write(parameters);
@@ -372,6 +355,95 @@ public class OpenEMPIbase {
 			logger.info("*** Method: commonAddPerson Response: " + response + " ***");
 			return response;
 		} catch (Exception e) {
+			throw new ResourceNotCreatedException("Resource Not Created");
+		}
+	}
+
+	
+	/**
+	 * This method takes list of identifier domain names and invokes openEMPI
+	 * API to retrieve all the existing identifier domain. It then checks if the
+	 * given identifier exists or not. Returns true or false accordingly
+	 * 
+	 * @return List<String> : list of existing identifier domain name
+	 * @throws Exception
+	 */
+	public List<String> getIdentifierDomains() throws Exception {
+
+		getSessionCode();
+		List<String> existingDomainList = new ArrayList<>();
+		URL url = new URL(
+				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/getIdentifierDomains");
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("GET");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+			String line;
+			String response = "";
+			while ((line = in.readLine()) != null) {
+				response += line;
+			}
+
+			existingDomainList = Utils.convertToList(response);
+			return existingDomainList;
+
+		} catch (Exception ex) {
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
+	}
+
+	/**
+	 * This methods takes identifier name and invokes openEMPI API to add the
+	 * identifier details
+	 * 
+	 * @param identifierName:
+	 *            String
+	 * @return String: newly created identifier details
+	 * @throws Exception
+	 */
+	public String addIdentifier(List<String> identifiersList) throws Exception {
+
+		getSessionCode();
+
+		URL url = new URL(
+				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addIdentifierDomain");
+		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
+		hurl.setRequestMethod("PUT");
+		hurl.setDoOutput(true);
+		hurl.setRequestProperty("mediaType", "*/*");
+		hurl.setRequestProperty("Content-Type", "application/xml");
+		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
+
+		try {
+			if (!identifiersList.isEmpty()) {
+				for (String identifierName : identifiersList) {
+					String payload = "<identifierDomain>" + "<identifierDomainName>" + identifierName
+							+ "</identifierDomainName>" + "<namespaceIdentifier>" + identifierName
+							+ "</namespaceIdentifier>" + "<universalIdentifier>" + identifierName
+							+ "</universalIdentifier>" + "<universalIdentifierTypeCode>" + identifierName
+							+ "</universalIdentifierTypeCode>" + "</identifierDomain>";
+
+					OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
+					osw.write(payload);
+					osw.flush();
+					osw.close();
+
+					BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
+					String line;
+					String response = "";
+					while ((line = in.readLine()) != null) {
+						response += line;
+					}
+					logger.info("*** Method: addIdentifier Response: " + response + " ***");
+					logger.info("*** New Identifier Domain added to OpenEMPI ***");
+
+				}
+			}
+			return "";
+		} catch (Exception ex) {
 			throw new ResourceNotCreatedException("Resource Not Created");
 		}
 	}
@@ -466,98 +538,6 @@ public class OpenEMPIbase {
 	}
 
 	/**
-	 * This method takes identifier name and invokes openEMPI API to retrieve
-	 * all the existing identifier domain. It then checks if the given
-	 * identifier exists or not. Returns true or false accordingly
-	 * 
-	 * @param identifierName
-	 *            : String
-	 * @return Boolean: True if identifier exists in openEMPI database,
-	 *         otherwise false
-	 * @throws Exception
-	 */
-	protected Boolean checkIfIdendifierExists(String identifierName) throws Exception {
-
-		getSessionCode();
-
-		URL url = new URL(
-				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/getIdentifierDomains");
-		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
-		hurl.setRequestMethod("GET");
-		hurl.setDoOutput(true);
-		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
-
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			String line;
-			String response = "";
-			while ((line = in.readLine()) != null) {
-				response += line;
-			}
-			if (response.contains(identifierName)){
-				logger.info("*** Method: checkIfIdendifierExists Response: true ***");
-				return true;
-			}
-			else{
-				logger.info("*** Method: checkIfIdendifierExists Response: false ***");
-				return false;
-			}
-		} catch (Exception ex) {
-			throw new ResourceNotFoundException("Resource Not Found");
-		}
-
-	}
-
-	/**
-	 * This methods takes identifier name and invokes openEMPI API to add the
-	 * identifier details
-	 * 
-	 * @param identifierName:
-	 *            String
-	 * @return String: newly created identifier details
-	 * @throws Exception
-	 */
-	protected String addIdentifier(String identifierName) throws Exception {
-
-		getSessionCode();
-
-		URL url = new URL(
-				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addIdentifierDomain");
-		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
-		hurl.setRequestMethod("PUT");
-		hurl.setDoOutput(true);
-		hurl.setRequestProperty("mediaType", "*/*");
-		hurl.setRequestProperty("Content-Type", "application/xml");
-		hurl.setRequestProperty("OPENEMPI_SESSION_KEY", sessionCode);
-
-		String payload = "<identifierDomain>" + 
-				"<identifierDomainName>" + identifierName + "</identifierDomainName>"
-				+ "<namespaceIdentifier>" + identifierName + "</namespaceIdentifier>" 
-				+ "<universalIdentifier>" + identifierName + "</universalIdentifier>" 
-				+ "<universalIdentifierTypeCode>" + identifierName+ "</universalIdentifierTypeCode>" 
-				+ "</identifierDomain>";
-
-		OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(payload);
-		osw.flush();
-		osw.close();
-
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
-			String line;
-			String response = "";
-			while ((line = in.readLine()) != null) {
-				response += line;
-			}
-			logger.info("*** Method: addIdentifier Response: " + response + " ***");
-			logger.info("*** Identifier Domain is NHS added to OpenEMPI database ***");
-			return response;
-		} catch (Exception ex) {
-			throw new ResourceNotCreatedException("Resource Not Created");
-		}
-	}
-
-	/**
 	 * 
 	 * @param firstRecord
 	 * @param maxRecords
@@ -567,10 +547,9 @@ public class OpenEMPIbase {
 	public String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
 		getSessionCode();
 
-		URL url = new URL(
-				_instance.baseURL +
-						"openempi-admin/openempi-ws-rest/person-query-resource/loadAllPersonsPaged?firstRecord="
-						+ firstRecord + "&maxRecords=" + maxRecords);
+		URL url = new URL(_instance.baseURL
+				+ "openempi-admin/openempi-ws-rest/person-query-resource/loadAllPersonsPaged?firstRecord=" + firstRecord
+				+ "&maxRecords=" + maxRecords);
 		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
 		hurl.setRequestMethod("GET");
 		hurl.setDoOutput(true);
@@ -584,7 +563,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.debug("*** Method: loadAllPerson Response:" + response + "***");
+			logger.info("*** Method: loadAllPerson Response:" + response + "***");
 			if (response == "") {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
@@ -601,5 +580,118 @@ public class OpenEMPIbase {
 	 */
 	public String loadAllPersons() throws Exception {
 		return loadAllPersons(0, 1000);
+	}
+	
+	/**
+	 * * This method iterates through the request for adding a new person. If the request contains 
+	 * OpenEMPI identifier than that identifierDomain is removed from the request to avoid 
+	 * any conflict while creating a new person in OpenEMPI.
+	 * 
+	 * @param String : parameters in XML format
+	 * @return String: XML format
+	 */
+	protected String removeOpenEMPIIdentifier(String parameters) {
+
+		JSONObject jsonFromXML = XML.toJSONObject(parameters);
+		if (jsonFromXML.has("person")) {
+			JSONObject person = jsonFromXML.optJSONObject("person");
+			if (person.has("personIdentifiers")) {
+				JSONArray personIdentifiersArray = person.optJSONArray("personIdentifiers");
+				JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
+				if (personIdentifierObj != null) {
+					if (personIdentifierObj.has("identifierDomain")) {
+						JSONObject identifierDomain = personIdentifierObj.getJSONObject("identifierDomain");
+						if (identifierDomain.has("identifierDomainName")) {
+							String identifierDomainName = identifierDomain.getString("identifierDomainName");
+							if (identifierDomainName.equalsIgnoreCase("openempi")) {
+								person.remove("personIdentifiers");
+							}
+						}
+					}
+				} else if (personIdentifiersArray != null) {
+					for (int i = 0; i < personIdentifiersArray.length(); i++) {
+						JSONObject personIdentifier = personIdentifiersArray.getJSONObject(i);
+						if (personIdentifier.has("identifierDomain")) {
+							JSONObject identifierDomain = personIdentifier.getJSONObject("identifierDomain");
+							if (identifierDomain.has("identifierDomainName")) {
+								String identifierDomainName = identifierDomain.getString("identifierDomainName");
+								if (identifierDomainName.equalsIgnoreCase("openempi"))
+									personIdentifiersArray.remove(i);
+							}
+						}
+					}
+				}
+			}
+		}
+		parameters = XML.toString(jsonFromXML);
+		return parameters;
+
+	}
+	
+	/**
+	 * This methods calls getIdentifierDomains() and fetchIdDomainsInRequest() methods to get the list
+	 * of identifier domain present in openEMPI and list of identifier domain present in the person XML 
+	 * request, compares the list and return any new identifier(s) which is present in person xml request
+	 * but not in OpenEMPI
+	 * 
+	 * 
+	 * @param String : parameters
+	 * @return List<String> : List of identifier domain name  
+	 * @throws Exception
+	 */
+	protected List<String> getDomainsNotInOpenEMPI(String parameters) throws Exception {
+
+		List<String> existingIdDomains = this.getIdentifierDomains();
+		List<String> obtainedIdDomains = this.fetchIdDomainsInRequest(parameters);
+		List<String> newDomainList = new ArrayList<>();
+		for (String item : obtainedIdDomains) {
+			if (!existingIdDomains.contains(item)) {
+				newDomainList.add(item);
+			}
+		}
+		return newDomainList;
+	}
+
+	/**	
+	 * This method iterates through the person XML and checks the identifier domain name present 
+	 * in it and adds them to a List  
+	 * 
+	 * @param String : XML format 
+	 * @return List<String> : list of identifier domain name 
+	 */
+	protected List<String> fetchIdDomainsInRequest(String xml) {
+		List<String> obtainedIdDomainsList = new ArrayList<>();
+		JSONObject jsonFromXML = XML.toJSONObject(xml);
+		if (jsonFromXML.has("person")) {
+			JSONObject person = jsonFromXML.optJSONObject("person");
+			if (person.has("personIdentifiers")) {
+				JSONArray personIdentifiersArray = person.optJSONArray("personIdentifiers");
+				JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
+				if (personIdentifierObj != null) {
+					if (personIdentifierObj.has("identifierDomain")) {
+						JSONObject identifierDomain = personIdentifierObj.getJSONObject("identifierDomain");
+						if (identifierDomain.has("identifierDomainName")) {
+							String identifierDomainName = identifierDomain.getString("identifierDomainName");
+							if (!identifierDomainName.equalsIgnoreCase("openempi")) {
+								obtainedIdDomainsList.add(identifierDomainName);
+							}
+						}
+					}
+				} else if (personIdentifiersArray != null) {
+					for (int i = 0; i < personIdentifiersArray.length(); i++) {
+						JSONObject personIdentifier = personIdentifiersArray.getJSONObject(i);
+						if (personIdentifier.has("identifierDomain")) {
+							JSONObject identifierDomain = personIdentifier.getJSONObject("identifierDomain");
+							if (identifierDomain.has("identifierDomainName")) {
+								String identifierDomainName = identifierDomain.getString("identifierDomainName");
+								if (!identifierDomainName.equalsIgnoreCase("openempi"))
+									obtainedIdDomainsList.add(identifierDomainName);
+							}
+						}
+					}
+				}
+			}
+		}
+		return obtainedIdDomainsList;
 	}
 }
