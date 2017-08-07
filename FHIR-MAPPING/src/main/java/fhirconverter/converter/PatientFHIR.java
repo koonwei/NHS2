@@ -51,43 +51,43 @@ public class PatientFHIR {
 		JSONObject records = new JSONObject();
 
 		String readResult = caller.commonReadPerson(id);
-		if(!"".equals(readResult)) {
-			if(newRecordOpenEMPI.has("personIdentifiers")) {
-				newRecordOpenEMPI.remove("personIdentifiers");
-			}
-			
-			JSONObject xmlRead = XML.toJSONObject(readResult);
-			JSONArray personIdentifiers = new JSONArray();
-			if(xmlRead.has("person")){
-				JSONObject person = xmlRead.getJSONObject("person");
-                JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
-                JSONArray personIdentifierArray = person.optJSONArray("personIdentifiers");
-				if(personIdentifierObj!=null)
-                {
-                    JSONObject identifier = createIdentifierOpenEMPI(person.optJSONObject("personIdentifiers"));
-                    personIdentifiers.put(identifier);
-                }
-				else if(personIdentifierArray!=null) {
-                    JSONObject identifier = null;
-					for(Object identifierObj : personIdentifierArray) {
-					    if ( identifierObj instanceof JSONObject) {
-                            JSONObject identifierRecord = (JSONObject) identifierObj;
-                            if ((identifierRecord.has("identifierDomain")) && ("OpenEMPI".equals(identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName")))) {
-                                identifier = createIdentifierOpenEMPI(identifierRecord);
-                                personIdentifiers.put(identifier);
-                            }
-                        }
-                    }
-				}
-				else
-                {
-                    LOGGER.error("Patient has no identifier: " + person);
-                    throw new InternalError("Patient has no identifier");
-                }
-                newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
-			}
-
-		}
+//		if(!"".equals(readResult)) {
+//			if(newRecordOpenEMPI.has("personIdentifiers")) {
+//				newRecordOpenEMPI.remove("personIdentifiers");
+//			}
+//			
+//			JSONObject xmlRead = XML.toJSONObject(readResult);
+//			JSONArray personIdentifiers = new JSONArray();
+//			if(xmlRead.has("person")){
+//				JSONObject person = xmlRead.getJSONObject("person");
+//                JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
+//                JSONArray personIdentifierArray = person.optJSONArray("personIdentifiers");
+//				if(personIdentifierObj!=null)
+//                {
+//                    JSONObject identifier = createIdentifierOpenEMPI(person.optJSONObject("personIdentifiers"));
+//                    personIdentifiers.put(identifier);
+//                }
+//				else if(personIdentifierArray!=null) {
+//                    JSONObject identifier = null;
+//					for(Object identifierObj : personIdentifierArray) {
+//					    if ( identifierObj instanceof JSONObject) {
+//                            JSONObject identifierRecord = (JSONObject) identifierObj;
+//                            if ((identifierRecord.has("identifierDomain")) && ("OpenEMPI".equals(identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName")))) {
+//                                identifier = createIdentifierOpenEMPI(identifierRecord);
+//                                personIdentifiers.put(identifier);
+//                            }
+//                        }
+//                    }
+//				}
+//				else
+//                {
+//                    LOGGER.error("Patient has no identifier: " + person);
+//                    throw new InternalError("Patient has no identifier");
+//                }
+//                newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
+//			}
+//
+//		}
 		records.put("person", newRecordOpenEMPI);
 
 		LOGGER.info(records);
