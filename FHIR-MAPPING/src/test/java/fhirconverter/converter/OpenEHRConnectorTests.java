@@ -34,26 +34,26 @@ public class OpenEHRConnectorTests{
 		tester.deleteSessionKey();
 		
 	}
-	@Test
-	public void getObservationsTestsEthercis() throws Exception{
-		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
-		JSONObject responseObj = tester.getGrowthChartObservations("9999999000");
-		if(responseObj.has("resultSet"))
-		{
-			assertNotNull(responseObj.getJSONArray("resultSet"));
-		}else{
-			assertEquals("Test Case Failed! No Response","1","2");
-		}
-		tester.deleteSessionKey();
-	
-
-	}
-	@Test
-	public void getEHRidNumberByEthercis() throws Exception{
-		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
-		tester.getEHRIdByNhsNumber("9999999000");
-		tester.deleteSessionKey();
-	}
+//	@Test
+//	public void getObservationsTestsEthercis() throws Exception{
+//		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
+//		JSONObject responseObj = tester.getGrowthChartObservations("9999999000");
+//		if(responseObj.has("resultSet"))
+//		{
+//			assertNotNull(responseObj.getJSONArray("resultSet"));
+//		}else{
+//			assertEquals("Test Case Failed! No Response","1","2");
+//		}
+//		tester.deleteSessionKey();
+//	
+//
+//	}
+//	@Test
+//	public void getEHRidNumberByEthercis() throws Exception{
+//		OpenEHRConnector tester = new OpenEHRConnector("ethercis");	
+//		tester.getEHRIdByNhsNumber("9999999000");
+//		tester.deleteSessionKey();
+//	}
 }
 
 

@@ -5,15 +5,12 @@ import ca.uhn.fhir.model.dstu2.resource.Patient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-import com.github.fge.jackson.JacksonUtils; 
 import com.github.fge.jsonpatch.JsonPatch;  
 import com.github.fge.jsonpatch.JsonPatchException; 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,7 +51,7 @@ public class PatientFHIR {
 		JSONObject records = new JSONObject();
 
 		String readResult = caller.commonReadPerson(id);
-		if(!readResult.equals("")) {
+		if(!"".equals(readResult)) {
 			if(newRecordOpenEMPI.has("personIdentifiers")) {
 				newRecordOpenEMPI.remove("personIdentifiers");
 			}
@@ -75,7 +72,7 @@ public class PatientFHIR {
 					for(Object identifierObj : personIdentifierArray) {
 					    if ( identifierObj instanceof JSONObject) {
                             JSONObject identifierRecord = (JSONObject) identifierObj;
-                            if ((identifierRecord.has("identifierDomain")) && (identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName").equals("OpenEMPI"))) {
+                            if ((identifierRecord.has("identifierDomain")) && ("OpenEMPI".equals(identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName")))) {
                                 identifier = createIdentifierOpenEMPI(identifierRecord);
                                 personIdentifiers.put(identifier);
                             }
@@ -140,13 +137,13 @@ public class PatientFHIR {
 		JsonNode patched = null;
 		try{
 			patched = patient.apply(jsonNodeResults);
-			System.out.println(patched.toString());
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new JsonPatchException("Resource does not contain the paths for remove or replace");
 		}
 		if(patched != null)
 		{
+			LOGGER.info(patched.toString());
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
 			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());
@@ -180,8 +177,11 @@ public class PatientFHIR {
 			}
 
 		}
-		return "";
-	}
+		else 
+		{
+			throw new Exception("Patch operators are empty!");
+		}
+    }
 			
 	public String create(JSONObject patient) throws ResourceNotFoundException, Exception{
 		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
