@@ -4,7 +4,10 @@
 package fhirconverter.converter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +27,16 @@ public class OpenEHRConvertor {
 
 	private static final Logger logger = LogManager.getLogger(OpenEHRConvertor.class.getName());
 
+	public Map<String, String> codeMap() {
+		Map<String, String> codeMap = new HashMap<>();
+
+		codeMap.put("3141-9", "Weight");
+		codeMap.put("8302-2", "Height");
+		codeMap.put("39156-5", "BMI");
+		codeMap.put("8287-5", "Head circumference");
+		return codeMap;
+	}
+
 	/**
 	 * This method is the accepts the JSON object from EHR system and returns
 	 * and equivalent list of Observation objects
@@ -33,14 +46,14 @@ public class OpenEHRConvertor {
 	 * 
 	 * @throws Exception
 	 */
-	public List<Observation> jSONToObservation(JSONObject jsonResult) throws Exception {
+	public List<Observation> jsonToObservation(JSONObject jsonResult) throws Exception {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
+		this.prepareInputJSON(jsonResult);
 		if (jsonResult.has("patientId")) {
 			patientId = jsonResult.optString("patientId");
 		}
-
 		/*** Checks if the JSON body contains resutlSet node or not ***/
 		if (jsonResult.has("resultSet")) {
 			/*
@@ -53,47 +66,10 @@ public class OpenEHRConvertor {
 			logger.info("Array size" + resultSetJSONArray.length());
 			for (int i = 0; i < resultSetJSONArray.length(); i++) {
 				JSONObject resultSet = resultSetJSONArray.getJSONObject(i);
-				observationList.addAll(observationMapping(resultSet, patientId));
+				observationList.addAll(mapping(resultSet, patientId));
 			}
 		}
-		logger.info("observationList size" + observationList.size());
-		return observationList;
-	}
-
-	/**
-	 * This method maps the elements of JSON object into different Observation
-	 * object based on observation type like Weight, Height and BMI. Finally
-	 * adds all the Observation object to the observationList
-	 * 
-	 * @param resultSet
-	 * @param patientId
-	 * @return List<Observation>
-	 * 
-	 * @throws Exception
-	 */
-	protected List<Observation> observationMapping(JSONObject resultSet, String patientId) throws Exception {
-		List<Observation> observationList = new ArrayList<>();
-
-		observationList.addAll(createHeight(resultSet, patientId));
-		observationList.addAll(createWeight(resultSet, patientId));
-		observationList.addAll(createBMI(resultSet, patientId));
-
-		/****** Head Circumference: Not required right now *******/
-
-		/*
-		 * if (resultSet.has("Head_circumference_units")) {
-		 * 
-		 * } if (resultSet.has("Head_circumference_magnitude")) {
-		 * 
-		 * } if (resultSet.has("Skeletal_age_date")) {
-		 * 
-		 * } if (resultSet.has("Skeletal_age")) {
-		 * 
-		 * } if (resultSet.has("Head_circumference_date")) {
-		 * 
-		 * }
-		 */
-
+		logger.info("observationList size: " + observationList.size());
 		return observationList;
 	}
 
@@ -101,132 +77,112 @@ public class OpenEHRConvertor {
 	 * 
 	 * @param resultSet
 	 * @param patientId
-	 * @return List<Observation>
-	 * @throws Exception
-	 */
-	protected List<Observation> createWeight(JSONObject resultSet, String patientId) throws Exception {
-		/****** Weight *******/
-		List<Observation> observationList = new ArrayList<>();
-		Observation observationWeight = new Observation();
-		QuantityDt quantityWeight = new QuantityDt();
-
-		if (resultSet.has("Weight_magnitude")) {
-			observationWeight.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
-			observationWeight.getCode().setText("weight");
-			String value = resultSet.optString("Weight_magnitude");
-			if (value != null && !value.equals(""))
-				quantityWeight.setValue(Double.parseDouble(value));
-		}
-		if (resultSet.has("Weight_units")) {
-			quantityWeight.setUnit(resultSet.optString("Weight_units"));
-			quantityWeight.setCode(resultSet.optString("Weight_units"));
-			quantityWeight.setSystem("http://unitsofmeasure.org");
-		}
-
-		if (resultSet.has("Weight_date")) {
-			observationWeight.setEffective(new DateTimeDt(resultSet.optString("Weight_date")));
-		}
-		/*** set common attributes for Weight ***/
-		setCommonAttributes(observationList, observationWeight, quantityWeight, patientId);
-		return observationList;
-	}
-
-	/**
-	 * 
-	 * @param resultSet
-	 * @param patientId
-	 * @return List<Observation>
-	 * @throws Exception
-	 */
-	protected List<Observation> createHeight(JSONObject resultSet, String patientId) throws Exception {
-
-		/****** Height *******/
-		List<Observation> observationList = new ArrayList<>();
-		Observation observationHeight = new Observation();
-		QuantityDt quantityHeight = new QuantityDt();
-
-		if (resultSet.has("Height_Length_magnitude")) {
-			observationHeight.getCode().addCoding(new CodingDt("http://loinc.org", "8302-2"));
-			observationHeight.getCode().setText("height");
-			String value = resultSet.optString("Height_Length_magnitude");
-			if (value != null && !value.equals(""))
-				quantityHeight.setValue(Double.parseDouble(value));
-		}
-
-		if (resultSet.has("Height_Length_units")) {
-			quantityHeight.setUnit(resultSet.optString("Height_Length_units"));
-			quantityHeight.setCode(resultSet.optString("Height_Length_units"));
-			quantityHeight.setSystem("http://unitsofmeasure.org");
-		}
-
-		if (resultSet.has("Height_Length_date")) {
-			observationHeight.setEffective(new DateTimeDt(resultSet.optString("Height_Length_date")));
-		}
-
-		/*** set common attributes for Height ***/
-		setCommonAttributes(observationList, observationHeight, quantityHeight, patientId);
-		return observationList;
-	}
-
-	/**
-	 * 
-	 * @param resultSet
-	 * @param patientId
-	 * @return List<Observation>
-	 * @throws Exception
-	 */
-	protected List<Observation> createBMI(JSONObject resultSet, String patientId) throws Exception {
-
-		List<Observation> observationList = new ArrayList<>();
-		Observation observationBMI = new Observation();
-		QuantityDt quantityBMI = new QuantityDt();
-		/****** BMI *******/
-
-		if (resultSet.has("Body_Mass_Index_magnitude")) {
-			observationBMI.getCode().addCoding(new CodingDt("http://loinc.org", "39156-5"));
-			observationBMI.getCode().setText("bmi");
-			String value = resultSet.optString("Body_Mass_Index_magnitude");
-			if (value != null && !value.equals(""))
-				quantityBMI.setValue(Double.parseDouble(value));
-		}
-
-		if (resultSet.has("Body_Mass_Index_units")) {
-			quantityBMI.setUnit(resultSet.optString("Body_Mass_Index_units"));
-			quantityBMI.setCode(resultSet.optString("Body_Mass_Index_units"));
-			quantityBMI.setSystem("http://unitsofmeasure.org");
-		}
-
-		if (resultSet.has("Body_Mass_index_date")) {
-			observationBMI.setEffective(new DateTimeDt(resultSet.optString("Body_Mass_index_date")));
-		}
-
-		/*** set common attributes for BMI ***/
-		setCommonAttributes(observationList, observationBMI, quantityBMI, patientId);
-
-		return observationList;
-	}
-
-	/**
-	 * This methods do common checks and sets common attribute in Observation
-	 * and then adds Observation to observationList
-	 * 
-	 * @param observationList
-	 * @param observation
-	 * @param quantity
-	 * @param patientId
-	 * @return List<Observation>
+	 * @return
 	 * 
 	 * @throws Exception
 	 */
-	protected List<Observation> setCommonAttributes(List<Observation> observationList, Observation observation,
-			QuantityDt quantity, String patientId) throws Exception {
+	public List<Observation> mapping(JSONObject resultSet, String patientId) throws Exception {
 
-		if (!observation.isEmpty()) {
-			if (!quantity.isEmpty())
+		Map<String, String> codeMap = this.codeMap();
+		Iterator<?> jsonKeys = resultSet.keys();
+		Map<String, Observation> obsMap = new HashMap<>();
+		while (jsonKeys.hasNext()) {
+
+			String jsonNode = jsonKeys.next().toString();
+			logger.info("jsonNode = " + jsonNode);
+			jsonNode = jsonNode.replaceFirst("_", "-");
+			String key = jsonNode.substring(0, jsonNode.indexOf("_"));
+			if (obsMap.containsKey(key)) {
+				this.setParameters(obsMap, resultSet, jsonNode, key);
+			} else {
+				Observation observation = new Observation();
+				logger.info("Adding new Observation for key  = " + key);
+				observation.getCode().addCoding(new CodingDt("http://loinc.org", key));
+				observation.getCode().setText(codeMap.get(key));
+				QuantityDt quantity = new QuantityDt();
+				quantity.setValue(0.0);
+				quantity.setUnit("");
+				quantity.setCode("");
+				quantity.setSystem("http://unitsofmeasure.org");
 				observation.setValue(quantity);
-			observation.getSubject().setReference(patientId);
-			observationList.add(observation);
+				observation.getSubject().setReference(patientId);
+				obsMap.put(key, observation);
+				this.setParameters(obsMap, resultSet, jsonNode, key);
+			}
+		}
+		return this.getObservationList(obsMap);
+	}
+
+	/**
+	 * 
+	 * @param obsMap
+	 * @param json
+	 * @param newjson
+	 * @param key
+	 * 
+	 * @throws Exception
+	 */
+	protected void setParameters(Map<String, Observation> obsMap, JSONObject resultSet, String jsonNode, String key)
+			throws Exception {
+
+		QuantityDt quantity = new QuantityDt();
+
+		if (jsonNode.equals(key + "_date")) {
+			obsMap.get(key).setEffective(new DateTimeDt(resultSet.optString(jsonNode)));
+			logger.info("date of " + key + " = " + resultSet.optString(jsonNode));
+		} else if (jsonNode.equals(key + "_magnitude")) {
+			String magnitude = resultSet.optString(jsonNode);
+			quantity = (QuantityDt) obsMap.get(key).getValue();
+			if (magnitude != null && !magnitude.equals("")) {
+				quantity.setValue(Double.parseDouble(magnitude));
+				logger.info("magitude of " + key + " = " + resultSet.optDouble(jsonNode));
+				obsMap.get(key).setValue(quantity);
+			}
+		} else if (jsonNode.equals(key + "_units")) {
+			quantity = (QuantityDt) obsMap.get(key).getValue();
+			quantity.setCode(resultSet.optString(jsonNode));
+			quantity.setUnit(resultSet.optString(jsonNode));
+			logger.info("units of " + key + " = " + resultSet.optString(jsonNode));
+		}
+	}
+
+	/**
+	 * 
+	 * @param obsMap
+	 * @return
+	 * @throws Exception
+	 */
+	protected List<Observation> getObservationList(Map<String, Observation> obsMap) throws Exception {
+
+		List<Observation> observationList = new ArrayList<>();
+		logger.info("*** Observations Map readings : ***");
+		for (Map.Entry<String, Observation> obs : obsMap.entrySet()) {
+			observationList.add(obs.getValue());
+			logger.info("Code: " + obs.getValue().getCode().getCoding().get(0).getCode());
+			logger.info("Text: " + obs.getValue().getCode().getText());
+			QuantityDt q = (QuantityDt) obs.getValue().getValue();
+			logger.info("Magnitude: " + q.getValue());
+			logger.info("Unit Code: " + q.getCode());
+			logger.info("Unit: " + q.getUnit());
+			logger.info("System: " + q.getSystem());
+			logger.info("Date: " + obs.getValue().getEffective());
+			logger.info("---------------------");
 		}
 		return observationList;
+	}
+
+	/**
+	 * 
+	 * @param json
+	 * @return
+	 * @throws Exception
+	 */
+	protected JSONObject prepareInputJSON(JSONObject json) throws Exception {
+
+		String jsonString = json.toString().replaceAll("LONIC_", "");
+		
+		logger.info("*** Prepared json *** /n" + jsonString);
+		JSONObject j = new JSONObject(jsonString);
+		return j;
 	}
 }
