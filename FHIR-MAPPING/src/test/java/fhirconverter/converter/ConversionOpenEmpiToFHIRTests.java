@@ -63,8 +63,10 @@ public class ConversionOpenEmpiToFHIRTests {
 		String obtainedAddress2 = "";
 		if(address.getJSONArray("line").length()>1)
 			obtainedAddress2=address.getJSONArray("line").optString(1);
-		String obtainedCity=address.optString("city"), obtainedCountry=address.optString("country");
-		String obtainedState=address.optString("state"), obtainedPostalCode = address.optString("postalCode");
+		String obtainedCity=address.optString("city");
+		String obtainedCountry=address.optString("country");
+		String obtainedState=address.optString("state");
+		String obtainedPostalCode = address.optString("postalCode");
 		
 		assertEquals("Address1 is not correct " , inputJson.getJSONObject("person").optString("address1"), obtainedAddress1 );
 		assertEquals("Address2 is not correct " , inputJson.getJSONObject("person").optString("address2"), obtainedAddress2 );
@@ -101,7 +103,7 @@ public class ConversionOpenEmpiToFHIRTests {
 		
 		for(int i=0; i<identifiers.length(); i++) {
 			String system = identifiers.getJSONObject(i).optString("system");
-			if(system.equals("OpenEMPI"))
+			if("OpenEMPI".equals(system))
 				identifierOpenEMPI = true;	
 			else
 				retrievedIdentifiers.put(identifiers.getJSONObject(i).optString("system"), identifiers.getJSONObject(i).optString("value"));
@@ -113,7 +115,7 @@ public class ConversionOpenEmpiToFHIRTests {
 				String value = openEmpiIdentifiers.getJSONObject(i).optString("identifier");
 				String system = openEmpiIdentifiers.getJSONObject(i).getJSONObject("identifierDomain").optString("identifierDomainName");
 				System.out.println(system + " => " + value); 
-				if(!system.equals("OpenEMPI")) {
+				if(!"OpenEMPI".equals(system)) {
 					if(!(retrievedIdentifiers.containsKey(system)&&retrievedIdentifiers.get(system).equals(value))) {
 						correctIdentifiers = false;
 					}else
