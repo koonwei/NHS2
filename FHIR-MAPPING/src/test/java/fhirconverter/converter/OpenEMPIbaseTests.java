@@ -316,23 +316,6 @@ public class OpenEMPIbaseTests {
 	}
 
 	/**
-	 * Test for UpdatePerson() when the parameters do not exists, so a new
-	 * person record is created
-	 * 
-	 * @throws Exception
-	 * 
-	 */
-	@Test
-	public void testUpdatePersonWithCreate() throws Exception {
-		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String expectedUpdatePersonWithCreateResults = "Created";
-		String obtainedResults = openEMPIbase.commonUpdatePerson(updateCreateParameters);
-		System.out.println("testUpdatePersonWithCreate");
-		assertEquals(expectedUpdatePersonWithCreateResults, obtainedResults);
-
-	}
-
-	/**
 	 * Test for RemovePersonById(). This test will first check if a person
 	 * record exist to be removed
 	 * 
@@ -355,10 +338,10 @@ public class OpenEMPIbaseTests {
 		assertEquals(expectedRemovePersonByIdResults, obtainedResults);
 	}
 	
-	@Test
-	public void testGetIdentifierDomains() throws Exception {
-		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		List<String> domainList = openEMPIbase.getIdentifierDomains();
-	}
+//	@Test
+//	public void testGetIdentifierDomains() throws Exception {
+//		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
+//		List<String> domainList = openEMPIbase.getIdentifierDomains();
+//	}
 }
 
