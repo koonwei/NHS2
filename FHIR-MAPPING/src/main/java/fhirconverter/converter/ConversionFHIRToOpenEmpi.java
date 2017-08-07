@@ -5,7 +5,7 @@
  * 
  * Date: 13-7-2017
  * 
- * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shuti Shina
+ * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Shina
  * 
  * Description: This class contains the necessary functions to convert FHIR to OpenEMPI.
  * 				It is called by PatientFHIR in the case of the following requests:
@@ -24,7 +24,117 @@ public class ConversionFHIRToOpenEmpi {
 	protected JSONObject conversionToOpenEMPI(JSONObject patient) {
 		JSONObject content = new JSONObject();
 		
-		/* SET THE FULL NAME FROM FHIR TO OPENEMPI */		
+		/* SET THE FULL NAME FROM FHIR TO OPENEMPI */	
+		content = setFullNames(patient, content);
+		/* SET THE ADDRESS FROM FHIR TO OPENEMPI */	
+		content = setAddresses(patient, content);
+		
+		
+		/* SET THE MARITAL STATUS FROM FHIR TO OPENEMPI */
+		content = setMaritalStatus(patient, content);
+		/* SET PHONE NUMBER AND EMAIL FROM FHIR TO OPENEMPI */		
+		content = setTelecom(patient, content);
+
+		/* SET **GENDER** FROM FHIR TO OPENEMPI */	
+		JSONObject genderDetails = setGender(patient);		
+		content.put("gender", genderDetails);	
+		
+		
+		/* SET BIRTH ORDER FROM FHIR TO OPENEMPI */		
+		content=checkExistsAndPut(patient.has("multipleBirthInteger"), "multipleBirthInteger", patient,content, "birthOrder", patient.optString("multipleBirthInteger"));
+
+		/* SET DEATH TIME FROM FHIR TO OPENEMPI */
+		content=setDeathTime(patient, content);
+		
+		/* SET DATE OF BIRTH FROM FHIR TO OPENEMPI */ 
+		content=checkExistsAndPut(patient.has("birthDate"), "birthDate", patient,content, "dateOfBirth", patient.optString("birthDate"));
+
+		/* SET DATE OF CHANGE FROM FHIR TO OPENEMPI */
+		content = setMetaData(patient, content);
+
+		/* SET IDENTIFIER FROM FHIR TO OPENEMPI */ //need fixing
+		content = setPersonIdentifier( patient, content);
+				
+		return content;
+	}
+	
+
+	protected JSONObject setGender(JSONObject patient) {
+		JSONObject genderDetails = new JSONObject();
+		if(patient.has("gender")){
+			if("female".equals(patient.getString("gender"))){
+				genderDetails.put("genderCd","1");
+				genderDetails.put("genderCode","F");
+				genderDetails.put("genderDescription","Female");
+				genderDetails.put("genderName","Female");
+			}
+			else if("male".equals(patient.getString("gender"))){
+				genderDetails.put("genderCd","2");
+				genderDetails.put("genderCode","M");
+				genderDetails.put("genderDescription","Male");
+				genderDetails.put("genderName","Male");
+			}
+			else if("other".equals(patient.getString("gender"))){
+				genderDetails.put("genderCd","3");
+				genderDetails.put("genderCode","O");
+				genderDetails.put("genderDescription","Other");
+				genderDetails.put("genderName","Other");
+			}
+			else if("unknown".equals(patient.getString("gender"))){
+				genderDetails.put("genderCd","4");
+				genderDetails.put("genderCode","U");
+				genderDetails.put("genderDescription","Unknown");
+				genderDetails.put("genderName","Unknown");
+			}
+
+		}
+		return genderDetails;
+	}
+	
+	protected JSONObject createName(JSONObject content,JSONObject details) {		
+			JSONObject temp = content;
+			/* - Family Name - */
+			temp = checkExistLengthAndPut("family", details, temp, "familyName", 0);
+
+			/* Given Name: JSONArray because it contails First & Middle Name */
+			temp = checkExistLengthAndPut("given", details, temp, "givenName", 0);
+			temp = checkExistLengthAndPut("given", details, temp, "middleName", 1);
+
+			/* Prefix & Prefix
+			 * It is a JSONArray - but OpenEMPI accepts only one
+			 * We get the first one
+			 */
+			temp = checkExistLengthAndPut("prefix", details, temp, "prefix", 0);
+
+		
+			temp = checkExistLengthAndPut("suffix", details, temp, "suffix", 0);
+			
+			return temp;
+		}
+		
+		protected JSONObject createAddress(JSONObject content,JSONObject address) {
+			JSONObject temp = content;
+			/* line[0]=Address 1 & Line[1] = Address 2 (if they exist) */
+			temp = checkExistLengthAndPut("line", address, temp, "address1", 0);
+			temp = checkExistLengthAndPut("line", address, temp, "address2", 1);
+
+			/* City */
+			temp = checkExistsAndPut(address.has("city"),"city", address, temp, "city", address.optString("city"));
+			
+			/* Country */ 
+			temp = checkExistsAndPut(address.has("country"),"country", address,temp, "country", address.optString("country"));
+			
+			/* State */
+			temp = checkExistsAndPut(address.has("state"),"state", address, temp,"state", address.optString("state"));
+			
+			/* Postal Code */
+			temp = checkExistsAndPut(address.has("postalCode"),"postalCode", address, temp,"postalCode", address.optString("postalCode"));
+			return content;
+		}
+
+	protected JSONObject setFullNames(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("name")) {
 			
 			/* FHIR has multiple names */
@@ -39,15 +149,13 @@ public class ConversionFHIRToOpenEmpi {
 					JSONObject details = Namesarray.getJSONObject(i);
 					
 					/* Define maiden name if it exists */
-					if((details.has("use"))&&details.optString("use").equals("maiden")) {
-						if(details.getJSONArray("family").length() > 0){
-							content.put("mothersMaidenName", details.getJSONArray("family").getString(0));
-						}
+					if((details.has("use"))&&"maiden".equals(details.optString("use"))&&(details.getJSONArray("family").length() > 0)) {
+						temp.put("mothersMaidenName", details.getJSONArray("family").getString(0));
 					}
 					
-					if((details.has("use"))&&(details.optString("use").equals("official"))) {
+					if((details.has("use"))&&("usual".equals(details.optString("use")))) {
 						officialFound = true;
-						content = createName(content,details);
+						temp = createName(temp,details);
 						continue;
 					}				
 				}
@@ -55,23 +163,32 @@ public class ConversionFHIRToOpenEmpi {
 				//didn't find official - gets the first one
 				if(!officialFound) {
 					JSONObject details = Namesarray.getJSONObject(0);
-					content = createName(content,details);
+					temp = createName(temp,details);
 				}
 			}			
 		}
-		
-		/* SET THE ADDRESS FROM FHIR TO OPENEMPI */		
-		if(patient.has("address")) {
-			
-			/* Multiple addresses in FHIR but OpenEMPI takes only one */
-			JSONArray addresses = patient.getJSONArray("address");
-			if(addresses.length()>0) {
-				JSONObject address = addresses.getJSONObject(0);
-				content = createAddress(content, address);			
-			}									
+		return temp;
+	}
+	protected JSONObject checkExistsAndPut(boolean condition,  String searchField,JSONObject ConditionObject,JSONObject receiver, String key, Object value) {
+		JSONObject temp = receiver;
+
+		if(condition) {
+			temp.put(key, value);
 		}
-		
-		/* SET THE MARITAL STATUS FROM FHIR TO OPENEMPI */
+		return temp;
+	}
+	
+	protected JSONObject checkExistLengthAndPut(String searchField,JSONObject ConditionObject, JSONObject receiver, String key, int threshold) {
+		JSONObject temp = receiver;
+
+		if(ConditionObject.has(searchField)&&((ConditionObject.getJSONArray(searchField).length() > threshold))) {
+				temp.put(key, new String(ConditionObject.getJSONArray(searchField).getString(threshold)));
+		}				
+		return temp;
+	}
+	protected JSONObject setMaritalStatus(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("maritalStatus")) {
 			JSONObject status = patient.getJSONObject("maritalStatus");
 			if(status.has("coding")) {
@@ -79,34 +196,62 @@ public class ConversionFHIRToOpenEmpi {
 				System.out.println(code.toString());
 				if(code.has("code")){
 					String codeName = code.optString("code");
-					if(codeName.equals("M")){
+					if("M".equals(codeName)){
 						codeName = "MARRIED";
-					}else if(codeName.equals("D")){
+					}else if("D".equals(codeName)){
 						codeName = "DIVORCED";
-					}else if(codeName.equals("I")){
+					}else if("I".equals(codeName)){
 						codeName = "INTERLOCUTORY";
-					}else if(codeName.equals("L")){
+					}else if("L".equals(codeName)){
 						codeName = "LEGALLY SEPARATED";
-					}else if(codeName.equals("P")){
+					}else if("P".equals(codeName)){
 						codeName = "POLYGAMOUS";
-					}else if(codeName.equals("S")){
+					}else if("S".equals(codeName)){
 						codeName = "NEVER MARRIED";
-					}else if(codeName.equals("T")){
+					}else if("T".equals(codeName)){
 						codeName = "DOMESTIC PARTNER";
-					}else if(codeName.equals("W")){
+					}else if("W".equals(codeName)){
 						codeName = "WIDOWED";
-					}else if(codeName.equals("A")){
+					}else if("A".equals(codeName)){
 						codeName = "ANNULLED";
 					}else{
 						codeName = "UNKNOWN";
 					}
 					System.out.println(codeName + "HI THERE");
-					content.put("maritalStatusCode", codeName);
+					temp.put("maritalStatusCode", codeName);
 				}
 			}
 		}
+		return temp;
+	}
+	
+	protected JSONObject setDeathTime(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+		if(patient.has("deceasedDateTime")) {
+			String date = patient.optString("deceasedDateTime");
+			date = date.substring(0, 19);
+			temp.put("deathTime", date);
+		}		
+		return temp;
+	}
+	
+	protected JSONObject setAddresses(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
 
-		/* SET PHONE NUMBER AND EMAIL FROM FHIR TO OPENEMPI */		
+		if(patient.has("address")) {
+			
+			/* Multiple addresses in FHIR but OpenEMPI takes only one */
+			JSONArray addresses = patient.getJSONArray("address");
+			if(addresses.length()>0) {
+				JSONObject address = addresses.getJSONObject(0);
+				temp = createAddress(temp, address);			
+			}									
+		}
+		return temp;
+	}
+	protected JSONObject setTelecom(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+
 		if(patient.has("telecom")) {
 			
 			/* Telecom is an array of all the contact details of the patient*/
@@ -115,50 +260,33 @@ public class ConversionFHIRToOpenEmpi {
 				JSONObject system = telecom.getJSONObject(i);
 				
 				/* Phone */
-				if((system.has("system"))&&(system.getString("system").equals("phone"))) {
-					content.put("phoneNumber", system.getString("value"));
-				}
-	
-				/* Email */
-				if((system.has("system"))&&(system.getString("system").equals("email"))) {
-					content.put("email", system.getString("value"));
-				}
+				temp = checkExistsAndPut(((system.has("system"))&&("phone".equals(system.getString("system")))),
+						"system", system,temp, "phoneNumber", system.optString("value"));
+
+				temp = checkExistsAndPut(((system.has("system"))&&("email".equals(system.getString("system")))),
+						"system", system,temp, "email", system.optString("value"));
+
 			}			
 		}
 		
-		/* SET **GENDER** FROM FHIR TO OPENEMPI */	
-		JSONObject genderDetails = setGender(patient);		
-		content.put("gender", genderDetails);	
 		
 		
-		/* SET BIRTH ORDER FROM FHIR TO OPENEMPI */		
-		if(patient.has("multipleBirthInteger")) {
-			content.put("birthOrder", patient.optString("multipleBirthInteger"));
+		return temp;
+	}
+	
+	protected JSONObject setMetaData(JSONObject patient, JSONObject content) {
+		JSONObject temp = content;
+		if(patient.has("meta")&&(patient.getJSONObject("meta").has("lastUpdated"))) {
+				temp.put("dateChanged", patient.getJSONObject("meta").optString("lastUpdated"));
 		}
-		
-		/* SET DEATH TIME FROM FHIR TO OPENEMPI */
-		if(patient.has("deceasedDateTime")) {
-			String date = patient.optString("deceasedDateTime");
-			date = date.substring(0, 19);
-			content.put("deathTime", date);
-		}
-		
-		/* SET DATE OF BIRTH FROM FHIR TO OPENEMPI */ 
-		if(patient.has("birthDate")) {
-			content.put("dateOfBirth", patient.optString("birthDate"));
-		}
-		
-		/* SET DATE OF CHANGE FROM FHIR TO OPENEMPI */
-		if(patient.has("meta")) {
-			if(patient.getJSONObject("meta").has("lastUpdated"))
-			content.put("dateChanged", patient.getJSONObject("meta").optString("lastUpdated"));
-		}
-		
-		/* SET IDENTIFIER FROM FHIR TO OPENEMPI */ //need fixing		
+		return temp;
+	}
+	
+	protected JSONObject setPersonIdentifier( JSONObject patient,JSONObject content) {
+		JSONObject temp = content;
 		if(patient.has("identifier")) {
-			JSONArray identifierArray = new JSONArray();
 			JSONArray personIdentifier = new JSONArray();
-
+	
 			/**
 			 *
 			 * TODO: Get all the identifiers
@@ -178,119 +306,9 @@ public class ConversionFHIRToOpenEmpi {
 				}
 				
 			}	
-			content.put("personIdentifiers", personIdentifier);
+			temp.put("personIdentifiers", personIdentifier);
 		}
-		
-		return content;
+		return temp;
 	}
-
-	protected JSONObject setGender(JSONObject patient) {
-		JSONObject genderDetails = new JSONObject();
-		if(patient.has("gender")){
-			if(patient.getString("gender").equals("female")){
-				genderDetails.put("genderCd","1");
-				genderDetails.put("genderCode","F");
-				genderDetails.put("genderDescription","Female");
-				genderDetails.put("genderName","Female");
-			}
-			else if(patient.getString("gender").equals("male")){
-				genderDetails.put("genderCd","2");
-				genderDetails.put("genderCode","M");
-				genderDetails.put("genderDescription","Male");
-				genderDetails.put("genderName","Male");
-			}
-			else if(patient.getString("gender").equals("other")){
-				genderDetails.put("genderCd","3");
-				genderDetails.put("genderCode","O");
-				genderDetails.put("genderDescription","Other");
-				genderDetails.put("genderName","Other");
-			}
-			else if(patient.getString("gender").equals("unknown")){
-				genderDetails.put("genderCd","4");
-				genderDetails.put("genderCode","U");
-				genderDetails.put("genderDescription","Unknown");
-				genderDetails.put("genderName","Unknown");
-			}
-
-		}
-		return genderDetails;
-	}
-	
-	protected JSONObject createName(JSONObject content,JSONObject details) {		
-			
-			/* - Family Name - */
-			if(details.has("family")) {
-				if(details.getJSONArray("family").length() > 0){
-					content.put("familyName", new String(details.getJSONArray("family").getString(0)));
-				}
-			}
-			/* Given Name: JSONArray because it contails First & Middle Name */
-			if(details.has("given")) {
-				JSONArray given = details.getJSONArray("given");
-				
-				/* Check that there is at least one given Name (first name) */
-				if(given.length()>0)
-					content.put("givenName", given.getString(0));
-				
-				/* If there are more than 1 given names, the next one is the middle name */
-				if(given.length()>1) 
-					content.put("middleName", given.getString(1));
-			}
-			
-			/* Prefix & Prefix
-			 * It is a JSONArray - but OpenEMPI accepts only one
-			 * We get the first one
-			 */
-			if(details.has("prefix")) {
-				JSONArray prefix = details.getJSONArray("prefix");
-				if(prefix.length()>0)
-					content.put("prefix", prefix.getString(0));
-	
-			}
-			if(details.has("suffix")) {
-				JSONArray suffix = details.getJSONArray("suffix");
-				if(suffix.length()>0)
-					content.put("suffix", suffix.getString(0));
-			}
-			
-			return content;
-		}
-		
-		protected JSONObject createAddress(JSONObject content,JSONObject address) {
-			
-			/* line[0]=Address 1 & Line[1] = Address 2 (if they exist) */
-			if(address.has("line")) {
-				JSONArray lines = address.getJSONArray("line");
-				
-				if(lines.length()>0)
-					content.put("address1", lines.getString(0));
-				if(lines.length()>1)
-					content.put("address2", lines.getString(1));
-						
-			}
-			
-			/* City */
-			if(address.has("city")) {
-				content.put("city", address.getString("city"));
-			}
-			
-			/* Country */ 
-			if(address.has("country")) {
-				content.put("country", address.getString("country"));
-			}
-			
-			/* State */
-			if(address.has("state")) {
-				content.put("state", address.getString("state"));
-			}
-			
-			/* Postal Code */
-			if(address.has("postalCode")) {
-				content.put("postalCode", address.get("postalCode"));
-			}
-			return content;
-		}
-
-	
 	
 }

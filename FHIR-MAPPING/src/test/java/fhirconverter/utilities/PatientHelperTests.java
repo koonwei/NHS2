@@ -29,7 +29,7 @@ public class PatientHelperTests {
 		OpenEMPIbase remove = new OpenEMPIbase();
 		remove.commonRemovePersonById(newRecordID);
 		
-		assertTrue("NHS is correct: ", (nhsIdentifier.equals("65498798126459873232897")));		
+		assertTrue("NHS is correct: ", ("65498798126459873232897".equals(nhsIdentifier)));		
 	}
 	
 	
@@ -55,9 +55,8 @@ public class PatientHelperTests {
 	/*Patient doesn't exist - exception*/
 	@Test(expected = ResourceNotFoundException.class)
 	public void testPatientNotExist() throws Exception {
-		PatientFHIR tester = new PatientFHIR();	
 		PatientHelper helper = new PatientHelper();		
-		String nhsIdentifier = helper.retrieveNHSbyId("1200");		
+		helper.retrieveNHSbyId("1200");		
 	}
 	
 	

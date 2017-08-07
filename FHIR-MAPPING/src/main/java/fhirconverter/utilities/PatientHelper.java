@@ -10,7 +10,7 @@ import fhirconverter.exceptions.IdNotObtainedException;
 import fhirconverter.exceptions.OpenEMPISchemeNotMetException;
 
 public class PatientHelper {
-	static final Logger logger = LogManager.getLogger(PatientHelper.class.getName());
+	private static final Logger logger = LogManager.getLogger(PatientHelper.class.getName());
 
 	
 	public String retrieveNHSbyId(String id) throws Exception {
@@ -35,13 +35,13 @@ public class PatientHelper {
 					for(int i=0; i<multipleIdentifiers.length(); i++) {
 						JSONObject singleIdentifier = multipleIdentifiers.getJSONObject(i);
 						nhsIdentifier = getIdentifierIfNHS(singleIdentifier);
-						if(!nhsIdentifier.equals(""))
+						if(!"".equals(nhsIdentifier))
 							break;
 						
 					}
 				}
 			}			
-			if(nhsIdentifier.equals("")) {
+			if("".equals(nhsIdentifier)) {
 				throw new IdNotObtainedException("There is no NHS identifier in OpenEMPI for this patient");
 			}	
 			
@@ -55,7 +55,7 @@ public class PatientHelper {
 		String identifier = "";
 		if(identifierObject.has("identifierDomain")) {
 			String domainName = identifierObject.getJSONObject("identifierDomain").optString("identifierDomainName");
-			if(domainName.equals("NHS")) {
+			if("NHS".equals(domainName)) {
 				identifier = identifierObject.optString("identifier");
 			}			
 		}		
