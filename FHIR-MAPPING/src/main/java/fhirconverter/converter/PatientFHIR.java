@@ -137,13 +137,13 @@ public class PatientFHIR {
 		JsonNode patched = null;
 		try{
 			patched = patient.apply(jsonNodeResults);
-			System.out.println(patched.toString());
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new JsonPatchException("Resource does not contain the paths for remove or replace");
 		}
 		if(patched != null)
 		{
+			LOGGER.info(patched.toString());
 			boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
 			if(fhirSchemeRequirements){
 				JSONObject patchedResults = new JSONObject(patched.toString());
@@ -177,8 +177,11 @@ public class PatientFHIR {
 			}
 
 		}
-		return "";
-	}
+		else 
+		{
+			throw new Exception("Patch operators are empty!");
+		}
+    }
 			
 	public String create(JSONObject patient) throws ResourceNotFoundException, Exception{
 		ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();

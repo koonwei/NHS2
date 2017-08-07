@@ -82,27 +82,34 @@ public final class Utils{
 	}
 	
 	public static HashMap<String,String> getProperties(String domainDatabase){
-		HashMap<String,String> connectionCreds = new HashMap<String,String>();	
+		HashMap<String,String> connectionCreds = new HashMap<String,String>();
+		FileReader reader = null;	
 		try {
 			Properties properties = new Properties();		
-			FileReader reader = new FileReader("config.properties");
+			reader = new FileReader("config.properties");
 			properties.load(reader);
 			connectionCreds.put("baseURL", properties.getProperty(domainDatabase+"-baseURL"));
 			connectionCreds.put("username", properties.getProperty(domainDatabase+"-username"));
 			connectionCreds.put("password", properties.getProperty(domainDatabase+"-password"));
-			reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally{
+			try{
+				reader.close();
+			}catch (IOException e){
+				e.printStackTrace();
+			}
 		}		
 		return connectionCreds;
-	}
-	
+	}	
 	public static org.json.simple.JSONObject readJsonFile(){
 		JSONParser parser = new JSONParser();
+		FileReader reader = null;
 		try {
-			Object obj = parser.parse(new FileReader("aql_path.json"));
+			reader = new FileReader("aql_path.json");
+			Object obj = parser.parse(reader);
 			org.json.simple.JSONObject jsonObj = (org.json.simple.JSONObject) obj;	
 			return jsonObj;
  		}catch (FileNotFoundException e) {
@@ -111,7 +118,14 @@ public final class Utils{
             		e.printStackTrace();
         	} catch (ParseException e) {
             		e.printStackTrace();
-        	}
+        	} finally{
+			try{
+				reader.close();
+			}catch (IOException e){
+				e.printStackTrace();
+			}
+	
+		}
 		return null;
 	}
 	
