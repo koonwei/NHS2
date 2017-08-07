@@ -147,7 +147,26 @@ public class OpenEMPIbase {
 				}
 				if (parameters.has("gender")) {
 					gender = parameters.getString("gender");
-					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
+					if(gender.equals("female"))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>F</genderCode>"
+								+ "</gender>";
+					else if(gender.equals("male"))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>M</genderCode>"
+								+ "</gender>";
+					else if(gender.equals("unknown"))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+  "<genderCode>U</genderCode>"
+								+ "</gender>";
+					else if(gender.equals("other"))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>O</genderCode>"
+								+ "</gender>";
 				}
 				if (parameters.has("given")) {
 					givenName = parameters.getString("given");
@@ -295,7 +314,7 @@ public class OpenEMPIbase {
 				returnString = "Created";
 				if (parameters.contains("OpenEMPI") || parameters.contains("openEMPI")
 						|| parameters.contains("openempi"))
-					this.removeOpenEMPIIdentifier(parameters);
+					parameters = this.removeOpenEMPIIdentifier(parameters);
 			} else {
 				this.commonRemovePersonById(personId);
 				returnString = "Updated";
@@ -500,8 +519,8 @@ public class OpenEMPIbase {
 	 * This method takes personId as parameter and invokes removePersonById API
 	 * with the person details and removes the person form OpenEMPI
 	 * 
-	 * @param parameters:
-	 *            String
+	 * @param String: parameters:
+	 *            
 	 * @return String: Successful if remove is successful otherwise throws
 	 *         ResourceNotFoundException
 	 * @throws Exception
