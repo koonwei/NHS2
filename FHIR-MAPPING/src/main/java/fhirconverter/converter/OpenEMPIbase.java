@@ -147,7 +147,26 @@ public class OpenEMPIbase {
 				}
 				if (parameters.has("gender")) {
 					gender = parameters.getString("gender");
-					payload = payload + "<gender><genderName>" + gender + "</genderName></gender>";
+					if(("female").equals(gender))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>F</genderCode>"
+								+ "</gender>";
+					else if(("male").equals(gender))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>M</genderCode>"
+								+ "</gender>";
+					else if(("unknown").equals(gender))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+  "<genderCode>U</genderCode>"
+								+ "</gender>";
+					else if(("other").equals(gender))
+						payload = payload + "<gender>"
+								+ "<genderName>" + gender + "</genderName>"
+								+ "<genderCode>O</genderCode>"
+								+ "</gender>";
 				}
 				if (parameters.has("given")) {
 					givenName = parameters.getString("given");
@@ -242,7 +261,7 @@ public class OpenEMPIbase {
 	 * @return String in XML format: person details
 	 * @throws Exception
 	 */
-	public String commonReadPerson(String parameter) throws Exception {
+	public String loadPerson(String parameter) throws Exception {
 
 		getSessionCode();
 
@@ -263,6 +282,27 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
+			logger.info("*** Method: loadPerson Response: " + response + " ***");
+			return response;
+		} catch (Exception ex) {
+			throw new ResourceNotFoundException("Resource Not Found");
+		}
+	}
+	
+	
+	/**
+	 * This methods calls loadPerson() method and retrieves person
+	 * details based on personId
+	 * 
+	 * @param parameter:
+	 *            personId
+	 * @return String in XML format: person details
+	 * @throws Exception
+	 */
+	public String commonReadPerson(String parameter) throws Exception {
+
+		try {
+			String response = this.loadPerson(parameter);
 			logger.info("*** Method: commonReadPerson Response: " + response + " ***");
 			if (response.equals("")) {
 				throw new ResourceNotFoundException("Resource Not Found");
@@ -274,6 +314,7 @@ public class OpenEMPIbase {
 	}
 
 	/**
+	 * UPDATE ALWAYS HAS PERSON ID 
 	 * This methods invokes updatePersonById API of OpenEMPI and updates person
 	 * details
 	 * 
@@ -285,17 +326,18 @@ public class OpenEMPIbase {
 	public String commonUpdatePerson(String parameters) throws Exception {
 
 		getSessionCode();
-		String returnString = "Update";
+		String returnString = "Updated";
 		String personId = "";
 		if (!parameters.isEmpty() && parameters.contains("<personId>")) {
 			personId = parameters.substring(parameters.indexOf("<personId>") + 10, parameters.indexOf("</personId>"));
 		}
+		String loadPersonId = this.loadPerson(personId);
 		try {
-			if (personId == null || personId.equals("") ) {
+			if (loadPersonId == null || loadPersonId.equals("") ) {
 				returnString = "Created";
 				if (parameters.contains("OpenEMPI") || parameters.contains("openEMPI")
 						|| parameters.contains("openempi"))
-					this.removeOpenEMPIIdentifier(parameters);
+					parameters = this.removeOpenEMPIIdentifier(parameters);
 			} else {
 				this.commonRemovePersonById(personId);
 				returnString = "Updated";
@@ -500,8 +542,8 @@ public class OpenEMPIbase {
 	 * This method takes personId as parameter and invokes removePersonById API
 	 * with the person details and removes the person form OpenEMPI
 	 * 
-	 * @param parameters:
-	 *            String
+	 * @param String: parameters:
+	 *            
 	 * @return String: Successful if remove is successful otherwise throws
 	 *         ResourceNotFoundException
 	 * @throws Exception

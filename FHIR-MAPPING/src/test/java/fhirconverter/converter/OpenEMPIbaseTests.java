@@ -3,9 +3,8 @@
  */
 package fhirconverter.converter;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -138,49 +137,6 @@ public class OpenEMPIbaseTests {
 			+ "<prefix>Ms</prefix>"
 			+ "<state>London</state>"
 			+ "<language>English</language>"
-			+ "</person>";
-	
-	public static String updateCreateParameters = "<person><address1>55 LincolnHouse</address1>"
-			+ "<address2>Main Road</address2>"
-			+ "<birthOrder>5</birthOrder>"
-			+ "<birthPlace>New Castle</birthPlace>"
-			+ "<city>Manchester</city>"
-			+ "<country>United Kingdom</country>"
-			+ "<countryCode>UK</countryCode>"
-			+ "<dateOfBirth>1992-10-19T00:00:00Z</dateOfBirth>"
-			+ "<degree>Bachelors</degree>"
-			+ "<familyName>Leo</familyName>"
-			+ "<fatherName>William</fatherName>"
-			+ "<gender>"
-			+ "	<genderCd>2</genderCd>"
-			+ "	<genderCode>M</genderCode>"
-			+ "	<genderDescription>Male</genderDescription>"
-			+ "	<genderName>Male</genderName>"
-			+ "</gender>"
-			+ "<givenName>Peter</givenName>"
-			+ "<maritalStatusCode>Divorced</maritalStatusCode>"
-			+ "<middleName>Com</middleName>"
-			+ "<motherName>Anna</motherName>"
-			+ "<mothersMaidenName>Will</mothersMaidenName>"
-			+ "<multipleBirthInd>2</multipleBirthInd>"
-			+ "<personIdentifiers>"
-			+ "<identifier>111</identifier>"
-			+ "<identifierDomain>"
-			+ "<identifierDomainId>11</identifierDomainId>"
-			+ "<identifierDomainName>TIN</identifierDomainName>"
-			+ "</identifierDomain>"
-			+ "</personIdentifiers>"
-			+ "<phoneAreaCode>44</phoneAreaCode>"
-			+ "<phoneCountryCode>44</phoneCountryCode>"
-			+ "<phoneExt>888</phoneExt>"
-			+ "<phoneNumber>90909090</phoneNumber>"
-			+ "<postalCode>SE1234L</postalCode>"
-			+ "<prefix>Mr</prefix>"
-			+ "<ssn>666</ssn>"
-			+ "<state>London</state>"
-			+ "<suffix>SS</suffix>"
-			+ "<language>English</language>"
-			+ "<email>leo19@gmail.com</email>"
 			+ "</person>";
 	
 	/**
@@ -316,23 +272,6 @@ public class OpenEMPIbaseTests {
 	}
 
 	/**
-	 * Test for UpdatePerson() when the parameters do not exists, so a new
-	 * person record is created
-	 * 
-	 * @throws Exception
-	 * 
-	 */
-	@Test
-	public void testUpdatePersonWithCreate() throws Exception {
-		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		String expectedUpdatePersonWithCreateResults = "Created";
-		String obtainedResults = openEMPIbase.commonUpdatePerson(updateCreateParameters);
-		System.out.println("testUpdatePersonWithCreate");
-		assertEquals(expectedUpdatePersonWithCreateResults, obtainedResults);
-
-	}
-
-	/**
 	 * Test for RemovePersonById(). This test will first check if a person
 	 * record exist to be removed
 	 * 
@@ -355,10 +294,10 @@ public class OpenEMPIbaseTests {
 		assertEquals(expectedRemovePersonByIdResults, obtainedResults);
 	}
 	
-	@Test
-	public void testGetIdentifierDomains() throws Exception {
-		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
-		List<String> domainList = openEMPIbase.getIdentifierDomains();
-	}
+//	@Test
+//	public void testGetIdentifierDomains() throws Exception {
+//		OpenEMPIbase openEMPIbase = new OpenEMPIbase();
+//		List<String> domainList = openEMPIbase.getIdentifierDomains();
+//	}
 }
 
