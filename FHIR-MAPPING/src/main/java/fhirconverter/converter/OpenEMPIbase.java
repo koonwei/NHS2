@@ -320,7 +320,6 @@ public class OpenEMPIbase {
 	public String commonAddPerson(String parameters) throws Exception {
 
 		getSessionCode();
-		String check = "";
 		URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addPerson");
 		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
 		hurl.setRequestMethod("PUT");
@@ -330,7 +329,7 @@ public class OpenEMPIbase {
 
 		List<String> newIdentifierDomainList = getDomainsNotInOpenEMPI(parameters);
 		if (!newIdentifierDomainList.isEmpty()) {
-			check = this.addIdentifier(newIdentifierDomainList);
+			this.addIdentifier(newIdentifierDomainList);
 		}
 		if (parameters.contains("OpenEMPI")) {
 			parameters = this.removeOpenEMPIIdentifier(parameters);
