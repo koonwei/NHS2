@@ -1,4 +1,4 @@
-package fhirconverter.pathGenerator;
+package fhirconverter.pathgenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +16,6 @@ import net.sf.saxon.xqj.SaxonXQDataSource;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.XML;
-
-import java.util.Iterator;
 
 import java.io.FileWriter;
 import java.io.IOException;
