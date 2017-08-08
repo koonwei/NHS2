@@ -19,7 +19,9 @@ import org.json.XML;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 public class PathGenerator{
+	
 	public static void main(String[] args){
 		try {
 			execute();

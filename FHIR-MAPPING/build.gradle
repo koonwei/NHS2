@@ -64,7 +64,7 @@ task wrapper(type: Wrapper) {
 }
 task (generateAQLPath,dependsOn: 'classes',type: JavaExec){
     classpath file("/build/classes/java/main")    
-    main = 'fhirconverter.pathGenerator.PathGenerator'
+    main = 'fhirconverter.pathgenerator.PathGenerator'
    classpath = sourceSets.main.runtimeClasspath
 }
 jacocoTestReport {
