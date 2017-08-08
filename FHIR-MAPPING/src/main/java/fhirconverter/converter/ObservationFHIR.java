@@ -19,7 +19,7 @@ public class ObservationFHIR{
 		String domainName = "openEhrApi";
 		LOGGER.info("nhsNumber" + nhsNumber);
 		OpenEHRConnector openEHRconnector = new OpenEHRConnector(domainName); // Future developers, Note this line of code is placed here to be thread safe.		
-		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile();
+		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile("aql_path.json");
 		JSONObject aqlJSONObj =  new JSONObject(aqlPaths.toString());
 		LOGGER.info(aqlJSONObj.toString(3));
 		String ehrNumber = openEHRconnector.getEHRIdByNhsNumber(nhsNumber);		
