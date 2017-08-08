@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +32,7 @@ public class OpenEMPIbase {
 	private String username;
 	private String password;
 
-	static final Logger logger = LogManager.getLogger(OpenEMPIbase.class.getName());
+	static final Logger LOGGER = LogManager.getLogger(OpenEMPIbase.class.getName());
 
 	/**
 	 * The static method reads config.properties file and initialises the common
@@ -197,7 +198,7 @@ public class OpenEMPIbase {
 				}
 			}
 			finalresponse = Utils.removeDuplicateRecords(finalresponse);
-			logger.info("*** Method: CommonSerachByAttributes Response: " + finalresponse + " ***");
+			LOGGER.debug("*** Method: CommonSerachByAttributes Response: " + finalresponse + " ***");
 			return finalresponse;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -245,7 +246,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: commonSearchPersonById Response: " + response + " ***");
+			LOGGER.debug("*** Method: commonSearchPersonById Response: " + response + " ***");
 			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -282,7 +283,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: loadPerson Response: " + response + " ***");
+			LOGGER.debug("*** Method: loadPerson Response: " + response + " ***");
 			return response;
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException("Resource Not Found");
@@ -303,7 +304,7 @@ public class OpenEMPIbase {
 
 		try {
 			String response = this.loadPerson(parameter);
-			logger.info("*** Method: commonReadPerson Response: " + response + " ***");
+			LOGGER.debug("*** Method: commonReadPerson Response: " + response + " ***");
 			if (response.equals("")) {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
@@ -394,15 +395,15 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: commonAddPerson Response: " + response + " ***");
+			LOGGER.debug("*** Method: commonAddPerson Response: " + response + " ***");
 			return response;
 		} catch (Exception e) {
 			throw new ResourceNotCreatedException("Resource Not Created");
 		}
 	}
 
-	
-	/**
+
+    /**
 	 * This method takes list of identifier domain names and invokes openEMPI
 	 * API to retrieve all the existing identifier domain. It then checks if the
 	 * given identifier exists or not. Returns true or false accordingly
@@ -410,10 +411,10 @@ public class OpenEMPIbase {
 	 * @return List<String> : list of existing identifier domain name
 	 * @throws Exception
 	 */
-	public List<String> getIdentifierDomains() throws Exception {
+	public Map<String, String> getIdentifierDomains() throws Exception {
 
 		getSessionCode();
-		List<String> existingDomainList = new ArrayList<>();
+		Map<String, String> existingDomainList;
 		URL url = new URL(
 				_instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/getIdentifierDomains");
 		HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
@@ -429,7 +430,7 @@ public class OpenEMPIbase {
 				response += line;
 			}
 
-			existingDomainList = Utils.convertToList(response);
+			existingDomainList = Utils.convertIdentifiersToHash(response);
 			return existingDomainList;
 
 		} catch (Exception ex) {
@@ -437,11 +438,12 @@ public class OpenEMPIbase {
 		}
 	}
 
+
 	/**
 	 * This methods takes identifier name and invokes openEMPI API to add the
 	 * identifier details
 	 * 
-	 * @param identifierName:
+	 * @param identifiersList:
 	 *            String
 	 * @return String: newly created identifier details
 	 * @throws Exception
@@ -479,8 +481,8 @@ public class OpenEMPIbase {
 					while ((line = in.readLine()) != null) {
 						response += line;
 					}
-					logger.info("*** Method: addIdentifier Response: " + response + " ***");
-					logger.info("*** New Identifier Domain added to OpenEMPI ***");
+					LOGGER.debug("*** Method: addIdentifier Response: " + response + " ***");
+					LOGGER.info("*** New Identifier Domain added to OpenEMPI ***");
 
 				}
 			}
@@ -529,7 +531,7 @@ public class OpenEMPIbase {
 				response += line;
 			}
 			if (response == "") {
-				logger.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
+				LOGGER.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
 				return "Delete Successful";
 			} else
 				throw new ResourceNotFoundException("Resource Not Found");
@@ -542,7 +544,7 @@ public class OpenEMPIbase {
 	 * This method takes personId as parameter and invokes removePersonById API
 	 * with the person details and removes the person form OpenEMPI
 	 * 
-	 * @param String: parameters:
+	 * @param parameter: parameters:
 	 *            
 	 * @return String: Successful if remove is successful otherwise throws
 	 *         ResourceNotFoundException
@@ -570,7 +572,7 @@ public class OpenEMPIbase {
 				response += line;
 			}
 			if (response == "") {
-				logger.info("*** Method: commonRemovePersonById Response: Remove Successful ***");
+				LOGGER.info("*** Method: commonRemovePersonById Response: Remove Successful ***");
 				return "Remove Successful";
 			} else
 				throw new ResourceNotFoundException("Resource Not Found");
@@ -605,7 +607,7 @@ public class OpenEMPIbase {
 			while ((line = in.readLine()) != null) {
 				response += line;
 			}
-			logger.info("*** Method: loadAllPerson Response:" + response + "***");
+			LOGGER.debug("*** Method: loadAllPerson Response:" + response + "***");
 			if (response == "") {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
@@ -629,7 +631,7 @@ public class OpenEMPIbase {
 	 * OpenEMPI identifier than that identifierDomain is removed from the request to avoid 
 	 * any conflict while creating a new person in OpenEMPI.
 	 * 
-	 * @param String : parameters in XML format
+	 * @param  parameters: parameters in XML string format
 	 * @return String: XML format
 	 */
 	protected String removeOpenEMPIIdentifier(String parameters) {
@@ -677,13 +679,14 @@ public class OpenEMPIbase {
 	 * but not in OpenEMPI
 	 * 
 	 * 
-	 * @param String : parameters
+	 * @param  parameters
 	 * @return List<String> : List of identifier domain name  
 	 * @throws Exception
 	 */
 	protected List<String> getDomainsNotInOpenEMPI(String parameters) throws Exception {
 
-		List<String> existingIdDomains = this.getIdentifierDomains();
+		List<String> existingIdDomains = new ArrayList<String>(this.getIdentifierDomains().keySet());
+        LOGGER.info(existingIdDomains);
 		List<String> obtainedIdDomains = this.fetchIdDomainsInRequest(parameters);
 		List<String> newDomainList = new ArrayList<>();
 		for (String item : obtainedIdDomains) {
@@ -698,7 +701,7 @@ public class OpenEMPIbase {
 	 * This method iterates through the person XML and checks the identifier domain name present 
 	 * in it and adds them to a List  
 	 * 
-	 * @param String : XML format 
+	 * @param xml : XML format
 	 * @return List<String> : list of identifier domain name 
 	 */
 	protected List<String> fetchIdDomainsInRequest(String xml) {
@@ -736,4 +739,5 @@ public class OpenEMPIbase {
 		}
 		return obtainedIdDomainsList;
 	}
+
 }

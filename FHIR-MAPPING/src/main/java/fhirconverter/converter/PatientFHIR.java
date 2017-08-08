@@ -1,26 +1,24 @@
 package fhirconverter.converter;
 import ca.uhn.fhir.context.FhirContext;
-
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import fhirconverter.exceptions.FhirSchemeNotMetException;
+import fhirconverter.exceptions.OpenEMPISchemeNotMetException;
+import fhirconverter.exceptions.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-import com.github.fge.jsonpatch.JsonPatch;  
-import com.github.fge.jsonpatch.JsonPatchException; 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import fhirconverter.exceptions.*;
+import java.util.List;
 
 public class PatientFHIR {
-	Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
-	OpenEMPIbase caller = new OpenEMPIbase();
+	private Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
+	private OpenEMPIbase caller = new OpenEMPIbase();
 
 	protected Patient read(String id) throws Exception {
 		String result = caller.commonReadPerson(id);	
@@ -50,44 +48,6 @@ public class PatientFHIR {
 		
 		JSONObject records = new JSONObject();
 
-		String readResult = caller.commonReadPerson(id);
-//		if(!"".equals(readResult)) {
-//			if(newRecordOpenEMPI.has("personIdentifiers")) {
-//				newRecordOpenEMPI.remove("personIdentifiers");
-//			}
-//			
-//			JSONObject xmlRead = XML.toJSONObject(readResult);
-//			JSONArray personIdentifiers = new JSONArray();
-//			if(xmlRead.has("person")){
-//				JSONObject person = xmlRead.getJSONObject("person");
-//                JSONObject personIdentifierObj = person.optJSONObject("personIdentifiers");
-//                JSONArray personIdentifierArray = person.optJSONArray("personIdentifiers");
-//				if(personIdentifierObj!=null)
-//                {
-//                    JSONObject identifier = createIdentifierOpenEMPI(person.optJSONObject("personIdentifiers"));
-//                    personIdentifiers.put(identifier);
-//                }
-//				else if(personIdentifierArray!=null) {
-//                    JSONObject identifier = null;
-//					for(Object identifierObj : personIdentifierArray) {
-//					    if ( identifierObj instanceof JSONObject) {
-//                            JSONObject identifierRecord = (JSONObject) identifierObj;
-//                            if ((identifierRecord.has("identifierDomain")) && ("OpenEMPI".equals(identifierRecord.getJSONObject("identifierDomain").optString("identifierDomainName")))) {
-//                                identifier = createIdentifierOpenEMPI(identifierRecord);
-//                                personIdentifiers.put(identifier);
-//                            }
-//                        }
-//                    }
-//				}
-//				else
-//                {
-//                    LOGGER.error("Patient has no identifier: " + person);
-//                    throw new InternalError("Patient has no identifier");
-//                }
-//                newRecordOpenEMPI.put("personIdentifiers", personIdentifiers);
-//			}
-//
-//		}
 		records.put("person", newRecordOpenEMPI);
 
 		LOGGER.info(records);
@@ -96,12 +56,9 @@ public class PatientFHIR {
 		 * For now we don't handle the update of personIdentifiers, so
 		 * if they are included in the JSONObject we will ignore it
 		 */
-		
-		
-		
-		
+
 		String xmlNewRecord = XML.toString(records);
-		System.out.println("***sos** SEND TO OPENEMPIBASE: \n" + xmlNewRecord );
+		LOGGER.debug("SEND TO OPENEMPIBASE: \n" + xmlNewRecord );
 		String result = caller.commonUpdatePerson(xmlNewRecord);
 		/*ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject createdObject = converterOpenEmpi.conversion(result);
