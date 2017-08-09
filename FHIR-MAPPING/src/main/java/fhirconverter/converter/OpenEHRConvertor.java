@@ -239,11 +239,12 @@ public class OpenEHRConvertor {
 	 */
 	protected static Double parsePeriodToMonths(String value) throws Exception {
 		
-		logger.info("period: " + value);
+		String period = "";
+		logger.info("value: " + value);
 		if(value.substring(0,1).equalsIgnoreCase("P"))
-			value = value.substring(1);
+			period = value.substring(1);
 
-		char[] p = value.toCharArray();
+		char[] p = period.toCharArray();
 		char[] iso = {'Y', 'M'};
 		
 		Double months = 0.0;
@@ -259,10 +260,10 @@ public class OpenEHRConvertor {
 			if(j > 1)
 				break;
 		}
-		if(!duration.get(0).equals(null) && !duration.get(0).equals("")){
+		if(duration.get(0) != null && !duration.get(0).equals("")){
 			months = (Double.parseDouble(duration.get(0)) * 12);
 		}
-		if(!duration.get(1).equals(null) && !duration.get(1).equals("")){
+		if(duration.get(1) != null && !duration.get(1).equals("")){
 			months = months + (Double.parseDouble(duration.get(1)));
 		}
 		//months = (Double.parseDouble(duration.get(0)) * 12) + (Double.parseDouble(duration.get(1)));
