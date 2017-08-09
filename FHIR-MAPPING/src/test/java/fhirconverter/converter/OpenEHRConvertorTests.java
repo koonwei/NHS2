@@ -33,33 +33,33 @@ public class OpenEHRConvertorTests {
 			+ "	      \"3141_9_magnitude\": 10.9," 
 			+ "	      \"39156_5_units\": null,"
 			+ "	      \"3141_9_units\": \"kg\","
-			// + " \"Head_circumference_units\": \"cm\","
+			+ " 	  \"8287_5_units\": \"cm\","
 			// + " \"Skeletal_age_date\": null,"
 			// + " \"Skeletal_age\": null,"
 			+ "	      \"8302_2_date\": \"2011-04-11T00:00:00+02:00\"," 
 			+ "	      \"8302_2_magnitude\": 82.3,"
-			// + " \"Head_circumference_date\": \"2011-04-11T00:00:00+02:00\","
+			+ " 	  \"8287_5_date\": \"2011-04-11T00:00:00+02:00\","
 			+ "	      \"3141_9_date\": \"2011-04-11T00:00:00+02:00\"," 
 			+ "	      \"8302_2_units\": \"cm\","
 			+ "	      \"39156_5_magnitude\": null," 
 			+ "	      \"39156_5_date\": null,"
-			// + " \"Head_circumference_magnitude\": 52"
+			+ " 	  \"8287_5_magnitude\": 52"
 			+ "	    }," 
 			+ "	    {" 
 			+ "	      \"3141_9_magnitude\": 9.8," 
 			+ "	      \"39156_5_units\": \"kg/m2\","
 			+ "	      \"3141_9_units\": \"kg\","
-			// + " \"Head_circumference_units\": \"cm\","
+			+ " 	  \"8287_5_units\": \"cm\","
 			// + " \"Skeletal_age_date\": \"2010-04-10T00:00:00+02:00\","
-			// + " \"Skeletal_age\": \"P6Y\","
+			+ " 	  \"37362_1_value\": \"P6Y\","
 			+ "	      \"8302_2_date\": \"2010-04-10T00:00:00+02:00\"," 
 			+ "	      \"8302_2_magnitude\": 177,"
-			// + " \"Head_circumference_date\": \"2010-04-10T00:00:00+02:00\","
+			+ " 	  \"8287_5_date\": \"2010-04-10T00:00:00+02:00\","
 			+ "	      \"3141_9_date\": \"2010-04-10T00:00:00+02:00\"," 
 			+ "	      \"8302_2_units\": \"cm\","
 			+ "	      \"39156_5_magnitude\": 17.2," 
 			+ "	      \"39156_5_date\": \"2010-04-10T00:00:00+02:00\","
-			// + " \"Head_circumference_magnitude\": 50"
+			+ " 	  \"8287_5_magnitude\": 50"
 			+ "	    }" 
 			+ "	  ]" 
 			+ "	}";
@@ -73,7 +73,7 @@ public class OpenEHRConvertorTests {
 		List<Observation> obtainedObsList = convertor.jsonToObservation(json);
 		List<Observation> expectedObsList = new ArrayList<>();
 		
-		String expectedString = "" ;
+		String expectedString = "";
 		String obtainedString = "";
 		
 		Observation obs1 = new Observation();
@@ -81,13 +81,19 @@ public class OpenEHRConvertorTests {
 		Observation obs3 = new Observation();
 		Observation obs4 = new Observation();
 		Observation obs5 = new Observation();
-		Observation obs6 = new Observation();		
+		Observation obs6 = new Observation();
+		Observation obs7 = new Observation();
+		Observation obs8 = new Observation();
+		Observation obs9 = new Observation();
 		QuantityDt qd1 = new QuantityDt();
 		QuantityDt qd2 = new QuantityDt();
 		QuantityDt qd3 = new QuantityDt();
 		QuantityDt qd4 = new QuantityDt();
 		QuantityDt qd5 = new QuantityDt();
 		QuantityDt qd6 = new QuantityDt();
+		QuantityDt qd7 = new QuantityDt();
+		QuantityDt qd8 = new QuantityDt();
+		QuantityDt qd9 = new QuantityDt();
 		
 		obs1.getCode().addCoding(new CodingDt("http://loinc.org", "3141-9"));
 		obs1.getCode().setText("Weight");
@@ -148,13 +154,45 @@ public class OpenEHRConvertorTests {
 		obs6.setValue(qd6);
 		obs6.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs6.getSubject().setReference("123456");
+		
+		obs7.getCode().addCoding(new CodingDt("http://loinc.org", "8287-5"));
+		obs7.getCode().setText("Head circumference");
+		qd7.setValue(52);
+		qd7.setCode("cm");
+		qd7.setUnit("cm");
+		qd7.setSystem("http://unitsofmeasure.org");
+		obs7.setValue(qd7);
+		obs7.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
+		obs7.getSubject().setReference("123456");
+		
+		obs8.getCode().addCoding(new CodingDt("http://loinc.org", "8287-5"));
+		obs8.getCode().setText("Head circumference");
+		qd8.setValue(50);
+		qd8.setCode("cm");
+		qd8.setUnit("cm");
+		qd8.setSystem("http://unitsofmeasure.org");
+		obs8.setValue(qd8);
+		obs8.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
+		obs8.getSubject().setReference("123456");
+		
+		obs9.getCode().addCoding(new CodingDt("http://loinc.org", "37362-1"));
+		obs9.getCode().setText("XR Bone age");
+		qd9.setValue(72);
+		qd9.setUnit("months");
+		qd9.setSystem("http://unitsofmeasure.org");
+		obs9.setValue(qd9);
+		//obs9.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
+		obs9.getSubject().setReference("123456");
 			
 		expectedObsList.add(obs1);
 		expectedObsList.add(obs2);
-		expectedObsList.add(obs6);
+		expectedObsList.add(obs3);
 		expectedObsList.add(obs4);
 		expectedObsList.add(obs5);
-		expectedObsList.add(obs3);
+		expectedObsList.add(obs6);
+		expectedObsList.add(obs7);
+		expectedObsList.add(obs8);
+		expectedObsList.add(obs9);
 
 		FhirContext ctx = FhirContext.forDstu2();
 		
@@ -176,5 +214,20 @@ public class OpenEHRConvertorTests {
 	    System.out.println("expected : " + expectedString);
 	    System.out.println("obtained : " + obtainedString);
 	    Assert.assertEquals(expectedString, obtainedString);
+	}
+	
+	@Test
+	public void testParsePeriod_YnM() throws Exception{
+		
+		Double obtainedMonths = OpenEHRConvertor.parsePeriodToMonths("P6Y11M9W");
+		Double expectedMonths = 83.0;
+		Assert.assertEquals(expectedMonths, obtainedMonths);
+	}
+	@Test
+	public void testParsePeriod_Yn() throws Exception{
+		
+		Double obtainedMonths = OpenEHRConvertor.parsePeriodToMonths("P6Y");
+		Double expectedMonths = 72.0;
+		Assert.assertEquals(expectedMonths, obtainedMonths);
 	}
 }
