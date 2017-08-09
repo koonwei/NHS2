@@ -63,9 +63,8 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.0'
 }
 task (generateAQLPath,dependsOn: 'classes',type: JavaExec){
-    classpath file("/build/classes/java/main")    
     main = 'fhirconverter.pathgenerator.PathGenerator'
-   classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.runtimeClasspath
 }
 jacocoTestReport {
     reports {
