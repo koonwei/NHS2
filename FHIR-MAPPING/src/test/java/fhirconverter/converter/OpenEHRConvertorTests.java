@@ -217,14 +217,14 @@ public class OpenEHRConvertorTests {
 	}
 	
 	@Test
-	public void testParsePeriod_YnM() throws Exception{
+	public void testParsePeriodYM() throws Exception{
 		
 		Double obtainedMonths = OpenEHRConvertor.parsePeriodToMonths("P6Y11M9W");
 		Double expectedMonths = 83.0;
 		Assert.assertEquals(expectedMonths, obtainedMonths);
 	}
 	@Test
-	public void testParsePeriod_Yn() throws Exception{
+	public void testParsePeriodY() throws Exception{
 		
 		Double obtainedMonths = OpenEHRConvertor.parsePeriodToMonths("P6Y");
 		Double expectedMonths = 72.0;

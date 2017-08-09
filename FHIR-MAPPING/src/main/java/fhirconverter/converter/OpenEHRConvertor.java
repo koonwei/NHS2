@@ -233,17 +233,17 @@ public class OpenEHRConvertor {
 	 *	For example, "P3Y6M4DT12H30M5S" represents a duration of "three years, six months, four days, twelve hours, thirty minutes, and five seconds".
 	 * 
 	 * This method only parse the period till month, i.e. P[n]Y[n]M anything after M is discarded.
-	 * @param period
+	 * @param value
 	 * @return
 	 * @throws Exception
 	 */
-	protected static Double parsePeriodToMonths(String period) throws Exception {
+	protected static Double parsePeriodToMonths(String value) throws Exception {
 		
-		logger.info("period: " + period);
-		if(period.substring(0,1).equalsIgnoreCase("P"))
-			period = period.substring(1);
+		logger.info("period: " + value);
+		if(value.substring(0,1).equalsIgnoreCase("P"))
+			value = value.substring(1);
 
-		char[] p = period.toCharArray();
+		char[] p = value.toCharArray();
 		char[] iso = {'Y', 'M'};
 		
 		Double months = 0.0;
@@ -259,10 +259,10 @@ public class OpenEHRConvertor {
 			if(j > 1)
 				break;
 		}
-		if(duration.get(0) != null && duration.get(0) != ""){
+		if(!duration.get(0).equals(null) && !duration.get(0).equals("")){
 			months = (Double.parseDouble(duration.get(0)) * 12);
 		}
-		if(duration.get(1) != null && duration.get(1) != ""){
+		if(!duration.get(1).equals(null) && !duration.get(1).equals("")){
 			months = months + (Double.parseDouble(duration.get(1)));
 		}
 		//months = (Double.parseDouble(duration.get(0)) * 12) + (Double.parseDouble(duration.get(1)));
