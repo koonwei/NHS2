@@ -4,6 +4,7 @@
 package fhirconverter.converter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ public class OpenEHRConvertor {
 		codeMap.put("8302-2", "Height");
 		codeMap.put("39156-5", "BMI");
 		codeMap.put("8287-5", "Head circumference");
+		codeMap.put("37362-1", "XR Bone age");
 		return codeMap;
 	}
 
@@ -50,6 +52,7 @@ public class OpenEHRConvertor {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
+		
 		this.prepareInputJSON(jsonResult);
 		if (jsonResult.has("patientId")) {
 			patientId = jsonResult.optString("patientId");
@@ -84,14 +87,14 @@ public class OpenEHRConvertor {
 	public List<Observation> mapping(JSONObject resultSet, String patientId) throws Exception {
 
 		Map<String, String> codeMap = this.codeMap();
+		resultSet = this.prepareResultSet(resultSet);
 		Iterator<?> jsonKeys = resultSet.keys();
 		Map<String, Observation> obsMap = new HashMap<>();
 		while (jsonKeys.hasNext()) {
 
 			String jsonNode = jsonKeys.next().toString();
 			logger.info("jsonNode = " + jsonNode);
-			jsonNode = jsonNode.replaceFirst("_", "-");
-			String key = jsonNode.substring(0, jsonNode.indexOf("_"));
+			String key = jsonNode.substring(0, jsonNode.lastIndexOf("-"));
 			if (obsMap.containsKey(key)) {
 				this.setParameters(obsMap, resultSet, jsonNode, key);
 			} else {
@@ -127,10 +130,10 @@ public class OpenEHRConvertor {
 
 		QuantityDt quantity = new QuantityDt();
 
-		if (jsonNode.equals(key + "_date")) {
+		if (jsonNode.equals(key + "-date")) {
 			obsMap.get(key).setEffective(new DateTimeDt(resultSet.optString(jsonNode)));
 			logger.info("date of " + key + " = " + resultSet.optString(jsonNode));
-		} else if (jsonNode.equals(key + "_magnitude")) {
+		} else if (jsonNode.equals(key + "-magnitude")) {
 			String magnitude = resultSet.optString(jsonNode);
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			if (magnitude != null && !magnitude.equals("")) {
@@ -138,12 +141,23 @@ public class OpenEHRConvertor {
 				logger.info("magitude of " + key + " = " + resultSet.optDouble(jsonNode));
 				obsMap.get(key).setValue(quantity);
 			}
-		} else if (jsonNode.equals(key + "_units")) {
+		} else if (jsonNode.equals(key + "-units")) {
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			quantity.setCode(resultSet.optString(jsonNode));
 			quantity.setUnit(resultSet.optString(jsonNode));
 			logger.info("units of " + key + " = " + resultSet.optString(jsonNode));
+		} else if (jsonNode.equals(key + "-value")) {
+			String value = resultSet.optString(jsonNode);
+			quantity = (QuantityDt) obsMap.get(key).getValue();
+			if (value != null && !value.equals("")) {
+				quantity.setValue(OpenEHRConvertor.parsePeriodToMonths(value));
+				quantity.setUnit("months");
+				logger.info("value of " + key + " = " + resultSet.optDouble(jsonNode));
+				obsMap.get(key).setValue(quantity);
+			}
+			logger.info("value of " + key + " = " + resultSet.optString(jsonNode));
 		}
+		
 	}
 
 	/**
@@ -180,9 +194,82 @@ public class OpenEHRConvertor {
 	protected JSONObject prepareInputJSON(JSONObject json) throws Exception {
 
 		String jsonString = json.toString().replaceAll("LONIC_", "");
+		logger.info("*** Prepared json *** " + jsonString);
+		JSONObject newJSON = new JSONObject(jsonString);
 		
-		logger.info("*** Prepared json *** /n" + jsonString);
-		JSONObject j = new JSONObject(jsonString);
-		return j;
+		return newJSON;
 	}
+	
+	/**
+	 * 
+	 * @param json
+	 * @return
+	 * @throws Exception
+	 */
+	protected JSONObject prepareResultSet(JSONObject json) throws Exception {
+		
+		String jsonString = json.toString().replaceAll("_", "-");
+		logger.info("*** Prepared resultSet *** " + jsonString);
+		JSONObject newJSON = new JSONObject(jsonString);
+		
+		return newJSON;
+		
+	}
+	
+	/**
+	 * ISO_8601 : As from Wikipedia
+	 * P6Y
+	 * P[n]Y[n]M[n]DT[n]H[n]M[n]S or P[n]W
+	 * 
+	 *  P is the duration designator (for period) placed at the start of the duration representation.
+	 *	Y is the year designator that follows the value for the number of years.
+	 *	M is the month designator that follows the value for the number of months.
+	 *	W is the week designator that follows the value for the number of weeks.
+	 *	D is the day designator that follows the value for the number of days.
+	 *	T is the time designator that precedes the time components of the representation.
+	 *	H is the hour designator that follows the value for the number of hours.
+	 *	M is the minute designator that follows the value for the number of minutes.
+	 *	S is the second designator that follows the value for the number of seconds.
+	 *	For example, "P3Y6M4DT12H30M5S" represents a duration of "three years, six months, four days, twelve hours, thirty minutes, and five seconds".
+	 * 
+	 * This method only parse the period till month, i.e. P[n]Y[n]M anything after M is discarded.
+	 * @param value
+	 * @return
+	 * @throws Exception
+	 */
+	protected static Double parsePeriodToMonths(String value) throws Exception {
+		
+		String period = "";
+		logger.info("value: " + value);
+		if(value.substring(0,1).equalsIgnoreCase("P"))
+			period = value.substring(1);
+
+		char[] p = period.toCharArray();
+		char[] iso = {'Y', 'M'};
+		
+		Double months = 0.0;
+		List<String> duration = new ArrayList<>(Arrays.asList("", ""));
+		
+		int j = 0;
+		for(int i = 0; i < p.length ; i++){
+			if(p[i]!= iso[j]){
+				duration.set(j, duration.get(j)+p[i]);
+			}
+			else
+				j++;
+			if(j > 1)
+				break;
+		}
+		if(duration.get(0) != null && !duration.get(0).equals("")){
+			months = (Double.parseDouble(duration.get(0)) * 12);
+		}
+		if(duration.get(1) != null && !duration.get(1).equals("")){
+			months = months + (Double.parseDouble(duration.get(1)));
+		}
+		//months = (Double.parseDouble(duration.get(0)) * 12) + (Double.parseDouble(duration.get(1)));
+		logger.info(duration.get(0) +" " + duration.get(1));
+		logger.info("Months = " + months);
+		return months;
+	}
+	
 }
