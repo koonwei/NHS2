@@ -104,11 +104,11 @@ public final class Utils{
 		}		
 		return connectionCreds;
 	}	
-	public static org.json.simple.JSONObject readJsonFile(){
+	public static org.json.simple.JSONObject readJsonFile(String fileName){
 		JSONParser parser = new JSONParser();
 		FileReader reader = null;
 		try {
-			reader = new FileReader("aql_path.json");
+			reader = new FileReader(fileName);
 			Object obj = parser.parse(reader);
 			org.json.simple.JSONObject jsonObj = (org.json.simple.JSONObject) obj;	
 			return jsonObj;
