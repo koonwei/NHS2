@@ -48,12 +48,11 @@ Before do |scenario|
 end
 
 After do |scenario|
-  if scenario.name != "Delete a patient"
-    @created_patients.each{
-      |patient|
-      url = server_base + "/Patient/#{patient['id']}"
-      @response = RestClient.delete url, :content_type => :json, :accept => :json
-    }
-  end
-  # stop_server
+    @created_patients.each do |patient|
+        url = server_base + "/Patient/#{patient['id']}"
+        begin
+            @response = RestClient.delete url, :content_type => :json, :accept => :json
+        rescue StandardError => e 
+        end
+    end
 end
