@@ -19,7 +19,7 @@ public class ObservationFHIRTests{
 		ArrayList<String> searchParam = new ArrayList<>();
 		searchParam.add("3141-9");
 		searchParam.add("8302-2");
-//		searchParam.add("37362-1");
+		searchParam.add("37362-1");
 		List<Observation> observations = observationFHIR.search("1", searchParam);	
 		FhirContext ctx = FhirContext.forDstu2();
 		for(Observation observation : observations){

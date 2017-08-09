@@ -1,10 +1,10 @@
-package fhirconverter.pathgenerator;
+package pathgenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import fhirconverter.converter.Utils;
+
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
@@ -74,7 +74,7 @@ public class PathGenerator{
 		return lonicCode;	
 	}
 	private static void writeToJsonFile(JSONObject pathObj){
-		try (FileWriter file = new FileWriter("aql_path.json")) {
+		try (FileWriter file = new FileWriter("../FHIR-MAPPING/aql_path.json")) {
             		file.write(pathObj.toString(3));
  	           	file.flush();
         	} catch (IOException e) {
