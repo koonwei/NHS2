@@ -20,13 +20,13 @@ public class PatientFHIR {
     private Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
 	OpenEMPIConnector caller = new OpenEMPIConnector();
 
-    protected Patient read(String id) throws Exception {
+    public Patient read(String id) throws Exception {
         String result = caller.commonReadPerson(id);
         ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
         return converter.conversion(result).get(0);
     }
 
-    protected List<Patient> search(JSONObject parameters) throws Exception {
+    public List<Patient> search(JSONObject parameters) throws Exception {
         String result = "";
         if((parameters.has("identifier_value"))&&(parameters.has("identifier_domain"))) {
             result = caller.commonSearchPersonById(parameters);
@@ -41,7 +41,7 @@ public class PatientFHIR {
         return patients;
     }
 
-    protected String update(String id, JSONObject patient) throws Exception {
+    public String update(String id, JSONObject patient) throws Exception {
         ConversionFHIRToOpenEmpi converter = new ConversionFHIRToOpenEmpi();
         JSONObject newRecordOpenEMPI = converter.conversionToOpenEMPI(patient);
         newRecordOpenEMPI.put("personId", id);
@@ -80,7 +80,7 @@ public class PatientFHIR {
         return identifier;
     }
 
-    protected String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
+    public String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
         String result = caller.commonReadPerson(id);
         ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 //		JSONObject xmlResults = converterOpenEmpi.conversion(result);
@@ -161,7 +161,7 @@ public class PatientFHIR {
         return replyCreatedNewRecord; // Ask yuan if he wants all the fields or just certain.
     }
 
-    protected String delete(String id) throws Exception {
+    public String delete(String id) throws Exception {
         String result = caller.commonDeletePersonById(id);
         return result;
         //return "";
