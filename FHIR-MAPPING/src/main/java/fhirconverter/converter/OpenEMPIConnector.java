@@ -1,3 +1,15 @@
+/**
+ * ConversionOpenEMPI_to_FHIR
+ * <p>
+ * v2.0
+ * <p>
+ * Date: 13-7-2017
+ * <p>
+ * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Sinha
+ * <p>
+ * Description: This class contains the necessary functions call OpenEMPI APIs.
+ */
+
 package fhirconverter.converter;
 
 import java.io.BufferedReader;
@@ -24,41 +36,30 @@ import fhirconverter.exceptions.ResourceNotFoundException;
  * @author Koon, Shruti Sinha
  *
  */
-public class OpenEMPIbase {
+public class OpenEMPIConnector {
 
     private static String sessionCode;
-    private static final OpenEMPIbase _instance = initialize();
+    private static final OpenEMPIConnector _instance = initialize();
     private String baseURL;
     private String username;
     private String password;
 
-    private static final Logger LOGGER = LogManager.getLogger(OpenEMPIbase.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OpenEMPIConnector.class.getName());
 
     /**
-     * The static method reads config.properties file and initialises the common
+     * The static method getProperties method to initialise the common
      * properties for invoking OpenEMPI like base URL, user name and password
      *
      * @return
      */
-    public static OpenEMPIbase initialize() {
+    public static OpenEMPIConnector initialize() {
 
-        OpenEMPIbase newInstance = new OpenEMPIbase();
+        OpenEMPIConnector newInstance = new OpenEMPIConnector();
         HashMap<String, String> connectionCreds = Utils.getProperties("OpenEMPI");
         newInstance.baseURL = connectionCreds.get("baseURL");
         newInstance.username = connectionCreds.get("username");
         newInstance.password = connectionCreds.get("password");
 
-		/*
-		 * Shruti, can we remove this? try { Properties properties = new
-		 * Properties(); FileReader reader = new
-		 * FileReader("config.properties"); properties.load(reader);
-		 * newInstance.baseURL = properties.getProperty("OpenEMPI-baseURL");
-		 * newInstance.username = properties.getProperty("OpenEMPI-username");
-		 * newInstance.password = properties.getProperty("OpenEMPI-password");
-		 * 
-		 * reader.close(); } catch (FileNotFoundException e) {
-		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
-		 */
         return newInstance;
     }
 
@@ -101,8 +102,7 @@ public class OpenEMPIbase {
      * retrieves person details based on family name, given name, suffix,
      * prefix, gender or date of birth
      *
-     * @param parameters
-     *            : JSONObjects
+     * @param parameters: JSONObject
      * @return String in XML format: person details
      * @throws Exception
      */
@@ -129,7 +129,7 @@ public class OpenEMPIbase {
 		 * with name as givenName, suffix and prefix and the three responses are
 		 * combined and checked to remove any duplicate entries.
 		 */
-        String[] name = new String[] { "givenName", "suffix", "prefix" };
+        String[] name = new String[]{"givenName", "suffix", "prefix"};
         try {
             for (int i = 0; i < name.length; i++) {
 
@@ -148,22 +148,22 @@ public class OpenEMPIbase {
                 }
                 if (parameters.has("gender")) {
                     gender = parameters.getString("gender");
-                    if(("female").equals(gender))
+                    if (("female").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>F</genderCode>"
                                 + "</gender>";
-                    else if(("male").equals(gender))
+                    else if (("male").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>M</genderCode>"
                                 + "</gender>";
-                    else if(("unknown").equals(gender))
+                    else if (("unknown").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
-                                +  "<genderCode>U</genderCode>"
+                                + "<genderCode>U</genderCode>"
                                 + "</gender>";
-                    else if(("other").equals(gender))
+                    else if (("other").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>O</genderCode>"
@@ -209,8 +209,7 @@ public class OpenEMPIbase {
      * This methods invokes findPersonById API of OpenEMPI and retrieves person
      * details based on identifier
      *
-     * @param parameters
-     *            : JSONObjects
+     * @param parameters: JSONObjects
      * @return String in XML format: person details
      * @throws Exception
      */
@@ -231,7 +230,7 @@ public class OpenEMPIbase {
 
         String identifier = parameters.getString("identifier_value");
         String identifierDomainName = parameters.getString("identifier_domain");
-        String payload = "	<personIdentifier>" + "<identifier>" + identifier + "</identifier>" + "<identifierDomain>"
+        String payload = "  <personIdentifier>" + "<identifier>" + identifier + "</identifier>" + "<identifierDomain>"
                 + "<identifierDomainName>" + identifierDomainName + "</identifierDomainName>"
                 + "</identifierDomain> </personIdentifier>";
 
@@ -257,16 +256,15 @@ public class OpenEMPIbase {
      * This methods invokes loadPerson API of OpenEMPI and retrieves person
      * details based on personId
      *
-     * @param parameter:
-     *            personId
+     * @param personId: String
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String loadPerson(String parameter) throws Exception {
+    public String loadPerson(String personId) throws Exception {
 
         getSessionCode();
 
-        int id = Integer.parseInt(parameter);
+        int id = Integer.parseInt(personId);
 
         URL url = new URL(
                 _instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/loadPerson?personId=" + id);
@@ -295,17 +293,16 @@ public class OpenEMPIbase {
      * This methods calls loadPerson() method and retrieves person
      * details based on personId
      *
-     * @param parameter:
-     *            personId
+     * @param personId: String
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String commonReadPerson(String parameter) throws Exception {
+    public String commonReadPerson(String personId) throws Exception {
 
         try {
-            String response = this.loadPerson(parameter);
+            String response = this.loadPerson(personId);
             LOGGER.debug("*** Method: commonReadPerson Response: " + response + " ***");
-            if (response.equals("")) {
+            if (("").equals(response)) {
                 throw new ResourceNotFoundException("Resource Not Found");
             }
             return response;
@@ -319,14 +316,14 @@ public class OpenEMPIbase {
      * This methods invokes updatePersonById API of OpenEMPI and updates person
      * details
      *
-     * @param parameters:
-     *            person element in XML string format
+     * @param parameters: person element in XML string format
      * @return String in XML format: person details
      * @throws Exception
      */
     public String commonUpdatePerson(String parameters) throws Exception {
 
         getSessionCode();
+        String updateParameter = parameters;
         String returnString = "Updated";
         String personId = "";
         if (!parameters.isEmpty() && parameters.contains("<personId>")) {
@@ -334,16 +331,16 @@ public class OpenEMPIbase {
         }
         String loadPersonId = this.loadPerson(personId);
         try {
-            if (loadPersonId == null || loadPersonId.equals("") ) {
+            if (loadPersonId == null || loadPersonId.equals("")) {
                 returnString = "Created";
                 if (parameters.contains("OpenEMPI") || parameters.contains("openEMPI")
                         || parameters.contains("openempi"))
-                    parameters = this.removeOpenEMPIIdentifier(parameters);
+                    updateParameter = this.removeOpenEMPIIdentifier(parameters);
             } else {
                 this.commonRemovePersonById(personId);
                 returnString = "Updated";
             }
-            this.commonAddPerson(parameters);
+            this.commonAddPerson(updateParameter);
             return returnString;
         } catch (Exception ex) {
             throw new ResourceNotCreatedException("Resource Not Created/Updated");
@@ -355,14 +352,14 @@ public class OpenEMPIbase {
      * This method invokes addPerson API of OpenEMPI to create a new patient
      * record
      *
-     * @param parameters:
-     *            person element in XML string format
+     * @param parameters: person element in XML string format
      * @return newly created person element in XML string format
      * @throws Exception
      */
     public String commonAddPerson(String parameters) throws Exception {
 
         getSessionCode();
+        String addParameters = parameters;
         URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addPerson");
         HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
         hurl.setRequestMethod("PUT");
@@ -375,15 +372,11 @@ public class OpenEMPIbase {
             this.addIdentifier(newIdentifierDomainList);
         }
         if (parameters.contains("OpenEMPI")) {
-            parameters = this.removeOpenEMPIIdentifier(parameters);
+            addParameters = this.removeOpenEMPIIdentifier(parameters);
         }
-		/*
-		 * if (parameters.contains("NHS") ||
-		 * parameters.contains("https://fhir.nhs.uk/Id/nhs-number")) {}
-		 */
 
         OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-        osw.write(parameters);
+        osw.write(addParameters);
         osw.flush();
         osw.close();
         String response = "";
@@ -444,7 +437,7 @@ public class OpenEMPIbase {
      * identifier details
      *
      * @param identifiersList:
-     *            String
+     *
      * @return String: newly created identifier details
      * @throws Exception
      */
@@ -497,7 +490,7 @@ public class OpenEMPIbase {
      * the person details and then calls the deletePersonById API with the
      * person details and delete the person form OpenEMPI
      *
-     * @param parameters
+     * @param parameters: String
      * @return String: Successful if delete is successful otherwise throws
      *         ResourceNotFoundException
      * @throws Exception
@@ -530,7 +523,7 @@ public class OpenEMPIbase {
             while ((line = in.readLine()) != null) {
                 response += line;
             }
-            if (response == "") {
+            if (("").equals(response)) {
                 LOGGER.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
                 return "Delete Successful";
             } else
@@ -583,9 +576,9 @@ public class OpenEMPIbase {
 
     /**
      *
-     * @param firstRecord
-     * @param maxRecords
-     * @return String
+     * @param firstRecord: Integer
+     * @param maxRecords: Integer
+     * @return String in XML format
      * @throws Exception
      */
     public String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
@@ -608,7 +601,7 @@ public class OpenEMPIbase {
                 response += line;
             }
             LOGGER.debug("*** Method: loadAllPerson Response:" + response + "***");
-            if (response == "") {
+            if (("").equals(response)) {
                 throw new ResourceNotFoundException("Resource Not Found");
             }
             return response;
@@ -619,7 +612,7 @@ public class OpenEMPIbase {
 
     /**
      *
-     * @return String
+     * @return String in XML format
      * @throws Exception
      */
     public String loadAllPersons() throws Exception {
@@ -636,6 +629,7 @@ public class OpenEMPIbase {
      */
     protected String removeOpenEMPIIdentifier(String parameters) {
 
+        String afterRemove = parameters;
         JSONObject jsonFromXML = XML.toJSONObject(parameters);
         if (jsonFromXML.has("person")) {
             JSONObject person = jsonFromXML.optJSONObject("person");
@@ -667,8 +661,8 @@ public class OpenEMPIbase {
                 }
             }
         }
-        parameters = XML.toString(jsonFromXML);
-        return parameters;
+        afterRemove = XML.toString(jsonFromXML);
+        return afterRemove;
 
     }
 

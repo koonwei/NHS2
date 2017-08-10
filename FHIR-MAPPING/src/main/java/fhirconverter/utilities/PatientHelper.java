@@ -5,7 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-import fhirconverter.converter.OpenEMPIbase;
+import fhirconverter.converter.OpenEMPIConnector;
 import fhirconverter.exceptions.IdNotObtainedException;
 import fhirconverter.exceptions.OpenEMPISchemeNotMetException;
 
@@ -16,7 +16,7 @@ public class PatientHelper {
 	public String retrieveNHSbyId(String id) throws Exception {
 		String nhsIdentifier = "";
 		
-		OpenEMPIbase caller = new OpenEMPIbase();
+		OpenEMPIConnector caller = new OpenEMPIConnector();
 		String patientXML = caller.commonReadPerson(id);
 		
 		JSONObject xmlJSONObj = XML.toJSONObject(patientXML);

@@ -50,7 +50,7 @@ public class PatientTestCases{
 		//JSONObject resultSearch = obtained_object.getJSONArray("entry").getJSONObject(0).getJSONObject("resource");
 		obtained_object.remove("id");
 		obtained_object.remove("meta");					
-        	OpenEMPIbase delete = new OpenEMPIbase();
+        	OpenEMPIConnector delete = new OpenEMPIConnector();
 		System.out.println(newRecordID+ "FOCUS HERE");
         	delete.commonRemovePersonById(newRecordID);
         	Assert.assertEquals("Search operation failed \n",expected.toString(), obtained_object.toString());
@@ -58,7 +58,7 @@ public class PatientTestCases{
 	@Test
 	public void testPatientUpdate() throws ResourceNotFoundException, Exception {
 		PatientFHIR tester = new PatientFHIR();	
-        	OpenEMPIbase delete = new OpenEMPIbase();
+        	OpenEMPIConnector delete = new OpenEMPIConnector();
 		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
 		JSONObject patient = new JSONObject(fhirResource.toString());
   		String newRecordID = tester.create(patient);
@@ -76,7 +76,7 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		OpenEMPIbase delete = new OpenEMPIbase();
+		OpenEMPIConnector delete = new OpenEMPIConnector();
 		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
 		JSONObject patient = new JSONObject(fhirResource.toString());
   		String newRecordID = tester.create(patient);
@@ -93,7 +93,7 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		OpenEMPIbase delete = new OpenEMPIbase();
+		OpenEMPIConnector delete = new OpenEMPIConnector();
 		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
 		JSONObject patient = new JSONObject(fhirResource.toString());
   		String newRecordID = tester.create(patient);
@@ -110,7 +110,7 @@ public class PatientTestCases{
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode patchNode = mapper.readTree(jsonPatchTest);
 		final JsonPatch patch = JsonPatch.fromJson(patchNode);
-		OpenEMPIbase delete = new OpenEMPIbase();
+		OpenEMPIConnector delete = new OpenEMPIConnector();
 		JsonNode fhirResource = JsonLoader.fromPath("resource/ResourceFHIR.json");		
 		JSONObject patient = new JSONObject(fhirResource.toString());
   		String newRecordID = tester.create(patient);

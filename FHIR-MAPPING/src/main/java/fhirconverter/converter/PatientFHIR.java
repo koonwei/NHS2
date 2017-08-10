@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PatientFHIR {
     private Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
-    private OpenEMPIbase caller = new OpenEMPIbase();
+	OpenEMPIConnector caller = new OpenEMPIConnector();
 
     protected Patient read(String id) throws Exception {
         String result = caller.commonReadPerson(id);

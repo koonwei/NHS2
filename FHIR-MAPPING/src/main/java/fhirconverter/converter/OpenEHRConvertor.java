@@ -87,8 +87,8 @@ public class OpenEHRConvertor {
 	public List<Observation> mapping(JSONObject resultSet, String patientId) throws Exception {
 
 		Map<String, String> codeMap = this.codeMap();
-		resultSet = this.prepareResultSet(resultSet);
-		Iterator<?> jsonKeys = resultSet.keys();
+		JSONObject newResultSet = this.prepareResultSet(resultSet);
+		Iterator<?> jsonKeys = newResultSet.keys();
 		Map<String, Observation> obsMap = new HashMap<>();
 		while (jsonKeys.hasNext()) {
 
@@ -96,7 +96,7 @@ public class OpenEHRConvertor {
 			logger.info("jsonNode = " + jsonNode);
 			String key = jsonNode.substring(0, jsonNode.lastIndexOf("-"));
 			if (obsMap.containsKey(key)) {
-				this.setParameters(obsMap, resultSet, jsonNode, key);
+				this.setParameters(obsMap, newResultSet, jsonNode, key);
 			} else {
 				Observation observation = new Observation();
 				logger.info("Adding new Observation for key  = " + key);
@@ -106,11 +106,10 @@ public class OpenEHRConvertor {
 				quantity.setValue(0.0);
 				quantity.setUnit("");
 				quantity.setCode("");
-				quantity.setSystem("http://unitsofmeasure.org");
 				observation.setValue(quantity);
 				observation.getSubject().setReference(patientId);
 				obsMap.put(key, observation);
-				this.setParameters(obsMap, resultSet, jsonNode, key);
+				this.setParameters(obsMap, newResultSet, jsonNode, key);
 			}
 		}
 		return this.getObservationList(obsMap);
@@ -266,8 +265,6 @@ public class OpenEHRConvertor {
 		if(duration.get(1) != null && !duration.get(1).equals("")){
 			months = months + (Double.parseDouble(duration.get(1)));
 		}
-		//months = (Double.parseDouble(duration.get(0)) * 12) + (Double.parseDouble(duration.get(1)));
-		logger.info(duration.get(0) +" " + duration.get(1));
 		logger.info("Months = " + months);
 		return months;
 	}
