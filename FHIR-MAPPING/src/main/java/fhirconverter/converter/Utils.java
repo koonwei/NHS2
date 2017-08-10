@@ -2,12 +2,7 @@ package fhirconverter.converter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.XML;
@@ -57,7 +52,7 @@ public final class Utils{
 
 	/**
 	 * This method removes duplicate person records and makes the response readable by XML parser
-	 * @param finalresponse
+	 * @param response
 	 */
 	public static String removeDuplicateRecords(String response) {
 		
@@ -155,5 +150,26 @@ public final class Utils{
 			}
 		}
 		return identifierList;
+	}
+
+	public static Map<String, String> convertIdentifiersToHash(String identifierDomainsXml) {
+
+		Map<String, String> identifierHash = new HashMap<>();
+
+		JSONObject jsonFromXML = XML.toJSONObject(identifierDomainsXml);
+		if (jsonFromXML.has("identifierDomains")) {
+
+			JSONObject identifierDomainObj = jsonFromXML.optJSONObject("identifierDomains");
+			JSONArray identifierDomains = identifierDomainObj.optJSONArray("identifierDomain");
+			for (int i = 0; i < identifierDomains.length(); i++) {
+				JSONObject identifierDomain = identifierDomains.getJSONObject(i);
+				if (identifierDomain.has("identifierDomainName")) {
+					String identifierDomainName = identifierDomain.optString("identifierDomainName");
+					String identifierDomainId = identifierDomain.optString("identifierDomainId");
+					identifierHash.put(identifierDomainName, identifierDomainId);
+				}
+			}
+		}
+		return identifierHash;
 	}
 }
