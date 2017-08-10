@@ -19,7 +19,7 @@ public class ObservationFHIR{
 		String domainName = "openEhrApi";
 		LOGGER.info("nhsNumber" + nhsNumber);
 		OpenEHRConnector openEHRconnector = new OpenEHRConnector(domainName); // Future developers, Note this line of code is placed here to be thread safe.		
-		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile();
+		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile("aql_path.json");
 		JSONObject aqlJSONObj =  new JSONObject(aqlPaths.toString());
 		LOGGER.info(aqlJSONObj.toString(3));
 		String ehrNumber = openEHRconnector.getEHRIdByNhsNumber(nhsNumber);		
@@ -27,10 +27,9 @@ public class ObservationFHIR{
 		String aqlQuery = constructDynamicAQLquery(ehrNumber,aqlFilteredObj, searchParams);
 		JSONObject observationObj = openEHRconnector.getObservations(aqlQuery);
 		LOGGER.info(observationObj.toString(3));
-	//	LOGGER.info("observationObj " + observationObj.toString(3));
-	//	OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
-	//	return openEHRconvertor.jSONToObservation(observationObj);
-		return null;
+		LOGGER.info("observationObj " + observationObj.toString(3));
+		OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
+		return openEHRconvertor.jsonToObservation(observationObj);
 	}
 	protected String constructDynamicAQLquery(String ehrNumber, JSONObject aqlFilteredObj, ArrayList<String> searchParams){
 		String selectString = "select";
@@ -63,7 +62,7 @@ public class ObservationFHIR{
 				filteredPath.put(searchParam, aqlPaths.getJSONObject(searchParam));
 			}
 		}
-		LOGGER.info(filteredPath.toString(3));
+		LOGGER.info("FILTERED"+filteredPath.toString(3));
 		return filteredPath;
 	}
 	protected String constructSelectStatement(String aqlFilteredKey, JSONObject pathObj, String archetypeIdentifier){

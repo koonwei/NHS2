@@ -55,7 +55,7 @@ public class PatientHelper {
 		String identifier = "";
 		if(identifierObject.has("identifierDomain")) {
 			String domainName = identifierObject.getJSONObject("identifierDomain").optString("identifierDomainName");
-			if("NHS".equals(domainName)) {
+			if(domainName.toLowerCase().contains("nhs")) {
 				identifier = identifierObject.optString("identifier");
 			}			
 		}		

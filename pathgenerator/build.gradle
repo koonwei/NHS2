@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'pathgenerator.PathGenerator'
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    testCompile "junit:junit:4.11"
+    compile group: 'org.json', name: 'json', version: '20160810'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'	
+    compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.4'
+    compile 'io.sentry:sentry-log4j2:1.2.2'
+    compile 'io.sentry:sentry-logback:1.2.2'
+    compile group: 'javax.xml.parsers', name: 'jaxp-api', version: '1.4.5'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+}
+
+
+
+
