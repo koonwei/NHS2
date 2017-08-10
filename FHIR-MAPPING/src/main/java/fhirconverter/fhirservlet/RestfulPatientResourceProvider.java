@@ -16,7 +16,7 @@ import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import ca.uhn.fhir.rest.server.exceptions.MethodNotAllowedException;
 import com.github.fge.jsonpatch.JsonPatch;
-import fhirconverter.converter.ConverterOpenempi;
+import fhirconverter.converter.PatientFHIR;
 import fhirconverter.exceptions.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +24,6 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RestfulPatientResourceProvider implements IResourceProvider {
@@ -32,7 +31,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
     private static FHIRParser<Patient> parser = new FHIRParser<>(Patient.class);
 
-    private ConverterOpenempi converterOpenempi = new ConverterOpenempi();
+    private PatientFHIR patientFHIR = new PatientFHIR();
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -51,7 +50,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             LOGGER.info(jsonStringPatient);
             JSONObject resource = new JSONObject(jsonStringPatient);
 
-            String reply = converterOpenempi.patientCreate(resource);
+            String reply = patientFHIR.create(resource);
             retVal.setId(new IdDt("Patient", reply, "1"));
             return retVal;
         } catch (DataFormatException | ClassCastException e) {
@@ -74,7 +73,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
 
         try {
-            List<Patient> reply = converterOpenempi.patientSearch(new JSONObject());
+            List<Patient> reply = patientFHIR.search(new JSONObject());
 
             return reply;
         } catch (Exception e) {
@@ -120,7 +119,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             LOGGER.info("Identifiers: " + identifierToken);
 
 
-            List<Patient> patients = converterOpenempi.patientSearch(searchParams);
+            List<Patient> patients = patientFHIR.search(searchParams);
             return patients;
         } catch (DataFormatException e) {
             LOGGER.info("Invalid Parameter Received", e);
@@ -138,7 +137,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
         try {
 
             patientId.getIdPartAsLong();
-            Patient reply = converterOpenempi.patientRead(patientId.getIdPart());
+            Patient reply = patientFHIR.read(patientId.getIdPart());
 //            Patient patient = (Patient) FhirContext.forDstu2().newJsonParser().parseResource(reply.toString());
 
             return reply;
@@ -168,7 +167,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             patientId.getIdPartAsLong();
             String jsonStringPatient = FhirContext.forDstu2().newJsonParser().encodeResourceToString(patient);
             JSONObject resource = new JSONObject(jsonStringPatient);
-            String reply = converterOpenempi.patientUpdate(patientId.getIdPart(), resource);
+            String reply = patientFHIR.update(patientId.getIdPart(), resource);
 
 //            if(reply.equals("Created"))
 //                response.status(201);
@@ -210,7 +209,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             if (patchType == PatchTypeEnum.XML_PATCH) {
                 throw new DataFormatException();
             }
-            String reply = converterOpenempi.patientPatch(patientId.getIdPart(), patch);
+            String reply = patientFHIR.patch(patientId.getIdPart(), patch);
 //            retVal.getText().setDiv(reply);
             return retVal;
         } catch (DataFormatException e) {
@@ -240,7 +239,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
         try {
             patientId.getIdPartAsLong();
-            String reply = converterOpenempi.patientDelete(patientId.getIdPart());
+            String reply = patientFHIR.delete(patientId.getIdPart());
             return;
         } catch (NumberFormatException e) {
             LOGGER.info("Unacceptable id " + patientId.getIdPart(), e);

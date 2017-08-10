@@ -14,12 +14,12 @@ public class ObservationFHIR{
 	private PatientHelper patientHelper = new PatientHelper();
 	private Logger LOGGER = LogManager.getLogger(ObservationFHIR.class);
 
-	protected List<Observation> search(String patientId, ArrayList<String> searchParams) throws Exception{ 
+	public List<Observation> search(String patientId, ArrayList<String> searchParams) throws Exception{
 		String nhsNumber = patientHelper.retrieveNHSbyId(patientId);
 		String domainName = "openEhrApi";
 		LOGGER.info("nhsNumber" + nhsNumber);
 		OpenEHRConnector openEHRconnector = new OpenEHRConnector(domainName); // Future developers, Note this line of code is placed here to be thread safe.		
-		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile();
+		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile("aql_path.json");
 		JSONObject aqlJSONObj =  new JSONObject(aqlPaths.toString());
 		LOGGER.info(aqlJSONObj.toString(3));
 		String ehrNumber = openEHRconnector.getEHRIdByNhsNumber(nhsNumber);		
@@ -27,12 +27,14 @@ public class ObservationFHIR{
 		String aqlQuery = constructDynamicAQLquery(ehrNumber,aqlFilteredObj, searchParams);
 		JSONObject observationObj = openEHRconnector.getObservations(aqlQuery);
 		LOGGER.info(observationObj.toString(3));
-	//	LOGGER.info("observationObj " + observationObj.toString(3));
-	//	OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
-	//	return openEHRconvertor.jSONToObservation(observationObj);
-		return null;
+		LOGGER.info("observationObj " + observationObj.toString(3));
+        observationObj.put("patientId", patientId);
+		OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
+        LOGGER.info(openEHRconvertor.jsonToObservation(observationObj));
+		return openEHRconvertor.jsonToObservation(observationObj);
 	}
-	protected String constructDynamicAQLquery(String ehrNumber, JSONObject aqlFilteredObj, ArrayList<String> searchParams){
+
+	private String constructDynamicAQLquery(String ehrNumber, JSONObject aqlFilteredObj, ArrayList<String> searchParams){
 		String selectString = "select";
 		String fromString = " from EHR [ehr_id/value='"+ehrNumber+"'] contains COMPOSITION c" ;
 		String containmentString = " contains (";
@@ -56,17 +58,19 @@ public class ObservationFHIR{
 		LOGGER.info("Select statement "+ constructedAQLString); 
 		return constructedAQLString;	
 	}
-	protected JSONObject filterPathsByParams(JSONObject aqlPaths, ArrayList<String> searchParams){
+
+	private JSONObject filterPathsByParams(JSONObject aqlPaths, ArrayList<String> searchParams){
 		JSONObject filteredPath = new JSONObject();
 		for(String searchParam : searchParams){
 			if(aqlPaths.has(searchParam)){
 				filteredPath.put(searchParam, aqlPaths.getJSONObject(searchParam));
 			}
 		}
-		LOGGER.info(filteredPath.toString(3));
+		LOGGER.info("FILTERED"+filteredPath.toString(3));
 		return filteredPath;
 	}
-	protected String constructSelectStatement(String aqlFilteredKey, JSONObject pathObj, String archetypeIdentifier){
+
+	private String constructSelectStatement(String aqlFilteredKey, JSONObject pathObj, String archetypeIdentifier){
 		Set keys = pathObj.keySet();
 		String selectString = "";
    		Iterator a = keys.iterator();
@@ -78,7 +82,8 @@ public class ObservationFHIR{
 		}
 		return selectString;		
 	}
-	protected String constructContainmentStatement(String archetypeIdentifier, String archetypeString){
+
+	private String constructContainmentStatement(String archetypeIdentifier, String archetypeString){
 		String containmentStatementString = " OBSERVATION "+archetypeIdentifier+"["+archetypeString+"] or";
 		return containmentStatementString;
 	}

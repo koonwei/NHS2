@@ -8,7 +8,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 
-import fhirconverter.converter.OpenEMPIbase;
+import fhirconverter.converter.OpenEMPIConnector;
 import fhirconverter.converter.PatientFHIR;
 import fhirconverter.exceptions.IdNotObtainedException;
 import fhirconverter.exceptions.ResourceNotFoundException;
@@ -26,7 +26,7 @@ public class PatientHelperTests {
 		PatientHelper helper = new PatientHelper();
 		String nhsIdentifier = helper.retrieveNHSbyId(newRecordID);		
 		
-		OpenEMPIbase remove = new OpenEMPIbase();
+		OpenEMPIConnector remove = new OpenEMPIConnector();
 		remove.commonRemovePersonById(newRecordID);
 		
 		assertTrue("NHS is correct: ", ("65498798126459873232897".equals(nhsIdentifier)));		
@@ -46,7 +46,7 @@ public class PatientHelperTests {
 		try{
 			String nhsIdentifier = helper.retrieveNHSbyId(newRecordID);		
 		}finally{
-			OpenEMPIbase remove = new OpenEMPIbase();
+			OpenEMPIConnector remove = new OpenEMPIConnector();
 			remove.commonRemovePersonById(newRecordID);
 		}		
 

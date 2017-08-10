@@ -1,0 +1,147 @@
+{
+    "resourceType": "Bundle",
+    "id": "670245f3-3aa5-4173-b481-9f000f2a72e2",
+    "meta": {
+        "lastUpdated": "2017-08-08T16:37:16.303+00:00"
+    },
+    "type": "searchset",
+    "total": 5,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:8090/fhir/Observation?_format=json&code=3141-9%2C8302-2%2C8287-5%2C58941-6&patient=2"
+        }
+    ],
+    "entry": [
+        {
+            "fullUrl": "http://localhost:8090/fhir/Observation/70709213",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "70709213",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "3141-9"
+                        }
+                    ],
+                    "text": "weight"
+                },
+                "subject": {
+                    "reference": "2"
+                },
+                "effectiveDateTime": "1957-01-01T02:20:00Z",
+                "valueQuantity": {
+                    "value": 10,
+                    "unit": "kg",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "kg"
+                }
+            }
+        },
+        {
+            "fullUrl": "http://localhost:8090/fhir/Observation/-2132626906",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "-2132626906",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "8302-2"
+                        }
+                    ],
+                    "text": "height"
+                },
+                "subject": {
+                    "reference": "2"
+                },
+                "effectiveDateTime": "1957-01-01T02:20:00Z",
+                "valueQuantity": {
+                    "value": 90,
+                    "unit": "cm",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "cm"
+                }
+            }
+        },
+        {
+            "fullUrl": "http://localhost:8090/fhir/Observation/-95189524",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "-95189524",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "3141-9"
+                        }
+                    ],
+                    "text": "weight"
+                },
+                "subject": {
+                    "reference": "2"
+                },
+                "effectiveDateTime": "1957-12-01T02:20:00Z",
+                "valueQuantity": {
+                    "value": 15,
+                    "unit": "kg",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "kg"
+                }
+            }
+        },
+        {
+            "fullUrl": "http://localhost:8090/fhir/Observation/-1948876370",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "-1948876370",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "8302-2"
+                        }
+                    ],
+                    "text": "height"
+                },
+                "subject": {
+                    "reference": "2"
+                },
+                "effectiveDateTime": "1957-12-01T02:20:00Z",
+                "valueQuantity": {
+                    "value": 95,
+                    "unit": "cm",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "cm"
+                }
+            }
+        },
+        {
+            "fullUrl": "http://localhost:8090/fhir/Observation/1330726391",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "1330726391",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "39156-5"
+                        }
+                    ],
+                    "text": "bmi"
+                },
+                "subject": {
+                    "reference": "2"
+                },
+                "effectiveDateTime": "1957-04-02T18:00:00Z",
+                "valueQuantity": {
+                    "value": 21.15,
+                    "unit": "kg/m2",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "kg/m2"
+                }
+            }
+        }
+    ]
+}

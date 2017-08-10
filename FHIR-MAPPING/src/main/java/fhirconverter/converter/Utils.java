@@ -2,12 +2,7 @@ package fhirconverter.converter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.XML;
@@ -57,15 +52,16 @@ public final class Utils{
 
 	/**
 	 * This method removes duplicate person records and makes the response readable by XML parser
-	 * @param finalresponse
+	 * @param response
 	 */
 	public static String removeDuplicateRecords(String response) {
 		
-		response = response.replaceAll("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "\t");
-		response = response.replaceAll("<people>", "\n");
-		response = response.replaceAll("</people>", "\n");
-		response = response.replaceAll("</person>", "</person>\n");
-		String[] people = response.split("\n");
+		String newResponse = response;
+		newResponse = newResponse.replaceAll("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "\t");
+		newResponse = newResponse.replaceAll("<people>", "\n");
+		newResponse = newResponse.replaceAll("</people>", "\n");
+		newResponse = newResponse.replaceAll("</person>", "</person>\n");
+		String[] people = newResponse.split("\n");
 
 		Set<String> set = new HashSet<String>();
 		for(int i = 0; i < people.length; i++){
@@ -104,11 +100,11 @@ public final class Utils{
 		}		
 		return connectionCreds;
 	}	
-	public static org.json.simple.JSONObject readJsonFile(){
+	public static org.json.simple.JSONObject readJsonFile(String fileName){
 		JSONParser parser = new JSONParser();
 		FileReader reader = null;
 		try {
-			reader = new FileReader("aql_path.json");
+			reader = new FileReader(fileName);
 			Object obj = parser.parse(reader);
 			org.json.simple.JSONObject jsonObj = (org.json.simple.JSONObject) obj;	
 			return jsonObj;
@@ -155,5 +151,26 @@ public final class Utils{
 			}
 		}
 		return identifierList;
+	}
+
+	public static Map<String, String> convertIdentifiersToHash(String identifierDomainsXml) {
+
+		Map<String, String> identifierHash = new HashMap<>();
+
+		JSONObject jsonFromXML = XML.toJSONObject(identifierDomainsXml);
+		if (jsonFromXML.has("identifierDomains")) {
+
+			JSONObject identifierDomainObj = jsonFromXML.optJSONObject("identifierDomains");
+			JSONArray identifierDomains = identifierDomainObj.optJSONArray("identifierDomain");
+			for (int i = 0; i < identifierDomains.length(); i++) {
+				JSONObject identifierDomain = identifierDomains.getJSONObject(i);
+				if (identifierDomain.has("identifierDomainName")) {
+					String identifierDomainName = identifierDomain.optString("identifierDomainName");
+					String identifierDomainId = identifierDomain.optString("identifierDomainId");
+					identifierHash.put(identifierDomainName, identifierDomainId);
+				}
+			}
+		}
+		return identifierHash;
 	}
 }
