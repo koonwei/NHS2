@@ -20,6 +20,7 @@ import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.resource.Observation;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 
+import java.util.concurrent.ThreadLocalRandom;
 /**
  * @author Shruti Sinha
  *
@@ -52,7 +53,7 @@ public class OpenEHRConvertor {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
-		
+	    logger.info(jsonResult.toString(3));	
 		this.prepareInputJSON(jsonResult);
 		if (jsonResult.has("patientId")) {
 			patientId = jsonResult.optString("patientId");
@@ -108,6 +109,7 @@ public class OpenEHRConvertor {
 				quantity.setCode("");
 				observation.setValue(quantity);
 				observation.getSubject().setReference(patientId);
+                observation.setId(String.valueOf(ThreadLocalRandom.current().nextInt()));
 				obsMap.put(key, observation);
 				this.setParameters(obsMap, newResultSet, jsonNode, key);
 			}
