@@ -1,14 +1,13 @@
 /**
  * ConversionOpenEMPI_to_FHIR
- *
+ * <p>
  * v2.0
- *
+ * <p>
  * Date: 13-7-2017
- *
+ * <p>
  * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Sinha
- *
+ * <p>
  * Description: This class contains the necessary functions call OpenEMPI APIs.
- *
  */
 
 package fhirconverter.converter;
@@ -40,7 +39,7 @@ import fhirconverter.exceptions.ResourceNotFoundException;
 public class OpenEMPIConnector {
 
     private static String sessionCode;
-	private static final OpenEMPIConnector _instance = initialize();
+    private static final OpenEMPIConnector _instance = initialize();
     private String baseURL;
     private String username;
     private String password;
@@ -48,14 +47,14 @@ public class OpenEMPIConnector {
     private static final Logger LOGGER = LogManager.getLogger(OpenEMPIConnector.class.getName());
 
     /**
-	 * The static method getProperties method to initialise the common
+     * The static method getProperties method to initialise the common
      * properties for invoking OpenEMPI like base URL, user name and password
      *
      * @return
      */
-	public static OpenEMPIConnector initialize() {
+    public static OpenEMPIConnector initialize() {
 
-		OpenEMPIConnector newInstance = new OpenEMPIConnector();
+        OpenEMPIConnector newInstance = new OpenEMPIConnector();
         HashMap<String, String> connectionCreds = Utils.getProperties("OpenEMPI");
         newInstance.baseURL = connectionCreds.get("baseURL");
         newInstance.username = connectionCreds.get("username");
@@ -103,7 +102,7 @@ public class OpenEMPIConnector {
      * retrieves person details based on family name, given name, suffix,
      * prefix, gender or date of birth
      *
-	 * @param JSONObject: parameters
+     * @param parameters: JSONObject
      * @return String in XML format: person details
      * @throws Exception
      */
@@ -130,7 +129,7 @@ public class OpenEMPIConnector {
 		 * with name as givenName, suffix and prefix and the three responses are
 		 * combined and checked to remove any duplicate entries.
 		 */
-        String[] name = new String[] { "givenName", "suffix", "prefix" };
+        String[] name = new String[]{"givenName", "suffix", "prefix"};
         try {
             for (int i = 0; i < name.length; i++) {
 
@@ -149,22 +148,22 @@ public class OpenEMPIConnector {
                 }
                 if (parameters.has("gender")) {
                     gender = parameters.getString("gender");
-                    if(("female").equals(gender))
+                    if (("female").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>F</genderCode>"
                                 + "</gender>";
-                    else if(("male").equals(gender))
+                    else if (("male").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>M</genderCode>"
                                 + "</gender>";
-                    else if(("unknown").equals(gender))
+                    else if (("unknown").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
-                                +  "<genderCode>U</genderCode>"
+                                + "<genderCode>U</genderCode>"
                                 + "</gender>";
-                    else if(("other").equals(gender))
+                    else if (("other").equals(gender))
                         payload = payload + "<gender>"
                                 + "<genderName>" + gender + "</genderName>"
                                 + "<genderCode>O</genderCode>"
@@ -210,7 +209,7 @@ public class OpenEMPIConnector {
      * This methods invokes findPersonById API of OpenEMPI and retrieves person
      * details based on identifier
      *
-	 * @param JSONObjects: parameters
+     * @param parameters: JSONObjects
      * @return String in XML format: person details
      * @throws Exception
      */
@@ -231,7 +230,7 @@ public class OpenEMPIConnector {
 
         String identifier = parameters.getString("identifier_value");
         String identifierDomainName = parameters.getString("identifier_domain");
-        String payload = "	<personIdentifier>" + "<identifier>" + identifier + "</identifier>" + "<identifierDomain>"
+        String payload = "  <personIdentifier>" + "<identifier>" + identifier + "</identifier>" + "<identifierDomain>"
                 + "<identifierDomainName>" + identifierDomainName + "</identifierDomainName>"
                 + "</identifierDomain> </personIdentifier>";
 
@@ -257,15 +256,15 @@ public class OpenEMPIConnector {
      * This methods invokes loadPerson API of OpenEMPI and retrieves person
      * details based on personId
      *
-	 * @param String : personId
+     * @param personId: String
      * @return String in XML format: person details
      * @throws Exception
      */
-	public String loadPerson(String personId) throws Exception {
+    public String loadPerson(String personId) throws Exception {
 
         getSessionCode();
 
-		int id = Integer.parseInt(personId);
+        int id = Integer.parseInt(personId);
 
         URL url = new URL(
                 _instance.baseURL + "openempi-admin/openempi-ws-rest/person-query-resource/loadPerson?personId=" + id);
@@ -294,17 +293,16 @@ public class OpenEMPIConnector {
      * This methods calls loadPerson() method and retrieves person
      * details based on personId
      *
-     * @param parameter:
-     *            personId
+     * @param personId: String
      * @return String in XML format: person details
      * @throws Exception
      */
-	public String commonReadPerson(String personId) throws Exception {
+    public String commonReadPerson(String personId) throws Exception {
 
         try {
-			String response = this.loadPerson(personId);
+            String response = this.loadPerson(personId);
             LOGGER.debug("*** Method: commonReadPerson Response: " + response + " ***");
-			if (("").equals(response)) {
+            if (("").equals(response)) {
                 throw new ResourceNotFoundException("Resource Not Found");
             }
             return response;
@@ -318,15 +316,14 @@ public class OpenEMPIConnector {
      * This methods invokes updatePersonById API of OpenEMPI and updates person
      * details
      *
-	 * @param String : parameters
-     *            person element in XML string format
+     * @param parameters: person element in XML string format
      * @return String in XML format: person details
      * @throws Exception
      */
     public String commonUpdatePerson(String parameters) throws Exception {
 
         getSessionCode();
-		String updateParameter = parameters;
+        String updateParameter = parameters;
         String returnString = "Updated";
         String personId = "";
         if (!parameters.isEmpty() && parameters.contains("<personId>")) {
@@ -334,16 +331,16 @@ public class OpenEMPIConnector {
         }
         String loadPersonId = this.loadPerson(personId);
         try {
-            if (loadPersonId == null || loadPersonId.equals("") ) {
+            if (loadPersonId == null || loadPersonId.equals("")) {
                 returnString = "Created";
                 if (parameters.contains("OpenEMPI") || parameters.contains("openEMPI")
                         || parameters.contains("openempi"))
-					updateParameter = this.removeOpenEMPIIdentifier(parameters);
+                    updateParameter = this.removeOpenEMPIIdentifier(parameters);
             } else {
                 this.commonRemovePersonById(personId);
                 returnString = "Updated";
             }
-			this.commonAddPerson(updateParameter);
+            this.commonAddPerson(updateParameter);
             return returnString;
         } catch (Exception ex) {
             throw new ResourceNotCreatedException("Resource Not Created/Updated");
@@ -355,15 +352,14 @@ public class OpenEMPIConnector {
      * This method invokes addPerson API of OpenEMPI to create a new patient
      * record
      *
-	 * @param String : parameters:
-     *            person element in XML string format
+     * @param parameters: person element in XML string format
      * @return newly created person element in XML string format
      * @throws Exception
      */
     public String commonAddPerson(String parameters) throws Exception {
 
         getSessionCode();
-		String addParameters = parameters;
+        String addParameters = parameters;
         URL url = new URL(_instance.baseURL + "openempi-admin/openempi-ws-rest/person-manager-resource/addPerson");
         HttpURLConnection hurl = (HttpURLConnection) url.openConnection();
         hurl.setRequestMethod("PUT");
@@ -376,11 +372,11 @@ public class OpenEMPIConnector {
             this.addIdentifier(newIdentifierDomainList);
         }
         if (parameters.contains("OpenEMPI")) {
-			addParameters = this.removeOpenEMPIIdentifier(parameters);
+            addParameters = this.removeOpenEMPIIdentifier(parameters);
         }
 
         OutputStreamWriter osw = new OutputStreamWriter(hurl.getOutputStream());
-		osw.write(addParameters);
+        osw.write(addParameters);
         osw.flush();
         osw.close();
         String response = "";
@@ -441,7 +437,7 @@ public class OpenEMPIConnector {
      * identifier details
      *
      * @param identifiersList:
-	 *            
+     *
      * @return String: newly created identifier details
      * @throws Exception
      */
@@ -494,7 +490,7 @@ public class OpenEMPIConnector {
      * the person details and then calls the deletePersonById API with the
      * person details and delete the person form OpenEMPI
      *
-	 * @param String : parameters
+     * @param parameters: String
      * @return String: Successful if delete is successful otherwise throws
      *         ResourceNotFoundException
      * @throws Exception
@@ -527,7 +523,7 @@ public class OpenEMPIConnector {
             while ((line = in.readLine()) != null) {
                 response += line;
             }
-			if (("").equals(response)) {
+            if (("").equals(response)) {
                 LOGGER.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
                 return "Delete Successful";
             } else
@@ -580,9 +576,9 @@ public class OpenEMPIConnector {
 
     /**
      *
-	 * @param Integer : firstRecord
-	 * @param Integer : maxRecords
-	 * @return String in XML format
+     * @param firstRecord: Integer
+     * @param maxRecords: Integer
+     * @return String in XML format
      * @throws Exception
      */
     public String loadAllPersons(Integer firstRecord, Integer maxRecords) throws Exception {
@@ -605,7 +601,7 @@ public class OpenEMPIConnector {
                 response += line;
             }
             LOGGER.debug("*** Method: loadAllPerson Response:" + response + "***");
-			if (("").equals(response)) {
+            if (("").equals(response)) {
                 throw new ResourceNotFoundException("Resource Not Found");
             }
             return response;
@@ -616,7 +612,7 @@ public class OpenEMPIConnector {
 
     /**
      *
-	 * @return String in XML format
+     * @return String in XML format
      * @throws Exception
      */
     public String loadAllPersons() throws Exception {
@@ -633,7 +629,7 @@ public class OpenEMPIConnector {
      */
     protected String removeOpenEMPIIdentifier(String parameters) {
 
-		String afterRemove = parameters;
+        String afterRemove = parameters;
         JSONObject jsonFromXML = XML.toJSONObject(parameters);
         if (jsonFromXML.has("person")) {
             JSONObject person = jsonFromXML.optJSONObject("person");
@@ -665,8 +661,8 @@ public class OpenEMPIConnector {
                 }
             }
         }
-		afterRemove = XML.toString(jsonFromXML);
-		return afterRemove;
+        afterRemove = XML.toString(jsonFromXML);
+        return afterRemove;
 
     }
 
