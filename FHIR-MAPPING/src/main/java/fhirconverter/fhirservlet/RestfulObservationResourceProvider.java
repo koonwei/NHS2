@@ -10,6 +10,7 @@ import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
+import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -49,18 +50,24 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
 
        LOGGER.info("Observation Code: " + observationCode.getListAsCodings());
        List<BaseCodingDt> codingList = observationCode.getListAsCodings();
+       ArrayList<String> lonicCodes = new ArrayList<>();
        for (BaseCodingDt coding: codingList)
        {
            LOGGER.info("Coding: " + coding.getCodeElement().getValue());
-
+           lonicCodes.add(coding.getCodeElement().getValue());
        }
-
         String patientId = patient.getValue();
 
         LOGGER.info("Patient ID: " + patientId);
-
-
-        List<Observation> observations = new ArrayList<Observation>();
+  
+        try{
+            List<Observation> observations = converterOpenempi.observationSearch(patientId, lonicCodes); 
+            return observations;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new InternalErrorException(e.getMessage());
+        } 
+//        List<Observation> observations = new ArrayList<Observation>();
 //        FhirContext ctx = FhirContext.forDstu2();
 //        IParser parser = ctx.newJsonParser();
 //        Observation observation = parser.parseResource(Observation.class, DUMMY_HEIGHT);
@@ -71,11 +78,12 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
 //        observations.add(observation);
 
 //        List<Observation> observations = getDataFromServer(patientId);
-
+/*
         observations.add(dummyBilliRubinObservation(patientId, 7.0, "1957-01-01T02:20:00Z"));
         observations.add(dummyBilliRubinObservation(patientId, 9.0, "1957-01-02T14:00:00Z"));
         observations.add(dummyBilliRubinObservation(patientId, 10.0, "1957-01-02T18:00:00Z"));
         return observations;
+        */
     }
 
     private Observation dummyObservation(String patientId) {

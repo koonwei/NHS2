@@ -191,6 +191,7 @@ public class OpenEHRConvertorTests {
 	    for(Observation observation : obtainedObsList){
 	            String resourceJson = ctx.newJsonParser().encodeResourceToString(observation);    
 	            JSONObject obtained_object = new JSONObject(resourceJson);
+                obtained_object.remove("id");
 	            obtainedString = obtained_object.toString();
 	    }
 	    

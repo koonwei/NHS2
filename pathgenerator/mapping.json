@@ -3,7 +3,7 @@
     {
       "archetype": "openEHR-EHR-OBSERVATION.body_weight.v1",
       "code": "3141-9",
-      "text": "weight"
+      "text": "body_weight"
     },
     {
       "archetype": "openEHR-EHR-OBSERVATION.height.v1",
@@ -13,7 +13,7 @@
     {
       "archetype": "openEHR-EHR-OBSERVATION.body_mass_index.v1",
       "code": "39156-5",
-      "text": "bmi"
+      "text": "body_mass_index"
     },
     {
       "archetype": "openEHR-EHR-OBSERVATION.head_circumference.v0",
@@ -23,7 +23,7 @@
     {
       "archetype": "openEHR-EHR-OBSERVATION.skeletal_age.v0",
       "code": "37362-1",
-      "text": "bone_age"
+      "text": "skeletal_age"
     }
   ]
 }

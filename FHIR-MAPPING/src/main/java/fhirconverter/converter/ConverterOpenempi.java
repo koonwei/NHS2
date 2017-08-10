@@ -1,12 +1,14 @@
 package fhirconverter.converter;
 
 import ca.uhn.fhir.model.dstu2.resource.Patient;
+import ca.uhn.fhir.model.dstu2.resource.Observation;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class ConverterOpenempi{
 
@@ -38,4 +40,8 @@ public class ConverterOpenempi{
 	public String patientPatch(String id, JsonPatch patch) throws Exception {
 		return mapper.patch(id, patch);
 	}
+    public List<Observation> observationSearch(String patientId, ArrayList<String> searchParams) throws Exception {
+        ObservationFHIR mapper = new ObservationFHIR();
+        return mapper.search(patientId,searchParams);
+    }
 }

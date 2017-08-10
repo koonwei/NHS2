@@ -28,7 +28,9 @@ public class ObservationFHIR{
 		JSONObject observationObj = openEHRconnector.getObservations(aqlQuery);
 		LOGGER.info(observationObj.toString(3));
 		LOGGER.info("observationObj " + observationObj.toString(3));
+        observationObj.put("patientId", patientId);
 		OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
+        LOGGER.info(openEHRconvertor.jsonToObservation(observationObj));
 		return openEHRconvertor.jsonToObservation(observationObj);
 	}
 	protected String constructDynamicAQLquery(String ehrNumber, JSONObject aqlFilteredObj, ArrayList<String> searchParams){
