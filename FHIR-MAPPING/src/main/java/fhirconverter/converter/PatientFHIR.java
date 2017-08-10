@@ -20,7 +20,7 @@ import fhirconverter.exceptions.*;
 
 public class PatientFHIR {
 	Logger LOGGER = LogManager.getLogger(PatientFHIR.class);
-	OpenEMPIbase caller = new OpenEMPIbase();
+	OpenEMPIConnector caller = new OpenEMPIConnector();
 
 	protected Patient read(String id) throws Exception {
 		String result = caller.commonReadPerson(id);	

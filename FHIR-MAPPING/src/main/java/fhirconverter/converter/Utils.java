@@ -61,11 +61,12 @@ public final class Utils{
 	 */
 	public static String removeDuplicateRecords(String response) {
 		
-		response = response.replaceAll("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "\t");
-		response = response.replaceAll("<people>", "\n");
-		response = response.replaceAll("</people>", "\n");
-		response = response.replaceAll("</person>", "</person>\n");
-		String[] people = response.split("\n");
+		String newResponse = response;
+		newResponse = newResponse.replaceAll("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", "\t");
+		newResponse = newResponse.replaceAll("<people>", "\n");
+		newResponse = newResponse.replaceAll("</people>", "\n");
+		newResponse = newResponse.replaceAll("</person>", "</person>\n");
+		String[] people = newResponse.split("\n");
 
 		Set<String> set = new HashSet<String>();
 		for(int i = 0; i < people.length; i++){

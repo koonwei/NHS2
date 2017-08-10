@@ -5,7 +5,7 @@
  * 
  * Date: 13-7-2017
  * 
- * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Shina
+ * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Sinha
  * 
  * Description: This class contains the necessary functions to convert FHIR to OpenEMPI.
  * 				It is called by PatientFHIR in the case of the following requests:

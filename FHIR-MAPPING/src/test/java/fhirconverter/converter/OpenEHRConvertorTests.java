@@ -100,7 +100,6 @@ public class OpenEHRConvertorTests {
 		qd1.setValue(10.9);
 		qd1.setCode("kg");
 		qd1.setUnit("kg");
-		qd1.setSystem("http://unitsofmeasure.org");
 		obs1.setValue(qd1);
 		obs1.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
 		obs1.getSubject().setReference("123456");
@@ -110,7 +109,6 @@ public class OpenEHRConvertorTests {
 		qd2.setValue(82.3);
 		qd2.setCode("cm");
 		qd2.setUnit("cm");
-		qd2.setSystem("http://unitsofmeasure.org");
 		obs2.setValue(qd2);
 		obs2.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
 		obs2.getSubject().setReference("123456");
@@ -120,7 +118,6 @@ public class OpenEHRConvertorTests {
 		qd3.setValue(0.0);
 		qd3.setCode("");
 		qd3.setUnit("");
-		qd3.setSystem("http://unitsofmeasure.org");
 		obs3.setValue(qd3);
 		obs3.setEffective(new DateTimeDt(""));
 		obs3.getSubject().setReference("123456");
@@ -130,7 +127,6 @@ public class OpenEHRConvertorTests {
 		qd4.setValue(9.8);
 		qd4.setCode("kg");
 		qd4.setUnit("kg");
-		qd4.setSystem("http://unitsofmeasure.org");
 		obs4.setValue(qd4);
 		obs4.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs4.getSubject().setReference("123456");
@@ -140,7 +136,6 @@ public class OpenEHRConvertorTests {
 		qd5.setValue(177.0);
 		qd5.setCode("cm");
 		qd5.setUnit("cm");
-		qd5.setSystem("http://unitsofmeasure.org");
 		obs5.setValue(qd5);
 		obs5.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs5.getSubject().setReference("123456");
@@ -150,7 +145,6 @@ public class OpenEHRConvertorTests {
 		qd6.setValue(17.2);
 		qd6.setCode("kg/m2");
 		qd6.setUnit("kg/m2");
-		qd6.setSystem("http://unitsofmeasure.org");
 		obs6.setValue(qd6);
 		obs6.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs6.getSubject().setReference("123456");
@@ -160,7 +154,6 @@ public class OpenEHRConvertorTests {
 		qd7.setValue(52);
 		qd7.setCode("cm");
 		qd7.setUnit("cm");
-		qd7.setSystem("http://unitsofmeasure.org");
 		obs7.setValue(qd7);
 		obs7.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
 		obs7.getSubject().setReference("123456");
@@ -170,7 +163,6 @@ public class OpenEHRConvertorTests {
 		qd8.setValue(50);
 		qd8.setCode("cm");
 		qd8.setUnit("cm");
-		qd8.setSystem("http://unitsofmeasure.org");
 		obs8.setValue(qd8);
 		obs8.setEffective(new DateTimeDt("2010-04-10T00:00:00+02:00"));
 		obs8.getSubject().setReference("123456");
@@ -179,7 +171,6 @@ public class OpenEHRConvertorTests {
 		obs9.getCode().setText("XR Bone age");
 		qd9.setValue(72);
 		qd9.setUnit("months");
-		qd9.setSystem("http://unitsofmeasure.org");
 		obs9.setValue(qd9);
 		//obs9.setEffective(new DateTimeDt("2011-04-11T00:00:00+02:00"));
 		obs9.getSubject().setReference("123456");
