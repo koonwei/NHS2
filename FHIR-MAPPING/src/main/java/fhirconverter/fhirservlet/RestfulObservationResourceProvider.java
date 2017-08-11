@@ -9,6 +9,7 @@ import ca.uhn.fhir.rest.param.TokenOrListParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import fhirconverter.converter.ObservationFHIR;
+import fhirconverter.exceptions.IdNotObtainedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -46,7 +47,12 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
         try{
             List<Observation> observations = observationFHIR.search(patientId, loincCodes);
             return observations;
-        }catch (Exception e){
+        }
+        catch (IdNotObtainedException e) {
+            LOGGER.info("Id not Obtained: " + e.getMessage());
+            return new ArrayList<Observation>();
+        }
+        catch (Exception e){
             e.printStackTrace();
             throw new InternalErrorException(e.getMessage());
         }

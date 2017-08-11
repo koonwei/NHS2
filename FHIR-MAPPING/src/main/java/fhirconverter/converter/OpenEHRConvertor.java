@@ -53,8 +53,8 @@ public class OpenEHRConvertor {
 
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
-	    logger.info(jsonResult.toString(3));	
-		this.prepareInputJSON(jsonResult);
+	    logger.info(jsonResult.toString(3));
+		jsonResult = this.prepareInputJSON(jsonResult);
 		if (jsonResult.has("patientId")) {
 			patientId = jsonResult.optString("patientId");
 		}
