@@ -27,31 +27,31 @@ def new_composition(date, weight, height, bmi, head_circumference)
      "ctx/id_namespace" => "Hospital",
      "ctx/id_scheme" => "HOSPITAL-NS"}
 
-    if(weight != 'nil') then 
+    if(weight != 'nil') 
         record = record.merge(add_quantity_date(weight, 'kg', 'smart_growth_report/body_weight/weight')) 
     end
 
-    if(height != 'nil') then 
+    if(height != 'nil') 
         record = record.merge(add_quantity_date(height, 'cm', 'smart_growth_report/height_length/any_event:0/height_length'))
     end
 
-    if(bmi != 'nil') then 
+    if(bmi != 'nil') 
         record = record.merge(add_quantity_date(bmi, 'kg/m2', 'smart_growth_report/body_mass_index/any_event:0/body_mass_index'))
     end
 
-    if(head_circumference != 'nil') then 
+    if(head_circumference != 'nil') 
         record= record.merge(add_quantity_date(head_circumference, 'cm', 'smart_growth_report/head_circumference/any_event:0/head_circumference'))
     end
 
     return record
 end
 
-def commit_composition(composition, ehrId, sessionId)
-    url = "#{$ehr_server_base}/composition?ehrId=#{ehrId}&templateId=Smart Growth Chart Data.v0&format=FLAT"
+def commit_composition(composition, ehr_id, session_id)
+    url = "#{$ehr_server_base}/composition?ehrId=#{ehr_id}&templateId=Smart Growth Chart Data.v0&format=FLAT"
     begin 
-        response = RestClient.post url, composition.to_json, :content_type => :json, 'Ehr-Session' => sessionId
+        response = RestClient.post url, composition.to_json, :content_type => :json, 'Ehr-Session' => session_id
         composition_id = JSON.parse(response.body)['compositionUid']
-        if $created_compositions.nil? then
+        if $created_compositions.nil?
             $created_compositions = Array.new
         end
         $created_compositions << composition_id
