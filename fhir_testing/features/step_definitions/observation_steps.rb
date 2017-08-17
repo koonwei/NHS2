@@ -69,6 +69,7 @@ def compare_observations (expected_observation, obtained_observation)
             e.delete('fullUrl')
             e['resource'].delete('subject')
             e['resource'].delete('id')
+            e['resource']['valueQuantity'].delete('system')
         end
     end
 
