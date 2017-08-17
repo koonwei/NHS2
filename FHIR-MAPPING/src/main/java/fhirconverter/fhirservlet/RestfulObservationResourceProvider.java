@@ -43,7 +43,7 @@ public class RestfulObservationResourceProvider implements IResourceProvider {
         String patientId = patient.getValue();
 
         LOGGER.info("Patient ID: " + patientId);
-  
+        
         try{
             List<Observation> observations = observationFHIR.search(patientId, loincCodes);
             return observations;

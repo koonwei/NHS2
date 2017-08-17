@@ -2,11 +2,18 @@
 
 require 'rest-client'
 
-server_base = 'http://localhost:8090/fhir'
+$fhir_server_base = 'http://localhost:8090/fhir'
+$ehr_server_base = 'https://test.operon.systems/rest/v1'
+
+if not ENV['CUCUMBER_ENV'].nil?
+    env = ENV['CUCUMBER_ENV']
+else
+    env = 'development'
+end
 
 def server_up_and_running?
     begin
-        RestClient.get 'http://localhost:8090/fhir/metadata'
+        RestClient.get "#{$fhir_server_base}/metadata"
     rescue StandardError => e
         $stdout.puts "Error #{e}"
         return false
@@ -33,23 +40,20 @@ def stop_server
     system 'sh stop_server.sh'
 end
 
-stop_server
-
-start_server
-
-at_exit do 
+if env == 'development'
     stop_server
+    start_server
 end
 
-Before do |scenario|
-    # stop_server
-
-    # start_server
+at_exit do 
+    if env == 'development'
+        stop_server
+    end
 end
 
 After do |scenario|
     @created_patients.each do |patient|
-        url = server_base + "/Patient/#{patient['id']}"
+        url = "#{$fhir_server_base}/Patient/#{patient['id']}"
         begin
             @response = RestClient.delete url, :content_type => :json, :accept => :json
         rescue StandardError => e 
