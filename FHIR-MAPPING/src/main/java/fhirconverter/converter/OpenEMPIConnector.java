@@ -1,5 +1,5 @@
 /**
- * ConversionOpenEMPI_to_FHIR
+ * OpenEMPIConnector
  * <p>
  * v2.0
  * <p>
@@ -7,7 +7,7 @@
  * <p>
  * Copyrights: Koon Wei Teo, Evanthia Tingiri, Shruti Sinha
  * <p>
- * Description: This class contains the necessary functions call OpenEMPI APIs.
+ * Description: This class contains the necessary functions to call OpenEMPI APIs and prepare the XML input to send to OpenEMPI.
  */
 
 package fhirconverter.converter;
@@ -32,10 +32,6 @@ import fhirconverter.exceptions.OpenEMPIAuthenticationException;
 import fhirconverter.exceptions.ResourceNotCreatedException;
 import fhirconverter.exceptions.ResourceNotFoundException;
 
-/**
- * @author Koon, Shruti Sinha
- *
- */
 public class OpenEMPIConnector {
 
     private static String sessionCode;
@@ -49,8 +45,7 @@ public class OpenEMPIConnector {
     /**
      * The static method getProperties method to initialise the common
      * properties for invoking OpenEMPI like base URL, user name and password
-     *
-     * @return
+     * 
      */
     public static OpenEMPIConnector initialize() {
 
@@ -106,7 +101,7 @@ public class OpenEMPIConnector {
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String commonSearchPersonByAttributes(JSONObject parameters) throws Exception {
+    public String searchPersonByAttributes(JSONObject parameters) throws Exception {
 
         if (parameters.length() == 0)
             return loadAllPersons();
@@ -209,11 +204,11 @@ public class OpenEMPIConnector {
      * This methods invokes findPersonById API of OpenEMPI and retrieves person
      * details based on identifier
      *
-     * @param parameters: JSONObjects
+     * @param parameters: JSONObject
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String commonSearchPersonById(JSONObject parameters) throws Exception {
+    public String searchPersonById(JSONObject parameters) throws Exception {
 
         if (parameters.length() == 0)
             throw new ResourceNotFoundException("Resource Not Found");
@@ -297,7 +292,7 @@ public class OpenEMPIConnector {
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String commonReadPerson(String personId) throws Exception {
+    public String readPerson(String personId) throws Exception {
 
         try {
             String response = this.loadPerson(personId);
@@ -316,11 +311,11 @@ public class OpenEMPIConnector {
      * This methods invokes updatePersonById API of OpenEMPI and updates person
      * details
      *
-     * @param parameters: person element in XML string format
+     * @param parameters: String as person element in XML format
      * @return String in XML format: person details
      * @throws Exception
      */
-    public String commonUpdatePerson(String parameters) throws Exception {
+    public String updatePerson(String parameters) throws Exception {
 
         getSessionCode();
         String updateParameter = parameters;
@@ -337,10 +332,10 @@ public class OpenEMPIConnector {
                         || parameters.contains("openempi"))
                     updateParameter = this.removeOpenEMPIIdentifier(parameters);
             } else {
-                this.commonRemovePersonById(personId);
+                this.removePersonById(personId);
                 returnString = "Updated";
             }
-            this.commonAddPerson(updateParameter);
+            this.addPerson(updateParameter);
             return returnString;
         } catch (Exception ex) {
             throw new ResourceNotCreatedException("Resource Not Created/Updated");
@@ -352,11 +347,11 @@ public class OpenEMPIConnector {
      * This method invokes addPerson API of OpenEMPI to create a new patient
      * record
      *
-     * @param parameters: person element in XML string format
+     * @param parameters: String as person element in XML format
      * @return newly created person element in XML string format
      * @throws Exception
      */
-    public String commonAddPerson(String parameters) throws Exception {
+    public String addPerson(String parameters) throws Exception {
 
         getSessionCode();
         String addParameters = parameters;
@@ -401,7 +396,7 @@ public class OpenEMPIConnector {
      * API to retrieve all the existing identifier domain. It then checks if the
      * given identifier exists or not. Returns true or false accordingly
      *
-     * @return List<String> : list of existing identifier domain name
+     * @return Map<String, String> : Map of existing identifier domain name
      * @throws Exception
      */
     public Map<String, String> getIdentifierDomains() throws Exception {
@@ -436,7 +431,7 @@ public class OpenEMPIConnector {
      * This methods takes identifier name and invokes openEMPI API to add the
      * identifier details
      *
-     * @param identifiersList:
+     * @param identifiersList: List<String>
      *
      * @return String: newly created identifier details
      * @throws Exception
@@ -490,14 +485,14 @@ public class OpenEMPIConnector {
      * the person details and then calls the deletePersonById API with the
      * person details and delete the person form OpenEMPI
      *
-     * @param parameters: String
+     * @param parameters: String as person XML
      * @return String: Successful if delete is successful otherwise throws
      *         ResourceNotFoundException
      * @throws Exception
      */
-    public String commonDeletePersonById(String parameters) throws Exception {
+    public String deletePersonById(String parameters) throws Exception {
 
-        String payload = commonReadPerson(parameters);
+        String payload = readPerson(parameters);
         if (payload == null)
             throw new ResourceNotFoundException("Resource Not Found");
 
@@ -537,13 +532,13 @@ public class OpenEMPIConnector {
      * This method takes personId as parameter and invokes removePersonById API
      * with the person details and removes the person form OpenEMPI
      *
-     * @param parameter: parameters:
+     * @param parameter: String as personId 
      *
-     * @return String: Successful if remove is successful otherwise throws
+     * @return String: "Successful" if remove is successful otherwise throws
      *         ResourceNotFoundException
      * @throws Exception
      */
-    public String commonRemovePersonById(String parameter) throws Exception {
+    public String removePersonById(String parameter) throws Exception {
 
         getSessionCode();
 
@@ -620,11 +615,11 @@ public class OpenEMPIConnector {
     }
 
     /**
-     * * This method iterates through the request for adding a new person. If the request contains
+     * This method iterates through the request for adding a new person. If the request contains
      * OpenEMPI identifier than that identifierDomain is removed from the request to avoid
      * any conflict while creating a new person in OpenEMPI.
      *
-     * @param  parameters: parameters in XML string format
+     * @param  parameters: String in XML string format
      * @return String: XML format
      */
     protected String removeOpenEMPIIdentifier(String parameters) {
@@ -673,7 +668,7 @@ public class OpenEMPIConnector {
      * but not in OpenEMPI
      *
      *
-     * @param  parameters
+     * @param  parameters: String
      * @return List<String> : List of identifier domain name
      * @throws Exception
      */

@@ -7,7 +7,6 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import fhirconverter.exceptions.FhirSchemeNotMetException;
 import fhirconverter.exceptions.OpenEMPISchemeNotMetException;
-import fhirconverter.exceptions.ResourceNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -21,7 +20,7 @@ public class PatientFHIR {
 	OpenEMPIConnector caller = new OpenEMPIConnector();
 
     public Patient read(String id) throws Exception {
-        String result = caller.commonReadPerson(id);
+        String result = caller.readPerson(id);
         ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
         return converter.conversion(result).get(0);
     }
@@ -29,9 +28,9 @@ public class PatientFHIR {
     public List<Patient> search(JSONObject parameters) throws Exception {
         String result = "";
         if((parameters.has("identifier_value"))&&(parameters.has("identifier_domain"))) {
-            result = caller.commonSearchPersonById(parameters);
+            result = caller.searchPersonById(parameters);
         }else
-            result = caller.commonSearchPersonByAttributes(parameters);
+            result = caller.searchPersonByAttributes(parameters);
 
         LOGGER.info("Search Results: " + result);
 
@@ -59,7 +58,7 @@ public class PatientFHIR {
 
         String xmlNewRecord = XML.toString(records);
         LOGGER.debug("SEND TO OPENEMPIBASE: \n" + xmlNewRecord );
-        String result = caller.commonUpdatePerson(xmlNewRecord);
+        String result = caller.updatePerson(xmlNewRecord);
 		/*ConversionOpenEMPI_to_FHIR converterOpenEmpi = new ConversionOpenEMPI_to_FHIR();
 		JSONObject createdObject = converterOpenEmpi.conversion(result);
 		String replyCreatedNewRecord = "";
@@ -81,7 +80,7 @@ public class PatientFHIR {
     }
 
     public String patch(String id, JsonPatch patient) throws Exception { //more testing needed! only gender done. by koon
-        String result = caller.commonReadPerson(id);
+        String result = caller.readPerson(id);
         ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 //		JSONObject xmlResults = converterOpenEmpi.conversion(result);
         Patient patientObj = converterOpenEmpi.conversion(result).get(0);
@@ -125,7 +124,7 @@ public class PatientFHIR {
                     convertedXML.put("personId", id);
                     convertedXMLvalidated.put("person", convertedXML);
                     final String xmlPatch = XML.toString(convertedXMLvalidated);
-                    return caller.commonUpdatePerson(xmlPatch);
+                    return caller.updatePerson(xmlPatch);
                 }else{
                     throw new OpenEMPISchemeNotMetException("The Parameters does not confine to OpenEMPIScheme");
                 }
@@ -146,7 +145,7 @@ public class PatientFHIR {
         JSONObject records = new JSONObject();
         records.put("person", newRecordOpenEMPI);
         String xmlNewRecord = XML.toString(records);
-        String result = caller.commonAddPerson(xmlNewRecord);
+        String result = caller.addPerson(xmlNewRecord);
         ConversionOpenEmpiToFHIR converterOpenEmpi = new ConversionOpenEmpiToFHIR();
 //		JSONObject createdObject = converterOpenEmpi.conversion(result);
         Patient createdPatient = converterOpenEmpi.conversion(result).get(0);
@@ -162,7 +161,7 @@ public class PatientFHIR {
     }
 
     public String delete(String id) throws Exception {
-        String result = caller.commonDeletePersonById(id);
+        String result = caller.deletePersonById(id);
         return result;
         //return "";
     }
