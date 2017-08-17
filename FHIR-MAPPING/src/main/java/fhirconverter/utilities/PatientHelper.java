@@ -17,7 +17,7 @@ public class PatientHelper {
 		String nhsIdentifier = "";
 		
 		OpenEMPIConnector caller = new OpenEMPIConnector();
-		String patientXML = caller.commonReadPerson(id);
+		String patientXML = caller.readPerson(id);
 		
 		JSONObject xmlJSONObj = XML.toJSONObject(patientXML);
 		if(xmlJSONObj.has("person")) {

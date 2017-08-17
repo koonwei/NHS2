@@ -52,7 +52,7 @@ public class PatientTestCases{
 		obtained_object.remove("meta");					
         	OpenEMPIConnector delete = new OpenEMPIConnector();
 		System.out.println(newRecordID+ "FOCUS HERE");
-        	delete.commonRemovePersonById(newRecordID);
+        	delete.removePersonById(newRecordID);
         	Assert.assertEquals("Search operation failed \n",expected.toString(), obtained_object.toString());
 	}
 	@Test
@@ -65,7 +65,7 @@ public class PatientTestCases{
 		JsonNode fhirResourceUpdate = JsonLoader.fromPath("resource/updateResourceFhir.json");		
 		JSONObject updateCreate = new JSONObject(fhirResourceUpdate.toString());
 		String replyExists = tester.update(newRecordID, updateCreate);
-        	delete.commonRemovePersonById(newRecordID);
+        	delete.removePersonById(newRecordID);
 		assertEquals("Update Operation if the record exists failed: ", "Updated", replyExists );		
 
 	}
@@ -83,7 +83,7 @@ public class PatientTestCases{
 		try{
 			tester.patch(newRecordID,patch);
 		}finally{
-			delete.commonRemovePersonById(newRecordID);
+			delete.removePersonById(newRecordID);
 		}
 	}
 	@Test(expected = JsonPatchException.class)
@@ -100,7 +100,7 @@ public class PatientTestCases{
 		try{
 			tester.patch(newRecordID,patch);
 		}finally{
-		       delete.commonRemovePersonById(newRecordID);
+		       delete.removePersonById(newRecordID);
 		}
 	}
 	@Test
@@ -117,7 +117,7 @@ public class PatientTestCases{
 		try{
 			assertEquals(tester.patch(newRecordID,patch), "Updated");
 		}finally{
-		      	delete.commonRemovePersonById(newRecordID);
+		      	delete.removePersonById(newRecordID);
 		}
 	}
 	/*

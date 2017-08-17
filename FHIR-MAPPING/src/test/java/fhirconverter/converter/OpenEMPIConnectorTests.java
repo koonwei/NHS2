@@ -6,6 +6,12 @@ package fhirconverter.converter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -17,6 +23,8 @@ import org.junit.Test;
  */
 public class OpenEMPIConnectorTests {
 
+	private static final Logger logger = LogManager.getLogger(OpenEMPIConnectorTests.class); 
+	
 	public static String addPersonParameters = "<person><address1>8 Winterhouse</address1>"
 			+ "<address2>Main Road</address2>"
 			+ "<birthOrder>3</birthOrder>"
@@ -139,6 +147,63 @@ public class OpenEMPIConnectorTests {
 			+ "<language>English</language>"
 			+ "</person>";
 	
+	public static String sampleParameter = "<person><birthPlace>Brighton</birthPlace><city>London</city>"
+			+ "<country>United Kingdom</country><countryCode>UK</countryCode><familyName>Mill</familyName>"
+			+ "<fatherName>Pret</fatherName><givenName>Anna</givenName><personId>0</personId>"
+			+ "<personIdentifiers><dateCreated>2017-06-30T12:32:32.899Z</dateCreated>"
+			+ "<identifier>309a45a0-5d90-11e7-975b-0242ac1a0003</identifier><identifierDomain>"
+			+ "<identifierDomainId>18</identifierDomainId>"
+			+ "<identifierDomainName>OpenEMPI</identifierDomainName>"
+			+ "<namespaceIdentifier>2.16.840.1.113883.4.357</namespaceIdentifier>"
+			+ "<universalIdentifier>2.16.840.1.113883.4.357</universalIdentifier>"
+			+ "<universalIdentifierTypeCode>hl7</universalIdentifierTypeCode></identifierDomain>"
+			+ "<personIdentifierId>1</personIdentifierId></personIdentifiers>"
+			+ "<personIdentifiers><dateCreated>2017-06-30T12:32:32.899Z</dateCreated>"
+			+ "<identifier>555</identifier><identifierDomain>"
+			+ "<identifierDomainId>10</identifierDomainId>"
+			+ "<identifierDomainName>SSN</identifierDomainName>"
+			+ "<namespaceIdentifier>2.16.840.1.113883.4.1</namespaceIdentifier>"
+			+ "<universalIdentifier>2.16.840.1.113883.4.1</universalIdentifier>"
+			+ "<universalIdentifierTypeCode>SSN</universalIdentifierTypeCode></identifierDomain>"
+			+ "<personIdentifierId>0</personIdentifierId></personIdentifiers>"
+			+ "<personIdentifiers><dateCreated>2017-07-05T16:17:52.672Z</dateCreated>"
+			+ "<identifier>111</identifier><identifierDomain>"
+			+ "<identifierDomainId>11</identifierDomainId><identifierDomainName>TIN</identifierDomainName>"
+			+ "<namespaceIdentifier>2.16.840.1.113883.4.2</namespaceIdentifier>"
+			+ "<universalIdentifier>2.16.840.1.113883.4.2</universalIdentifier>"
+			+ "<universalIdentifierTypeCode>TIN</universalIdentifierTypeCode></identifierDomain>"
+			+ "<personIdentifierId>10</personIdentifierId></personIdentifiers>"			
+			+ "</person>";
+	
+	public static String expRemoveOpenEMPI = "<person><birthPlace>Brighton</birthPlace><country>United Kingdom</country>"
+			+ "<fatherName>Pret</fatherName><city>London</city><countryCode>UK</countryCode><familyName>Mill</familyName>"
+			+ "<givenName>Anna</givenName><personId>0</personId>"
+			+ "<personIdentifiers>"
+			+ "<identifierDomain>"
+			+ "<universalIdentifierTypeCode>SSN</universalIdentifierTypeCode>"
+			+ "<namespaceIdentifier>2.16.840.1.113883.4.1</namespaceIdentifier>"
+			+ "<universalIdentifier>2.16.840.1.113883.4.1</universalIdentifier>"
+			+ "<identifierDomainId>10</identifierDomainId>"
+			+ "<identifierDomainName>SSN</identifierDomainName>"
+			+ "</identifierDomain>"
+			+ "<identifier>555</identifier>"
+			+ "<dateCreated>2017-06-30T12:32:32.899Z</dateCreated>"
+			+ "<personIdentifierId>0</personIdentifierId>"
+			+ "</personIdentifiers>"
+			+ "<personIdentifiers>"
+			+ "<identifierDomain>"
+			+ "<universalIdentifierTypeCode>TIN</universalIdentifierTypeCode>"
+			+ "<namespaceIdentifier>2.16.840.1.113883.4.2</namespaceIdentifier>"
+			+ "<universalIdentifier>2.16.840.1.113883.4.2</universalIdentifier>"
+			+ "<identifierDomainId>11</identifierDomainId>"
+			+ "<identifierDomainName>TIN</identifierDomainName>"
+			+ "</identifierDomain>"
+			+ "<identifier>111</identifier>"
+			+ "<dateCreated>2017-07-05T16:17:52.672Z</dateCreated>"
+			+ "<personIdentifierId>10</personIdentifierId>"
+			+ "</personIdentifiers>"	
+			+ "</person>";
+	
 	/**
 	 * Test for addPerson()
 	 * 
@@ -148,34 +213,15 @@ public class OpenEMPIConnectorTests {
 	public void testAddPerson() throws Exception {
 		String personIdSSN = null;
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResults = openEMPIconnector.commonAddPerson(addPersonParameters);
+		String obtainedResults = openEMPIconnector.addPerson(addPersonParameters);
 		if (!obtainedResults.isEmpty()) {
 			personIdSSN = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
 					obtainedResults.indexOf("</personId>"));
 		}
-		System.out.println("testAddPerson");
-		openEMPIconnector.commonRemovePersonById(personIdSSN);
+		logger.info("*** testAddPerson ***");
+		openEMPIconnector.removePersonById(personIdSSN);
 		assertNotNull(personIdSSN);
 	}
-
-//	/**
-//	 * Test for addPerson() with NHS as one of the identifier
-//	 * 
-//	 * @throws Exception
-//	 */
-//	@Test
-//	public void testAddPersonWithNHS() throws Exception {
-//		String personIdNHS = null;
-//		OpenEMPIbase openEMPIconnector = new OpenEMPIbase();
-//		String obtainedResults = openEMPIconnector.commonAddPerson(addParametersWithNHS);
-//		if (!obtainedResults.isEmpty()) {
-//			personIdNHS = obtainedResults.substring(obtainedResults.indexOf("<personId>") + 10,
-//					obtainedResults.indexOf("</personId>"));
-//		}
-//		System.out.println("testAddPersonWithNHS");
-//		openEMPIconnector.commonRemovePersonById(personIdNHS);
-//		assertNotNull(personIdNHS);
-//	}
 
 	/**
 	 * Test for SearchPersonByAttributes()
@@ -187,16 +233,16 @@ public class OpenEMPIConnectorTests {
 	public void testSearchPersonByAttributes() throws Exception {
 		String personId = "";
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResultsAdd = openEMPIconnector.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIconnector.addPerson(addPersonParameters);
 		String test = "{ \"family\" : \"Mill\"}";
 		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
 		JSONObject searchParameters = new JSONObject(test);
-		String obtainedResults = openEMPIconnector.commonSearchPersonByAttributes(searchParameters);
-		System.out.println("testSearchPersonByAttributes");
-		openEMPIconnector.commonRemovePersonById(personId);
+		String obtainedResults = openEMPIconnector.searchPersonByAttributes(searchParameters);
+		logger.info("*** testSearchPersonByAttributes ***");
+		openEMPIconnector.removePersonById(personId);
 		assertNotNull(obtainedResults);
 	}
 
@@ -210,16 +256,16 @@ public class OpenEMPIConnectorTests {
 	public void testSearchPersonById() throws Exception {
 		String personId = "";
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResultsAdd = openEMPIconnector.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIconnector.addPerson(addPersonParameters);
 		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
 		String test = "{ \"identifier_value\" : \"555\", \"identifier_domain\" : \"NHS\"}";
 		JSONObject serachWithIdParameters = new JSONObject(test);
-		String obtainedResults = openEMPIconnector.commonSearchPersonById(serachWithIdParameters);
-		System.out.println("testSearchPersonById");
-		openEMPIconnector.commonRemovePersonById(personId);
+		String obtainedResults = openEMPIconnector.searchPersonById(serachWithIdParameters);
+		logger.info("*** testSearchPersonById ***");
+		openEMPIconnector.removePersonById(personId);
 		assertNotNull(obtainedResults);
 
 	}
@@ -234,14 +280,14 @@ public class OpenEMPIConnectorTests {
 	public void testReadPerson() throws Exception {
 		String personId = null;
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResultsAdd = openEMPIconnector.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIconnector.addPerson(addPersonParameters);
 		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
-		String obtainedResults = openEMPIconnector.commonReadPerson(personId);
-		openEMPIconnector.commonRemovePersonById(personId);
-		System.out.println("testAddPersonWithNHS");
+		String obtainedResults = openEMPIconnector.readPerson(personId);
+		openEMPIconnector.removePersonById(personId);
+		logger.info("*** testAddPersonWithNHS ***");
 		assertNotNull(obtainedResults);
 
 	}
@@ -256,17 +302,16 @@ public class OpenEMPIConnectorTests {
 	public void testUpdatePerson() throws Exception {
 		String personId = "";
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResultsAdd = openEMPIconnector.commonAddPerson(updatePersonParameters);
+		String obtainedResultsAdd = openEMPIconnector.addPerson(updatePersonParameters);
 		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
 		obtainedResultsAdd = obtainedResultsAdd.replace("Mill", "George");
-		String obtainedResults = openEMPIconnector.commonUpdatePerson(obtainedResultsAdd);
+		String obtainedResults = openEMPIconnector.updatePerson(obtainedResultsAdd);
 		String expectedUpdatePersonResults = "Updated";
-		openEMPIconnector.commonRemovePersonById(personId);
-		System.out.println("testUpdatePerson");
-		
+		openEMPIconnector.removePersonById(personId);
+		logger.info("*** testUpdatePerson ***");
 		assertEquals(expectedUpdatePersonResults, obtainedResults);
 
 	}
@@ -282,22 +327,43 @@ public class OpenEMPIConnectorTests {
 	public void testRemovePersonById() throws Exception {
 		String personId = null;
 		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
-		String obtainedResultsAdd = openEMPIconnector.commonAddPerson(addPersonParameters);
+		String obtainedResultsAdd = openEMPIconnector.addPerson(addPersonParameters);
 		if (!obtainedResultsAdd.isEmpty()) {
 			personId = obtainedResultsAdd.substring(obtainedResultsAdd.indexOf("<personId>") + 10,
 					obtainedResultsAdd.indexOf("</personId>"));
 		}
 		String removeParameters = personId;
 		String expectedRemovePersonByIdResults = "Remove Successful";
-		String obtainedResults = openEMPIconnector.commonRemovePersonById(removeParameters);
-		System.out.println("testRemovePersonById");
+		String obtainedResults = openEMPIconnector.removePersonById(removeParameters);
+		logger.info("*** testRemovePersonById ***");
 		assertEquals(expectedRemovePersonByIdResults, obtainedResults);
 	}
 	
-//	@Test
-//	public void testGetIdentifierDomains() throws Exception {
-//		OpenEMPIconnector openEMPIconnector = new OpenEMPIconnector();
-//		List<String> domainList = openEMPIconnector.getIdentifierDomains();
-//	}
-}
+	/**
+	 * Test for removeOpenEMPIIdentifier()
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testRemoveOpenEMPIIdentifier() throws Exception {
+		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
+		String expected = expRemoveOpenEMPI;
+		String obtained = openEMPIconnector.removeOpenEMPIIdentifier(sampleParameter);
+		logger.info("*** testRemoveOpenEMPIIdentifier ***");
+		assertEquals(expected, obtained);
+	}
 
+	/**
+	 * Test for fetchIdDomainsInRequest()
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFetchIdDomainsInRequest() throws Exception {
+		OpenEMPIConnector openEMPIconnector = new OpenEMPIConnector();
+		List<String> expected = new ArrayList<>(Arrays.asList("SSN", "TIN"));
+		List<String> obtained = openEMPIconnector.fetchIdDomainsInRequest(sampleParameter);
+		logger.info("*** testFetchIdDomainsInRequest ***");
+		assertEquals(expected, obtained);
+	}
+}

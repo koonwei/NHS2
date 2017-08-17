@@ -29,9 +29,15 @@ public class OpenEHRConvertor {
 
 	private static final Logger logger = LogManager.getLogger(OpenEHRConvertor.class.getName());
 
-	public Map<String, String> codeMap() {
+	/**
+	 * This method creates a map for mapping the LONIC code for some observations to their real world meaning
+	 * The Observations defined in the codeMap() can be mapped from EHR response to FHIR Observation
+	 * 
+	 * @return Map<String, String>
+	 */
+	public static Map<String, String> codeMap() {
+		
 		Map<String, String> codeMap = new HashMap<>();
-
 		codeMap.put("3141-9", "Weight");
 		codeMap.put("8302-2", "Height");
 		codeMap.put("39156-5", "BMI");
@@ -44,69 +50,81 @@ public class OpenEHRConvertor {
 	 * This method is the accepts the JSON object from EHR system and returns
 	 * and equivalent list of Observation objects
 	 * 
-	 * @param jsonResult
+	 * @param jsonResult: JSONObject from EHR system
 	 * @return List<Observation>
 	 * 
 	 * @throws Exception
 	 */
 	public List<Observation> jsonToObservation(JSONObject jsonResult) throws Exception {
 
+		logger.info("*** Method: jsonToObservation | input JSON from EHR system: ***" + jsonResult.toString());
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
-	    logger.info(jsonResult.toString(3));
-		jsonResult = this.prepareInputJSON(jsonResult);
-		if (jsonResult.has("patientId")) {
-			patientId = jsonResult.optString("patientId");
+		JSONObject newJsonResult = this.prepareInputJSON(jsonResult);
+		if (newJsonResult.has("patientId")) {
+			patientId = newJsonResult.optString("patientId");
 		}
 		/*** Checks if the JSON body contains resutlSet node or not ***/
-		if (jsonResult.has("resultSet")) {
+		if (newJsonResult.has("resultSet")) {
 			/*
-			 * resultSet node is an array, so if resultSet node exist, the
+			 * resultSet node is an array, so if resultSet node exists, the
 			 * values are stored in resultSetJSONArray and iterated to retrieve
-			 * each resulSet element and
-			 */
-			logger.info("resultSet exists in JSON");
-			JSONArray resultSetJSONArray = jsonResult.optJSONArray("resultSet");
-			logger.info("Array size" + resultSetJSONArray.length());
+			 * each resultSet element to be mapped to Observation FHIR
+			 */			
+			JSONArray resultSetJSONArray = newJsonResult.optJSONArray("resultSet");			
+			logger.info("*** Method: jsonToObservation | Array size for resultSet in input JSON: " 
+			+ resultSetJSONArray.length() + " ***");
+			
 			for (int i = 0; i < resultSetJSONArray.length(); i++) {
 				JSONObject resultSet = resultSetJSONArray.getJSONObject(i);
-				observationList.addAll(mapping(resultSet, patientId));
+				observationList.addAll(mapObservation(resultSet, patientId));
 			}
 		}
-		logger.info("observationList size: " + observationList.size());
+		logger.info("*** Method: jsonToObservation | observationList size: " + observationList.size() + " ***");
 		return observationList;
 	}
 
 	/**
+	 * This method accepts resultSet and patient Id. resultSet is a JSONObject that contain multiple EHR Observations entries. 
+	 * Entries that corresponds to a similar Observation has same LONIC code suffix like, 3141-9 representing weight observation.
+	 * This method creates a map, where key would be LONIC code and value would be the newly created Observation object(s) from resultSet.
+	 * The method then iterates through the resultSet JSONObject & checks if an object corresponding to the LONIC code in the jsonNode is 
+	 * already created in the map. If not a new entry for that new Observation is created in the map, else the exiting map for that LONIC 
+	 * code is updated with the jsonNode value (only if the value corresponding to the selected jsonNode in the resultSet is not null) 
 	 * 
-	 * @param resultSet
-	 * @param patientId
-	 * @return
+	 * @param resultSet: JSONObject
+	 * @param patientId: String
+	 * @return List<Observation>
 	 * 
 	 * @throws Exception
 	 */
-	public List<Observation> mapping(JSONObject resultSet, String patientId) throws Exception {
+	public List<Observation> mapObservation(JSONObject resultSet, String patientId) throws Exception {
 
-		Map<String, String> codeMap = this.codeMap();
+		Map<String, String> codeMap = codeMap();
 		JSONObject newResultSet = this.prepareResultSet(resultSet);
 		Iterator<?> jsonKeys = newResultSet.keys();
 		Map<String, Observation> obsMap = new HashMap<>();
 		while (jsonKeys.hasNext()) {
 
 			String jsonNode = jsonKeys.next().toString();
-			logger.info("jsonNode = " + jsonNode);
+			logger.info("*** Method: mapObservation | jsonNode = " + jsonNode + " ***");
 			String key = jsonNode.substring(0, jsonNode.lastIndexOf("-"));
+			
+			/* Checks if the Observation key is already present in the map, if yes then set the parameter in the
+			 * corresponding Observation value for the key */
 			if (obsMap.containsKey(key)) {
 				this.setParameters(obsMap, newResultSet, jsonNode, key);
-			} else {
+				
+			} else if(!newResultSet.optString(jsonNode).equals("")){
 				Observation observation = new Observation();
-				logger.info("Adding new Observation for key  = " + key);
+				logger.info("*** Method: mapObservation | Adding new Observation for key  = " + key + " ***");
 				observation.getCode().addCoding(new CodingDt("http://loinc.org", key));
 				observation.getCode().setText(codeMap.get(key));
 				QuantityDt quantity = new QuantityDt();
 				quantity.setValue(0.0);
 				quantity.setUnit("");
 				quantity.setCode("");
+				quantity.setSystem("http://unitsofmeasure.org");
 				observation.setValue(quantity);
 				observation.getSubject().setReference(patientId);
                 observation.setId(String.valueOf(ThreadLocalRandom.current().nextInt()));
@@ -118,11 +136,13 @@ public class OpenEHRConvertor {
 	}
 
 	/**
+	 * This method checks the value of the jsonNode and then sets the parameter of the Observation object
+	 * in obsMap accordingly.
 	 * 
-	 * @param obsMap
-	 * @param json
-	 * @param newjson
-	 * @param key
+	 * @param obsMap: Map<String, Observation>
+	 * @param resultSet: JSONObject
+	 * @param jsonNode: String
+	 * @param key: String
 	 * 
 	 * @throws Exception
 	 */
@@ -131,51 +151,59 @@ public class OpenEHRConvertor {
 
 		QuantityDt quantity = new QuantityDt();
 
+		/* Checks if jsonNode matches the specified format, then maps *date* from OpenEHR to FHIR Observation */
 		if (jsonNode.equals(key + "-date")) {
 			obsMap.get(key).setEffective(new DateTimeDt(resultSet.optString(jsonNode)));
-			logger.info("date of " + key + " = " + resultSet.optString(jsonNode));
+			logger.info("*** Method: setParameters  | Date of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+		
+		/* Checks if jsonNode matches the specified format, then maps *magnitude* from OpenEHR to value in FHIR Observation */
 		} else if (jsonNode.equals(key + "-magnitude")) {
 			String magnitude = resultSet.optString(jsonNode);
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			if (magnitude != null && !magnitude.equals("")) {
 				quantity.setValue(Double.parseDouble(magnitude));
-				logger.info("magitude of " + key + " = " + resultSet.optDouble(jsonNode));
+				logger.info("*** Method: setParameters  | Value of " + key + " = " + resultSet.optDouble(jsonNode) + " ***");
 				obsMap.get(key).setValue(quantity);
 			}
+			
+		/* Checks if jsonNode matches the specified format, then maps *unit* from OpenEHR to FHIR Observation */
 		} else if (jsonNode.equals(key + "-units")) {
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			quantity.setCode(resultSet.optString(jsonNode));
 			quantity.setUnit(resultSet.optString(jsonNode));
-			logger.info("units of " + key + " = " + resultSet.optString(jsonNode));
+			logger.info("*** Method: setParameters  | Units of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+			
+		/* Checks if jsonNode matches the specified format, then, maps *value* from OpenEHR to FHIR Observation */
 		} else if (jsonNode.equals(key + "-value")) {
 			String value = resultSet.optString(jsonNode);
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			if (value != null && !value.equals("")) {
 				quantity.setValue(OpenEHRConvertor.parsePeriodToMonths(value));
-				quantity.setUnit("months");
-				logger.info("value of " + key + " = " + resultSet.optDouble(jsonNode));
+				quantity.setUnit("Months");
 				obsMap.get(key).setValue(quantity);
-			}
-			logger.info("value of " + key + " = " + resultSet.optString(jsonNode));
+				logger.info("*** Method: setParameters  | Value of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+			}	
 		}
 		
 	}
 
 	/**
+	 * This method converts Map<String, Observation> to List<Observation> 
 	 * 
-	 * @param obsMap
-	 * @return
+	 * @param obsMap : Map<String, Observation>
+	 * @return List<Observation>
 	 * @throws Exception
 	 */
 	protected List<Observation> getObservationList(Map<String, Observation> obsMap) throws Exception {
 
 		List<Observation> observationList = new ArrayList<>();
-		logger.info("*** Observations Map readings : ***");
+		logger.info("*** Method: getObservationList | Observations Map readings : ***");
 		for (Map.Entry<String, Observation> obs : obsMap.entrySet()) {
 			observationList.add(obs.getValue());
+			QuantityDt q = (QuantityDt) obs.getValue().getValue();
+			logger.info("---------------------");
 			logger.info("Code: " + obs.getValue().getCode().getCoding().get(0).getCode());
 			logger.info("Text: " + obs.getValue().getCode().getText());
-			QuantityDt q = (QuantityDt) obs.getValue().getValue();
 			logger.info("Magnitude: " + q.getValue());
 			logger.info("Unit Code: " + q.getCode());
 			logger.info("Unit: " + q.getUnit());
@@ -187,30 +215,40 @@ public class OpenEHRConvertor {
 	}
 
 	/**
+	 * This method removes the substring "LONIC_" from the entire JSONObject received from EHR system as input.
+	 * A part of sample response from CDR is like "LONIC_3141_9_magnitude\": 10.9," . So this method removes
+	 * "LONIC_" and returns "3141_9_magnitude\": 10.9,".
+	 * This is done to prepare the JSONObject for efficient mapping to DSTU2 Observation. Once the specified 
+	 * substring is replaced the JSONObject is returned. 
 	 * 
-	 * @param json
-	 * @return
+	 * @param json: JSONObject
+	 * @return JSONObject
 	 * @throws Exception
 	 */
 	protected JSONObject prepareInputJSON(JSONObject json) throws Exception {
 
+		logger.info("*** Method: prepareInputJSON | Input json *** " + json.toString() + " ***");
 		String jsonString = json.toString().replaceAll("LONIC_", "");
-		logger.info("*** Prepared json *** " + jsonString);
+		logger.info("*** Method: prepareInputJSON | Prepared json *** " + jsonString + " ***");
 		JSONObject newJSON = new JSONObject(jsonString);
 		
 		return newJSON;
 	}
 	
 	/**
+	 * This method replaces "_" in the input JSONObject with "-".
+	 * A part of sample response input to this method is like : "3141_9_magnitude\": 10.9,".
+	 * This method converts it to "3141-9-magnitude\": 10.9,". This is done because the 
+	 * standard LONIC code for any observation contains "-", for e.g., 3141-9 stands for weight.
 	 * 
-	 * @param json
-	 * @return
+	 * @param json: JSONObject
+	 * @return JSNObject
 	 * @throws Exception
 	 */
 	protected JSONObject prepareResultSet(JSONObject json) throws Exception {
 		
 		String jsonString = json.toString().replaceAll("_", "-");
-		logger.info("*** Prepared resultSet *** " + jsonString);
+		logger.info("*** Method: prepareResultSet | Prepared resultSet " + jsonString + " ***");
 		JSONObject newJSON = new JSONObject(jsonString);
 		
 		return newJSON;
@@ -219,7 +257,6 @@ public class OpenEHRConvertor {
 	
 	/**
 	 * ISO_8601 : As from Wikipedia
-	 * P6Y
 	 * P[n]Y[n]M[n]DT[n]H[n]M[n]S or P[n]W
 	 * 
 	 *  P is the duration designator (for period) placed at the start of the duration representation.
@@ -233,15 +270,16 @@ public class OpenEHRConvertor {
 	 *	S is the second designator that follows the value for the number of seconds.
 	 *	For example, "P3Y6M4DT12H30M5S" represents a duration of "three years, six months, four days, twelve hours, thirty minutes, and five seconds".
 	 * 
-	 * This method only parse the period till month, i.e. P[n]Y[n]M anything after M is discarded.
-	 * @param value
-	 * @return
+	 * This method only parse the period till month, i.e. P[n]Y[n]M anything after M is discarded. Converts the period 
+	 * into months and return the number of months.
+	 * @param value : String in ISO_8601 format
+	 * @return Double : 
 	 * @throws Exception
 	 */
 	protected static Double parsePeriodToMonths(String value) throws Exception {
 		
-		String period = "";
-		logger.info("value: " + value);
+		String period = ""; 
+		logger.info("*** Method: parsePeriodToMonths | Input period: " + value + " ***");
 		if(value.substring(0,1).equalsIgnoreCase("P"))
 			period = value.substring(1);
 
@@ -267,7 +305,7 @@ public class OpenEHRConvertor {
 		if(duration.get(1) != null && !duration.get(1).equals("")){
 			months = months + (Double.parseDouble(duration.get(1)));
 		}
-		logger.info("Months = " + months);
+		logger.info("*** Method: parsePeriodToMonths | Months = " + months + " ***");
 		return months;
 	}
 	

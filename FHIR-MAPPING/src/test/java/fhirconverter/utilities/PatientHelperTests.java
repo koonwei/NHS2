@@ -27,7 +27,7 @@ public class PatientHelperTests {
 		String nhsIdentifier = helper.retrieveNHSbyId(newRecordID);		
 		
 		OpenEMPIConnector remove = new OpenEMPIConnector();
-		remove.commonRemovePersonById(newRecordID);
+		remove.removePersonById(newRecordID);
 		
 		assertTrue("NHS is correct: ", ("65498798126459873232897".equals(nhsIdentifier)));		
 	}
@@ -47,7 +47,7 @@ public class PatientHelperTests {
 			String nhsIdentifier = helper.retrieveNHSbyId(newRecordID);		
 		}finally{
 			OpenEMPIConnector remove = new OpenEMPIConnector();
-			remove.commonRemovePersonById(newRecordID);
+			remove.removePersonById(newRecordID);
 		}		
 
 	}	
