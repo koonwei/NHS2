@@ -32,6 +32,11 @@ import fhirconverter.exceptions.OpenEMPIAuthenticationException;
 import fhirconverter.exceptions.ResourceNotCreatedException;
 import fhirconverter.exceptions.ResourceNotFoundException;
 
+/**
+ * 
+ * @author Shruti Sinha
+ *
+ */
 public class OpenEMPIConnector {
 
     private static String sessionCode;
