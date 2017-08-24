@@ -1,0 +1,48 @@
+<Patient xmlns="http://hl7.org/fhir">
+  <identifier>
+    <system value="NHS"/>
+    <value value="65498798126459873232897"/>
+  </identifier>
+  <identifier>
+    <system value="SSN"/>
+    <value value="6549879812SDF6459873232897"/>
+  </identifier>
+  <name>
+    <use value="usual"/>
+    <family value="Johnson"/>
+    <given value="John"/>
+    <given value="Andrew"/>
+    <prefix value="Mr"/>
+  </name>
+  <name>
+    <use value="maiden"/>
+    <family value="Sommers"/>
+  </name>
+  <telecom>
+    <system value="email"/>
+    <value value="sommersjohn@gmail.com"/>
+  </telecom>
+  <telecom>
+    <system value="phone"/>
+    <value value="67897545978457"/>
+  </telecom>
+  <gender value="male"/>
+  <birthDate value="1970-09-24"/>
+  <deceasedDateTime value="1982-08-25T07:06:12-04:00"/>
+  <address>
+    <text value="Kings Cross Penton Rise London London 589632 UK"/>
+    <line value="Kings Cross"/>
+    <line value="Penton Rise"/>
+    <city value="London"/>
+    <state value="London"/>
+    <postalCode value="589632"/>
+    <country value="UK"/>
+  </address>
+  <maritalStatus>
+    <coding>
+      <system value="http://hl7.org/fhir/v3/MaritalStatus"/>
+      <code value="D"/>
+    </coding>
+  </maritalStatus>
+  <multipleBirthInteger value="2"/>
+</Patient>
