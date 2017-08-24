@@ -60,7 +60,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
             return retVal;
         } catch (Exception e) {
             LOGGER.info("Exception Caught", e);
-            outcome.addIssue().setDiagnostics("e.getMessage()");
+            outcome.addIssue().setDiagnostics(e.getMessage());
             retVal.setOperationOutcome(outcome);
             return retVal;
         }
