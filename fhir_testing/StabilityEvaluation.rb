@@ -4,6 +4,7 @@ require "test/unit"
 extend Test::Unit::Assertions
 
 length_expected_list = ["177", "82.3", "86.3", "90.1cm"]
+weight_expected_list = ["9.8", "10.9", "11.9", "12.7kg"]
 
 def check_heading_elements(heading, expected_elements)
 	obtained_elements = heading.find_elements(:css, "td")
@@ -31,6 +32,9 @@ driver.find_element(:xpath, '//span[@data-value="table"]').click
 
 length_heading = driver.find_element(:css, "tr.length.heading")
 check_heading_elements(length_heading, length_expected_list)
+
+weight_heading = driver.find_element(:css, "tr.weight.heading")
+check_heading_elements(weight_heading, weight_expected_list)
 
 puts "Data Retrieved Successfully"
 
