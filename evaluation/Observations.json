@@ -1,0 +1,251 @@
+{
+  "resourceType": "Bundle",
+  "id": "c619d548-f45d-43b6-8955-40921c97d13c",
+  "meta": {
+    "lastUpdated": "2017-08-17T17:11:22.281+00:00"
+  },
+  "type": "searchset",
+  "total": 9,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://51.140.111.127:8090/fhir/Observation?_format=json&code=http%3A%2F%2Floinc.org%7C3141-9%2Chttp%3A%2F%2Floinc.org%7C8302-2%2Chttp%3A%2F%2Floinc.org%7C8287-5%2Chttp%3A%2F%2Floinc.org%7C58941-6&patient=2"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-229740677",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-229740677",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3141-9"
+            }
+          ],
+          "text": "Weight"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-02-01T02:20:00Z",
+        "valueQuantity": {
+          "value": 78.5,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-201309967",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-201309967",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8302-2"
+            }
+          ],
+          "text": "Height"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-02-01T02:20:00Z",
+        "valueQuantity": {
+          "value": 9.8,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-685046220",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-685046220",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8287-5"
+            }
+          ],
+          "text": "Head circumference"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-02-01T02:20:00Z",
+        "valueQuantity": {
+          "value": 50.0,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-815170043",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-815170043",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3141-9"
+            }
+          ],
+          "text": "Weight"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-03-02T02:20:00Z",
+        "valueQuantity": {
+          "value": 88.5,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/733668872",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "733668872",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8302-2"
+            }
+          ],
+          "text": "Height"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-03-02T02:20:00Z",
+        "valueQuantity": {
+          "value": 12.8,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-1202465985",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-1202465985",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8287-5"
+            }
+          ],
+          "text": "Head circumference"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-03-02T02:20:00Z",
+        "valueQuantity": {
+          "value": 55.0,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/140693591",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "140693591",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3141-9"
+            }
+          ],
+          "text": "Weight"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-04-03T02:20:00Z",
+        "valueQuantity": {
+          "value": 78.5,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-1161524893",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-1161524893",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8302-2"
+            }
+          ],
+          "text": "Height"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-04-03T02:20:00Z",
+        "valueQuantity": {
+          "value": 26.8,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://51.140.111.127:8090/fhir/Observation/-1915045150",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "-1915045150",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8287-5"
+            }
+          ],
+          "text": "Head circumference"
+        },
+        "subject": {
+          "reference": "2"
+        },
+        "effectiveDateTime": "1957-04-03T02:20:00Z",
+        "valueQuantity": {
+          "value": 56.0,
+          "unit": "cm",
+          "system": "http://unitsofmeasure.org",
+          "code": "cm"
+        }
+      }
+    }
+  ]
+}
