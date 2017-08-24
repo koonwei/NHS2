@@ -3,7 +3,7 @@ require "test/unit"
 
 extend Test::Unit::Assertions
 
-EXPECTED_NUMBER_OF_EXECUTIONS = 1 
+EXPECTED_NUMBER_OF_EXECUTIONS = 2 
 ERROR_MESSAGE = "%{value_type} retrieved by GCA from NHS platform incorrect in execution number %{execution_number}"
 length_expected_list = ["177", "82.3", "86.3", "90.1cm"]
 weight_expected_list = ["9.8", "10.9", "11.9", "12.7kg"]
@@ -51,6 +51,8 @@ begin
 
 	bmi_heading = driver.find_element(:css, "tr.bmi.heading")
 	check_heading_elements(bmi_heading, bmi_expected_list, "Patient BMI")
+
+	driver.quit
 
 end until @number_of_executions.eql? EXPECTED_NUMBER_OF_EXECUTIONS
 
