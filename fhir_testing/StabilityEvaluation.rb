@@ -5,6 +5,7 @@ extend Test::Unit::Assertions
 
 length_expected_list = ["177", "82.3", "86.3", "90.1cm"]
 weight_expected_list = ["9.8", "10.9", "11.9", "12.7kg"]
+head_circ_expected_list = ["50", "52", "52", "52cm"]
 
 def check_heading_elements(heading, expected_elements)
 	obtained_elements = heading.find_elements(:css, "td")
@@ -35,6 +36,9 @@ check_heading_elements(length_heading, length_expected_list)
 
 weight_heading = driver.find_element(:css, "tr.weight.heading")
 check_heading_elements(weight_heading, weight_expected_list)
+
+head_circ_heading = driver.find_element(:css, "tr.headc.heading")
+check_heading_elements(head_circ_heading, head_circ_expected_list)
 
 puts "Data Retrieved Successfully"
 
