@@ -24,7 +24,7 @@ begin
 	@number_of_executions += 1
 
 	driver = Selenium::WebDriver.for :chrome
-	driver.navigate.to "http://51.140.57.74:3000/growth-chart/id/1"
+	driver.navigate.to "http://51.140.111.127:3000/growth-chart/id/1"
 
 	sleep(4)
 
