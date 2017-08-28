@@ -18,6 +18,8 @@ import org.junit.Test;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 
+import junit.framework.Assert;
+
 /**
  * @author Shruti Sinha
  *
@@ -36,7 +38,6 @@ public class PatientEvaluationTest {
 		String createRequest = new String(Files.readAllBytes(Paths.get("resource/PatientFHIRRequest.xml")), "UTF-8");
 		String patientIdHAPI = patientCreateHAPI(createRequest);
 		String patientIdNHS = this.patientCreateNHS(createRequest);
-
 		String readHAPIPatient = "";
 		String readNHSPatient = "";
 
@@ -54,7 +55,7 @@ public class PatientEvaluationTest {
 
 		/* To calculate Growth Chart loss*/
 		float loss = this.calculateLossGCA(readHAPIPatient, readNHSPatient);
-		assert(loss<20);
+		Assert.assertTrue(loss<20);
 		LOGGER.info("Data Loss is less than 20%");
 
 	}
@@ -164,7 +165,7 @@ public class PatientEvaluationTest {
 
 		LOGGER.info("*** No of fields in HAPI FHIR server response that is required by GCA: " + hapiFields + " ***");
 		LOGGER.info("*** No of fields in NHS server response that is required by GCA: " + nHSFields + " ***");
-		LOGGER.info("*** Loss: " + loss + " ***");
+		LOGGER.info("*** Data Loss: " + loss + " ***");
 		return loss;
 
 	}
