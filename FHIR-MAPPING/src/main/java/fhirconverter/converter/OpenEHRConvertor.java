@@ -57,7 +57,7 @@ public class OpenEHRConvertor {
 	 */
 	public List<Observation> jsonToObservation(JSONObject jsonResult) throws Exception {
 
-		logger.info("*** Method: jsonToObservation | input JSON from EHR system: ***" + jsonResult.toString());
+		logger.debug("*** Method: jsonToObservation | input JSON from EHR system: ***" + jsonResult.toString());
 		List<Observation> observationList = new ArrayList<>();
 		String patientId = "";
 		JSONObject newJsonResult = this.prepareInputJSON(jsonResult);
@@ -72,7 +72,7 @@ public class OpenEHRConvertor {
 			 * each resultSet element to be mapped to Observation FHIR
 			 */			
 			JSONArray resultSetJSONArray = newJsonResult.optJSONArray("resultSet");			
-			logger.info("*** Method: jsonToObservation | Array size for resultSet in input JSON: " 
+			logger.debug("*** Method: jsonToObservation | Array size for resultSet in input JSON: " 
 			+ resultSetJSONArray.length() + " ***");
 			
 			for (int i = 0; i < resultSetJSONArray.length(); i++) {
@@ -80,7 +80,7 @@ public class OpenEHRConvertor {
 				observationList.addAll(mapObservation(resultSet, patientId));
 			}
 		}
-		logger.info("*** Method: jsonToObservation | observationList size: " + observationList.size() + " ***");
+		logger.debug("*** Method: jsonToObservation | observationList size: " + observationList.size() + " ***");
 		return observationList;
 	}
 
@@ -107,7 +107,7 @@ public class OpenEHRConvertor {
 		while (jsonKeys.hasNext()) {
 
 			String jsonNode = jsonKeys.next().toString();
-			logger.info("*** Method: mapObservation | jsonNode = " + jsonNode + " ***");
+			logger.debug("*** Method: mapObservation | jsonNode = " + jsonNode + " ***");
 			String key = jsonNode.substring(0, jsonNode.lastIndexOf("-"));
 			
 			/* Checks if the Observation key is already present in the map, if yes then set the parameter in the
@@ -117,7 +117,7 @@ public class OpenEHRConvertor {
 				
 			} else if(!newResultSet.optString(jsonNode).equals("")){
 				Observation observation = new Observation();
-				logger.info("*** Method: mapObservation | Adding new Observation for key  = " + key + " ***");
+				logger.debug("*** Method: mapObservation | Adding new Observation for key  = " + key + " ***");
 				observation.getCode().addCoding(new CodingDt("http://loinc.org", key));
 				observation.getCode().setText(codeMap.get(key));
 				QuantityDt quantity = new QuantityDt();
@@ -154,7 +154,7 @@ public class OpenEHRConvertor {
 		/* Checks if jsonNode matches the specified format, then maps *date* from OpenEHR to FHIR Observation */
 		if (jsonNode.equals(key + "-date")) {
 			obsMap.get(key).setEffective(new DateTimeDt(resultSet.optString(jsonNode)));
-			logger.info("*** Method: setParameters  | Date of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+			logger.debug("*** Method: setParameters  | Date of " + key + " = " + resultSet.optString(jsonNode) + " ***");
 		
 		/* Checks if jsonNode matches the specified format, then maps *magnitude* from OpenEHR to value in FHIR Observation */
 		} else if (jsonNode.equals(key + "-magnitude")) {
@@ -162,7 +162,7 @@ public class OpenEHRConvertor {
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			if (magnitude != null && !magnitude.equals("")) {
 				quantity.setValue(Double.parseDouble(magnitude));
-				logger.info("*** Method: setParameters  | Value of " + key + " = " + resultSet.optDouble(jsonNode) + " ***");
+				logger.debug("*** Method: setParameters  | Value of " + key + " = " + resultSet.optDouble(jsonNode) + " ***");
 				obsMap.get(key).setValue(quantity);
 			}
 			
@@ -171,7 +171,7 @@ public class OpenEHRConvertor {
 			quantity = (QuantityDt) obsMap.get(key).getValue();
 			quantity.setCode(resultSet.optString(jsonNode));
 			quantity.setUnit(resultSet.optString(jsonNode));
-			logger.info("*** Method: setParameters  | Units of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+			logger.debug("*** Method: setParameters  | Units of " + key + " = " + resultSet.optString(jsonNode) + " ***");
 			
 		/* Checks if jsonNode matches the specified format, then, maps *value* from OpenEHR to FHIR Observation */
 		} else if (jsonNode.equals(key + "-value")) {
@@ -181,7 +181,7 @@ public class OpenEHRConvertor {
 				quantity.setValue(OpenEHRConvertor.parsePeriodToMonths(value));
 				quantity.setUnit("Months");
 				obsMap.get(key).setValue(quantity);
-				logger.info("*** Method: setParameters  | Value of " + key + " = " + resultSet.optString(jsonNode) + " ***");
+				logger.debug("*** Method: setParameters  | Value of " + key + " = " + resultSet.optString(jsonNode) + " ***");
 			}	
 		}
 		
@@ -197,19 +197,20 @@ public class OpenEHRConvertor {
 	protected List<Observation> getObservationList(Map<String, Observation> obsMap) throws Exception {
 
 		List<Observation> observationList = new ArrayList<>();
-		logger.info("*** Method: getObservationList | Observations Map readings : ***");
+		logger.debug("*** Method: getObservationList | Observations Map readings : ***");
 		for (Map.Entry<String, Observation> obs : obsMap.entrySet()) {
 			observationList.add(obs.getValue());
 			QuantityDt q = (QuantityDt) obs.getValue().getValue();
-			logger.info("---------------------");
-			logger.info("Code: " + obs.getValue().getCode().getCoding().get(0).getCode());
-			logger.info("Text: " + obs.getValue().getCode().getText());
-			logger.info("Magnitude: " + q.getValue());
-			logger.info("Unit Code: " + q.getCode());
-			logger.info("Unit: " + q.getUnit());
-			logger.info("System: " + q.getSystem());
-			logger.info("Date: " + obs.getValue().getEffective());
-			logger.info("---------------------");
+			logger.debug("---------------------");
+			logger.debug("Code: " + obs.getValue().getCode().getCoding().get(0).getCode());
+			logger.debug("Text: " + obs.getValue().getCode().getText());
+			logger.debug("Magnitude: " + q.getValue());
+			logger.debug("Unit Code: " + q.getCode());
+			logger.debug("Unit: " + q.getUnit());
+			logger.debug("System: " + q.getSystem());
+			logger.debug("Date: " + obs.getValue().getEffective());
+			logger.debug("Patient Id: " + obs.getValue().getSubject().getReference());
+			logger.debug("---------------------");
 		}
 		return observationList;
 	}
@@ -227,9 +228,9 @@ public class OpenEHRConvertor {
 	 */
 	protected JSONObject prepareInputJSON(JSONObject json) throws Exception {
 
-		logger.info("*** Method: prepareInputJSON | Input json *** " + json.toString() + " ***");
+		logger.debug("*** Method: prepareInputJSON | Input json *** " + json.toString() + " ***");
 		String jsonString = json.toString().replaceAll("LONIC_", "");
-		logger.info("*** Method: prepareInputJSON | Prepared json *** " + jsonString + " ***");
+		logger.debug("*** Method: prepareInputJSON | Prepared json *** " + jsonString + " ***");
 		JSONObject newJSON = new JSONObject(jsonString);
 		
 		return newJSON;
@@ -248,7 +249,7 @@ public class OpenEHRConvertor {
 	protected JSONObject prepareResultSet(JSONObject json) throws Exception {
 		
 		String jsonString = json.toString().replaceAll("_", "-");
-		logger.info("*** Method: prepareResultSet | Prepared resultSet " + jsonString + " ***");
+		logger.debug("*** Method: prepareResultSet | Prepared resultSet " + jsonString + " ***");
 		JSONObject newJSON = new JSONObject(jsonString);
 		
 		return newJSON;
@@ -279,7 +280,7 @@ public class OpenEHRConvertor {
 	protected static Double parsePeriodToMonths(String value) throws Exception {
 		
 		String period = ""; 
-		logger.info("*** Method: parsePeriodToMonths | Input period: " + value + " ***");
+		logger.debug("*** Method: parsePeriodToMonths | Input period: " + value + " ***");
 		if(value.substring(0,1).equalsIgnoreCase("P"))
 			period = value.substring(1);
 
@@ -305,7 +306,7 @@ public class OpenEHRConvertor {
 		if(duration.get(1) != null && !duration.get(1).equals("")){
 			months = months + (Double.parseDouble(duration.get(1)));
 		}
-		logger.info("*** Method: parsePeriodToMonths | Months = " + months + " ***");
+		logger.debug("*** Method: parsePeriodToMonths | Months = " + months + " ***");
 		return months;
 	}
 	
