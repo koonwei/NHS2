@@ -6,12 +6,7 @@ package fhirconverter.exceptions;
  */
 public class IdNotObtainedException extends Exception{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 6787973;
-    
-    //private String message;
     
     public IdNotObtainedException(String message) {
            super(message);

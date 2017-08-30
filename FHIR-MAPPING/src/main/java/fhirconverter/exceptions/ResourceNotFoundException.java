@@ -6,9 +6,6 @@ package fhirconverter.exceptions;
  */
 public class ResourceNotFoundException extends ConversionException{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 67879730;
     
     //private String message;

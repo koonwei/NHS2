@@ -32,11 +32,11 @@ public class PatientFHIR {
         }else
             result = caller.searchPersonByAttributes(parameters);
 
-        LOGGER.info("Search Results: " + result);
+        LOGGER.debug("Search Results: " + result);
 
         ConversionOpenEmpiToFHIR converter = new ConversionOpenEmpiToFHIR();
         List<Patient> patients = converter.conversion(result);
-        LOGGER.info("Patients Converted: " + patients);
+        LOGGER.debug("Patients Converted: " + patients);
         return patients;
     }
 
@@ -49,7 +49,7 @@ public class PatientFHIR {
 
         records.put("person", newRecordOpenEMPI);
 
-        LOGGER.info(records);
+        LOGGER.debug(records);
 
         /**
          * For now we don't handle the update of personIdentifiers, so
@@ -99,7 +99,7 @@ public class PatientFHIR {
         }
         if(patched != null)
         {
-            LOGGER.info(patched.toString());
+            LOGGER.debug(patched.toString());
             boolean fhirSchemeRequirements = Utils.validateScheme(patched, "resource/Patient.schema.json");
             if(fhirSchemeRequirements){
                 JSONObject patchedResults = new JSONObject(patched.toString());

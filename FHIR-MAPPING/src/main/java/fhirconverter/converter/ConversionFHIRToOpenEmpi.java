@@ -41,13 +41,13 @@ public class ConversionFHIRToOpenEmpi {
 		
 		
 		/* SET BIRTH ORDER FROM FHIR TO OPENEMPI */		
-		content=checkExistsAndPut(patient.has("multipleBirthInteger"), "multipleBirthInteger", patient,content, "birthOrder", patient.optString("multipleBirthInteger"));
+		content = checkExistsAndPut(patient.has("multipleBirthInteger"), "multipleBirthInteger", patient,content, "birthOrder", patient.optString("multipleBirthInteger"));
 
 		/* SET DEATH TIME FROM FHIR TO OPENEMPI */
-		content=setDeathTime(patient, content);
+		content = setDeathTime(patient, content);
 		
 		/* SET DATE OF BIRTH FROM FHIR TO OPENEMPI */ 
-		content=checkExistsAndPut(patient.has("birthDate"), "birthDate", patient,content, "dateOfBirth", patient.optString("birthDate"));
+		content = checkExistsAndPut(patient.has("birthDate"), "birthDate", patient,content, "dateOfBirth", patient.optString("birthDate"));
 
 		/* SET DATE OF CHANGE FROM FHIR TO OPENEMPI */
 		content = setMetaData(patient, content);
