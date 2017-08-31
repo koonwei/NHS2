@@ -3,7 +3,7 @@ require "test/unit"
 
 extend Test::Unit::Assertions
 
-EXPECTED_NUMBER_OF_EXECUTIONS = 2 
+EXPECTED_NUMBER_OF_EXECUTIONS = 1000 
 ERROR_MESSAGE = "%{value_type} retrieved by GCA from NHS platform incorrect in execution number %{execution_number}"
 length_expected_list = ["177", "82.3", "86.3", "90.1cm"]
 weight_expected_list = ["9.8", "10.9", "11.9", "12.7kg"]
@@ -24,7 +24,7 @@ begin
 	@number_of_executions += 1
 
 	driver = Selenium::WebDriver.for :chrome
-	driver.navigate.to "http://51.140.111.127:3000/growth-chart/id/1"
+	driver.navigate.to "http://51.140.57.74:3000/growth-chart/id/1"
 
 	sleep(4)
 
