@@ -99,7 +99,28 @@ public final class Utils{
 			}
 		}		
 		return connectionCreds;
-	}	
+	}
+	public static HashMap<String,String> getDataBase(){
+		HashMap<String,String> connectionCreds = new HashMap<String,String>();
+		FileReader reader = null;	
+		try {
+			Properties properties = new Properties();		
+			reader = new FileReader("cdrSelection.properties");
+			properties.load(reader);
+			connectionCreds.put("database", properties.getProperty("cdrselection"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally{
+			try{
+				reader.close();
+			}catch (IOException e){
+				e.printStackTrace();
+			}
+		}		
+		return connectionCreds;
+	}	    
 	public static org.json.simple.JSONObject readJsonFile(String fileName){
 		JSONParser parser = new JSONParser();
 		FileReader reader = null;

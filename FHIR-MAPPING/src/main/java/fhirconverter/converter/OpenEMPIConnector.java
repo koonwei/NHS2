@@ -628,7 +628,7 @@ public class OpenEMPIConnector {
      * @throws Exception
      */
     public String loadAllPersons() throws Exception {
-        return loadAllPersons(0, 1000);
+        return loadAllPersons(0, 50000);
     }
 
     /**

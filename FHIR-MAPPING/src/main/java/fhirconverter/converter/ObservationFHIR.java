@@ -4,7 +4,7 @@ import fhirconverter.utilities.PatientHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,8 +16,10 @@ public class ObservationFHIR{
 
 	public List<Observation> search(String patientId, ArrayList<String> searchParams) throws Exception{
 		String nhsNumber = patientHelper.retrieveNHSbyId(patientId);
-		String domainName = "openEhrApi";
+    HashMap<String,String> connectionCreds = Utils.getDataBase();
+		String domainName = connectionCreds.get("database");
 		LOGGER.debug("nhsNumber" + nhsNumber);
+
 		OpenEHRConnector openEHRconnector = new OpenEHRConnector(domainName); // Future developers, Note this line of code is placed here to be thread safe.		
 		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile("aql_path.json");
 		JSONObject aqlJSONObj =  new JSONObject(aqlPaths.toString());
