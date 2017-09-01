@@ -9,9 +9,6 @@ package fhirconverter.exceptions;
  */
 public class ResourceNotCreatedException extends Exception{
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 67879776;
      
     public ResourceNotCreatedException(String message) {

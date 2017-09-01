@@ -1,24 +1,24 @@
 package fhirconverter.fhirservlet;
 
+import java.io.IOException;
+
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.json.JSONObject;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 public class FHIRParser<V> {
 
     private Class<V> valueClass;
     private IParser jsonParser;
     private IParser xmlParser;
-    private static Logger LOGGER = LogManager.getLogger(FHIRParser.class);
+    //private static Logger LOGGER = LogManager.getLogger(FHIRParser.class);
 
     public FHIRParser(Class<V> valueClass){
         FhirContext ctx = FhirContext.forDstu2();

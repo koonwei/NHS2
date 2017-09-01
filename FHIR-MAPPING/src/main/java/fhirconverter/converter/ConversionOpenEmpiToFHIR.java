@@ -48,12 +48,13 @@ public class ConversionOpenEmpiToFHIR {
 	private Logger LOGGER = LogManager.getLogger(ConversionOpenEmpiToFHIR.class);
 
 	protected List<Patient> conversion(String result){
-		JSONObject xmlJSONObj = XML.toJSONObject(result); // converts to jsonobject hashmap
+		/* converts to JSONObject HashMap */
+		JSONObject xmlJSONObj = XML.toJSONObject(result); 
 		List<Patient> patients = new ArrayList<Patient>();
 		if(xmlJSONObj.has("people")) {
 
-            LOGGER.info("optJSONArray: " + xmlJSONObj.optJSONArray("people"));
-            LOGGER.info("optJSONObj: " + xmlJSONObj.optJSONObject("people"));
+            LOGGER.debug("optJSONArray: " + xmlJSONObj.optJSONArray("people"));
+            LOGGER.debug("optJSONObj: " + xmlJSONObj.optJSONObject("people"));
 
             JSONObject people = xmlJSONObj.optJSONObject("people");
 
@@ -62,14 +63,14 @@ public class ConversionOpenEmpiToFHIR {
                 JSONObject person = people.optJSONObject("person");
                 JSONArray personArray = people.optJSONArray("person");
                 if(person != null) {
-                    LOGGER.info("Only One Person: " + person);
+                    LOGGER.debug("Only One Person: " + person);
                     patients.add(personMapping(person));
                 }
                 else if (personArray != null)
                 {
                     for (int i = 0; i < personArray.length(); i++) {
                         JSONObject personData = personArray.getJSONObject(i);
-                        LOGGER.info(i + "th Person: " + personData);
+                        LOGGER.debug(i + "th Person: " + personData);
                         patients.add(personMapping(personData));
                     }
                 }
@@ -141,6 +142,7 @@ public class ConversionOpenEmpiToFHIR {
 			DateTimeDt deceasedDate = new DateTimeDt(node.optString("deathTime"));
 			p.setDeceased(deceasedDate);
 		}
+		
 		return p;
 	}
 

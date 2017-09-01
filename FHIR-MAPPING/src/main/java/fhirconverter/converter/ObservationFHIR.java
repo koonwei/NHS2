@@ -16,22 +16,23 @@ public class ObservationFHIR{
 
 	public List<Observation> search(String patientId, ArrayList<String> searchParams) throws Exception{
 		String nhsNumber = patientHelper.retrieveNHSbyId(patientId);
-        HashMap<String,String> connectionCreds = Utils.getDataBase();
+    HashMap<String,String> connectionCreds = Utils.getDataBase();
 		String domainName = connectionCreds.get("database");
-		LOGGER.info("nhsNumber" + nhsNumber);
+		LOGGER.debug("nhsNumber" + nhsNumber);
+
 		OpenEHRConnector openEHRconnector = new OpenEHRConnector(domainName); // Future developers, Note this line of code is placed here to be thread safe.		
 		org.json.simple.JSONObject aqlPaths = Utils.readJsonFile("aql_path.json");
 		JSONObject aqlJSONObj =  new JSONObject(aqlPaths.toString());
-		LOGGER.info(aqlJSONObj.toString(3));
+		LOGGER.debug(aqlJSONObj.toString(3));
 		String ehrNumber = openEHRconnector.getEHRIdByNhsNumber(nhsNumber);		
 		JSONObject aqlFilteredObj = filterPathsByParams(aqlJSONObj, searchParams);
 		String aqlQuery = constructDynamicAQLquery(ehrNumber,aqlFilteredObj, searchParams);
 		JSONObject observationObj = openEHRconnector.getObservations(aqlQuery);
-		LOGGER.info(observationObj.toString(3));
-		LOGGER.info("observationObj " + observationObj.toString(3));
+		LOGGER.debug(observationObj.toString(3));
+		LOGGER.debug("observationObj " + observationObj.toString(3));
         observationObj.put("patientId", patientId);
 		OpenEHRConvertor openEHRconvertor = new OpenEHRConvertor();
-        LOGGER.info(openEHRconvertor.jsonToObservation(observationObj));
+        LOGGER.debug(openEHRconvertor.jsonToObservation(observationObj));
 		return openEHRconvertor.jsonToObservation(observationObj);
 	}
 
@@ -56,7 +57,7 @@ public class ObservationFHIR{
 		containmentString = containmentString.substring(0, containmentString.length() - 2);
 		containmentString += ")";
 		String constructedAQLString = selectString + fromString + containmentString;
-		LOGGER.info("Select statement "+ constructedAQLString); 
+		LOGGER.debug("Select statement "+ constructedAQLString); 
 		return constructedAQLString;	
 	}
 
@@ -67,7 +68,7 @@ public class ObservationFHIR{
 				filteredPath.put(searchParam, aqlPaths.getJSONObject(searchParam));
 			}
 		}
-		LOGGER.info("FILTERED"+filteredPath.toString(3));
+		LOGGER.debug("FILTERED"+filteredPath.toString(3));
 		return filteredPath;
 	}
 

@@ -93,6 +93,7 @@ public class OpenEMPIConnector {
             BufferedReader in = new BufferedReader(new InputStreamReader(hurl.getInputStream(), "UTF-8"));
             sessionCode = in.readLine();
         } catch (Exception ex) {
+        	LOGGER.debug("Exception: " + ex.getMessage());
             throw new OpenEMPIAuthenticationException("Session Not Validated");
         }
     }
@@ -201,6 +202,7 @@ public class OpenEMPIConnector {
             LOGGER.debug("*** Method: CommonSerachByAttributes Response: " + finalresponse + " ***");
             return finalresponse;
         } catch (Exception ex) {
+        	LOGGER.debug("Method: CommonSerachByAttributes | Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -248,6 +250,7 @@ public class OpenEMPIConnector {
             LOGGER.debug("*** Method: commonSearchPersonById Response: " + response + " ***");
             return response;
         } catch (Exception ex) {
+        	LOGGER.debug("Method: commonSearchPersonById | Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -284,6 +287,7 @@ public class OpenEMPIConnector {
             LOGGER.debug("*** Method: loadPerson Response: " + response + " ***");
             return response;
         } catch (Exception ex) {
+        	LOGGER.debug("Method: loadPerson | Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -307,6 +311,7 @@ public class OpenEMPIConnector {
             }
             return response;
         } catch (Exception ex) {
+        	LOGGER.debug("Method: commonReadPerson | Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -343,6 +348,7 @@ public class OpenEMPIConnector {
             this.addPerson(updateParameter);
             return returnString;
         } catch (Exception ex) {
+        	LOGGER.debug("Method: updatePerson | Exception: " + ex.getMessage());
             throw new ResourceNotCreatedException("Resource Not Created/Updated");
         }
 
@@ -390,7 +396,8 @@ public class OpenEMPIConnector {
             }
             LOGGER.debug("*** Method: commonAddPerson Response: " + response + " ***");
             return response;
-        } catch (Exception e) {
+        } catch (Exception ex) {
+        	LOGGER.debug("Method: commonAddPerson | Exception: " + ex.getMessage());
             throw new ResourceNotCreatedException("Resource Not Created");
         }
     }
@@ -427,6 +434,7 @@ public class OpenEMPIConnector {
             return existingDomainList;
 
         } catch (Exception ex) {
+        	LOGGER.debug("Method: getIdentifierDomains | Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -475,12 +483,13 @@ public class OpenEMPIConnector {
                         response += line;
                     }
                     LOGGER.debug("*** Method: addIdentifier Response: " + response + " ***");
-                    LOGGER.info("*** New Identifier Domain added to OpenEMPI ***");
+                    LOGGER.debug("*** New Identifier Domain added to OpenEMPI ***");
 
                 }
             }
             return "";
         } catch (Exception ex) {
+        	LOGGER.debug("Exception: " + ex.getMessage());
             throw new ResourceNotCreatedException("Resource Not Created");
         }
     }
@@ -524,11 +533,12 @@ public class OpenEMPIConnector {
                 response += line;
             }
             if (("").equals(response)) {
-                LOGGER.info("*** Method: commonDeletePersonById Response: Delete Successful ***");
+                LOGGER.debug("*** Method: commonDeletePersonById Response: Delete Successful ***");
                 return "Delete Successful";
             } else
                 throw new ResourceNotFoundException("Resource Not Found");
         } catch (Exception ex) {
+        	LOGGER.debug("Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -565,11 +575,12 @@ public class OpenEMPIConnector {
                 response += line;
             }
             if (response == "") {
-                LOGGER.info("*** Method: commonRemovePersonById Response: Remove Successful ***");
+                LOGGER.debug("*** Method: commonRemovePersonById Response: Remove Successful ***");
                 return "Remove Successful";
             } else
                 throw new ResourceNotFoundException("Resource Not Found");
         } catch (Exception ex) {
+        	LOGGER.debug("Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -606,6 +617,7 @@ public class OpenEMPIConnector {
             }
             return response;
         } catch (Exception ex) {
+        	LOGGER.debug("Exception: " + ex.getMessage());
             throw new ResourceNotFoundException("Resource Not Found");
         }
     }
@@ -680,7 +692,7 @@ public class OpenEMPIConnector {
     protected List<String> getDomainsNotInOpenEMPI(String parameters) throws Exception {
 
         List<String> existingIdDomains = new ArrayList<String>(this.getIdentifierDomains().keySet());
-        LOGGER.info(existingIdDomains);
+        LOGGER.debug(existingIdDomains);
         List<String> obtainedIdDomains = this.fetchIdDomainsInRequest(parameters);
         List<String> newDomainList = new ArrayList<>();
         for (String item : obtainedIdDomains) {
